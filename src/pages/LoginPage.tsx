@@ -35,15 +35,15 @@ function LoginPage() {
       console.log('Sending login request to:', 'http://localhost:8080/raas/api')
       console.log('Credentials:', { username, password })
 
-      const response = await authService.login({ 
-        username: username.trim(), 
-        password: password.trim() 
+      const response = await authService.login({
+        username: username.trim(),
+        password: password.trim(),
       })
 
       console.log('Login response:', response)
 
-      // Store auth data
-      authService.storeAuthData(response.token, response.user)
+      // Response contains: accessToken, refreshToken, expiresIn, tokenType
+      // authService.login() automatically stores these tokens via storeAuthData()
 
       // Redirect to home page
       navigate('/', { replace: true })
@@ -143,6 +143,21 @@ function LoginPage() {
             </Typography>
             <Typography variant="caption" display="block" sx={{ mb: 1 }}>
               <strong>Endpoint:</strong> POST /auth/login
+            </Typography>
+            <Typography variant="caption" display="block" sx={{ mt: 2 }}>
+              <strong>Expected Response:</strong>
+            </Typography>
+            <Typography variant="caption" display="block" component="pre" sx={{ fontSize: '0.7rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              {JSON.stringify(
+                {
+                  accessToken: 'string',
+                  refreshToken: 'string',
+                  expiresIn: 3600,
+                  tokenType: 'Bearer',
+                },
+                null,
+                2
+              )}
             </Typography>
           </Alert>
         </Box>

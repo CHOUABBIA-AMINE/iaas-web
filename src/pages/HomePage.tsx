@@ -1,3 +1,70 @@
-import{Container,Paper,Typography,Grid,Card,CardContent,Box}from"@mui/material"
-function HomePage(){return(<Container maxWidth="lg"sx={{mt:4,mb:4}}><Paper elevation={3}sx={{p:4,mb:4}}><Typography variant="h3"color="primary">Welcome to RAAS</Typography><Typography variant="body2"color="text.secondary"sx={{mt:1}}>Public Procurement Management System</Typography><Typography variant="body1"sx={{mt:2}}>Manage the complete procurement lifecycle from provider registration to contract execution and amendments.</Typography></Paper><Grid container spacing={3}><Grid item xs={12}md={4}><Card sx={{height:"100%"}}><CardContent><Typography variant="h5"color="primary"gutterBottom>Common</Typography><Typography variant="body2"color="text.secondary">Administration, Documents, Communication</Typography></CardContent></Card></Grid><Grid item xs={12}md={4}><Card sx={{height:"100%"}}><CardContent><Typography variant="h5"color="primary"gutterBottom>Business</Typography><Typography variant="body2"color="text.secondary">Providers, Financial, Procurement</Typography></CardContent></Card></Grid><Grid item xs={12}md={4}><Card sx={{height:"100%"}}><CardContent><Typography variant="h5"color="primary"gutterBottom>Security</Typography><Typography variant="body2"color="text.secondary">Users, Roles, Permissions, Authentication</Typography></CardContent></Card></Grid></Grid></Container>)}
+import {
+  Container,
+  Paper,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+} from '@mui/material'
+
+function HomePage() {
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+        <Typography variant="h3" color="primary">
+          Welcome to RAAS
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          Public Procurement Management System
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Manage the complete procurement lifecycle from provider registration to
+          contract execution and amendments.
+        </Typography>
+      </Paper>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h5" color="primary" gutterBottom>
+                Common
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Administration, Documents, Communication
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h5" color="primary" gutterBottom>
+                Business
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Providers, Financial, Procurement
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h5" color="primary" gutterBottom>
+                Security
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Users, Roles, Permissions, Authentication
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
+  )
+}
+
 export default HomePage
