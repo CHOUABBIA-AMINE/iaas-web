@@ -12,19 +12,77 @@ import {
   Divider,
   Typography,
   ListItemIcon,
+  ListItemText,
 } from '@mui/material'
-import { Person, Language, Logout } from '@mui/icons-material'
+import {
+  Person,
+  Language,
+  Logout,
+  StorageRounded,
+  PersonRounded,
+  DocumentScannerRounded,
+  MailRounded,
+  WorkRounded,
+  AssignmentRounded,
+  SecurityRounded,
+  SettingsRounded,
+} from '@mui/icons-material'
 import authService, { User } from '../../services/authService'
 
 interface MenuItem {
   label: string
   path?: string
   group?: string
+  icon?: React.ReactNode
+}
+
+// Icon mapping for common items
+const CommonIcons: Record<string, React.ReactNode> = {
+  'Administration': <PersonRounded fontSize="small" />,
+  'Documents': <DocumentScannerRounded fontSize="small" />,
+  'Communication': <MailRounded fontSize="small" />,
+  'Structure': <StorageRounded fontSize="small" />,
+  'Job': <WorkRounded fontSize="small" />,
+  'Person': <PersonRounded fontSize="small" />,
+  'Employee': <PersonRounded fontSize="small" />,
+  'ArchiveBox': <StorageRounded fontSize="small" />,
+  'Folder': <DocumentScannerRounded fontSize="small" />,
+  'Document': <DocumentScannerRounded fontSize="small" />,
+  'Mail': <MailRounded fontSize="small" />,
+}
+
+const BusinessIcons: Record<string, React.ReactNode> = {
+  'Providers': <PersonRounded fontSize="small" />,
+  'Provider': <PersonRounded fontSize="small" />,
+  'ProviderRepresentator': <PersonRounded fontSize="small" />,
+  'Clearance': <SecurityRounded fontSize="small" />,
+  'ProviderExclusion': <SecurityRounded fontSize="small" />,
+  'Financial': <AssignmentRounded fontSize="small" />,
+  'FinancialOperation': <AssignmentRounded fontSize="small" />,
+  'BudgetModification': <AssignmentRounded fontSize="small" />,
+  'PlannedItem': <AssignmentRounded fontSize="small" />,
+  'ItemDistribution': <AssignmentRounded fontSize="small" />,
+  'Procurement': <WorkRounded fontSize="small" />,
+  'Consultation': <WorkRounded fontSize="small" />,
+  'Submission': <WorkRounded fontSize="small" />,
+  'Contract': <DocumentScannerRounded fontSize="small" />,
+  'ContractItem': <DocumentScannerRounded fontSize="small" />,
+  'Amendment': <DocumentScannerRounded fontSize="small" />,
+}
+
+const SecurityIcons: Record<string, React.ReactNode> = {
+  'Security': <SecurityRounded fontSize="small" />,
+  'Users': <PersonRounded fontSize="small" />,
+  'Roles': <SecurityRounded fontSize="small" />,
+  'Permissions': <SecurityRounded fontSize="small" />,
+  'Settings': <SettingsRounded fontSize="small" />,
+  'LoginSettings': <SettingsRounded fontSize="small" />,
+  'TwoFactorAuth': <SecurityRounded fontSize="small" />,
+  'SessionManagement': <SettingsRounded fontSize="small" />,
 }
 
 // Flat structure with grouping
 const MENU_DATA: MenuItem[] = [
-  // Common menu items
   { label: 'Structure', path: '/common/structure', group: 'Administration' },
   { label: 'Job', path: '/common/job', group: 'Administration' },
   { label: 'Person', path: '/common/person', group: 'Administration' },
@@ -36,7 +94,6 @@ const MENU_DATA: MenuItem[] = [
 ]
 
 const BUSINESS_MENU_DATA: MenuItem[] = [
-  // Business menu items
   { label: 'Provider', path: '/business/provider', group: 'Providers' },
   { label: 'ProviderRepresentator', path: '/business/representator', group: 'Providers' },
   { label: 'Clearance', path: '/business/clearance', group: 'Providers' },
@@ -53,7 +110,6 @@ const BUSINESS_MENU_DATA: MenuItem[] = [
 ]
 
 const SECURITY_MENU_DATA: MenuItem[] = [
-  // Security menu items
   { label: 'Users', path: '/security/users', group: 'Security' },
   { label: 'Roles', path: '/security/roles', group: 'Security' },
   { label: 'Permissions', path: '/security/permissions', group: 'Security' },
@@ -78,30 +134,37 @@ const groupMenuItems = (items: MenuItem[]): GroupedMenus => {
   return grouped
 }
 
+const getIcon = (label: string, menuType: 'common' | 'business' | 'security'): React.ReactNode => {
+  const iconMap = menuType === 'common' ? CommonIcons : menuType === 'business' ? BusinessIcons : SecurityIcons
+  return iconMap[label] || <StorageRounded fontSize="small" />
+}
+
 interface MenuGroupProps {
   items: MenuItem[]
+  menuType: 'common' | 'business' | 'security'
   onNavigate: (path: string) => void
   onClose: () => void
 }
 
-function MenuGroup({ items, onNavigate, onClose }: MenuGroupProps) {
+function MenuGroup({ items, menuType, onNavigate, onClose }: MenuGroupProps) {
   const grouped = groupMenuItems(items)
   const groupKeys = Object.keys(grouped)
 
   return (
-    <MenuList>
+    <MenuList dense>
       {groupKeys.map((groupKey, groupIndex) => (
         <Box key={groupKey}>
-          {groupIndex > 0 && <Divider />}
+          {groupIndex > 0 && <Divider sx={{ my: 0.5 }} />}
           <ListSubheader
             sx={{
-              fontSize: '0.85rem',
-              fontWeight: 600,
+              fontSize: '0.75rem',
+              fontWeight: 700,
               color: '#2e7d32',
-              py: 1,
-              px: 2,
+              py: 0.75,
+              px: 1.5,
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
+              lineHeight: '1.2',
             }}
           >
             {groupKey}
@@ -114,15 +177,31 @@ function MenuGroup({ items, onNavigate, onClose }: MenuGroupProps) {
                 onClose()
               }}
               sx={{
-                fontSize: '0.95rem',
-                py: 1,
-                pl: 4,
+                py: 0.75,
+                px: 1.5,
+                minHeight: '32px',
+                fontSize: '0.875rem',
                 '&:hover': {
-                  backgroundColor: '#e8f5e9',
+                  backgroundColor: '#f0f7f4',
                 },
               }}
             >
-              {item.label}
+              <ListItemIcon
+                sx={{
+                  minWidth: '32px',
+                  color: '#2e7d32',
+                  fontSize: '1rem',
+                }}
+              >
+                {getIcon(item.label, menuType)}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                }}
+              />
             </MenuItem>
           ))}
         </Box>
@@ -300,13 +379,15 @@ function NestedNavbar() {
                 slotProps={{
                   paper: {
                     sx: {
-                      minWidth: '220px',
+                      minWidth: '280px',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
                     },
                   },
                 }}
               >
                 <MenuGroup
                   items={MENU_DATA}
+                  menuType="common"
                   onNavigate={handleNavigate}
                   onClose={handleMenuClose}
                 />
@@ -346,13 +427,15 @@ function NestedNavbar() {
                 slotProps={{
                   paper: {
                     sx: {
-                      minWidth: '240px',
+                      minWidth: '300px',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
                     },
                   },
                 }}
               >
                 <MenuGroup
                   items={BUSINESS_MENU_DATA}
+                  menuType="business"
                   onNavigate={handleNavigate}
                   onClose={handleMenuClose}
                 />
@@ -392,13 +475,15 @@ function NestedNavbar() {
                 slotProps={{
                   paper: {
                     sx: {
-                      minWidth: '220px',
+                      minWidth: '280px',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
                     },
                   },
                 }}
               >
                 <MenuGroup
                   items={SECURITY_MENU_DATA}
+                  menuType="security"
                   onNavigate={handleNavigate}
                   onClose={handleMenuClose}
                 />
@@ -456,52 +541,104 @@ function NestedNavbar() {
                   vertical: 'top',
                   horizontal: 'right',
                 }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: '220px',
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                    },
+                  },
+                }}
               >
-                <MenuItem
-                  onClick={() => {
-                    handleNavigate('/profile')
-                  }}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: '#e8f5e9',
-                    },
-                  }}
-                >
-                  <ListItemIcon>
-                    <Person fontSize="small" />
-                  </ListItemIcon>
-                  <Typography variant="inherit">Profile</Typography>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    handleNavigate('/language')
-                  }}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: '#e8f5e9',
-                    },
-                  }}
-                >
-                  <ListItemIcon>
-                    <Language fontSize="small" />
-                  </ListItemIcon>
-                  <Typography variant="inherit">Language</Typography>
-                </MenuItem>
-                <Divider />
-                <MenuItem
-                  onClick={handleLogout}
-                  sx={{
-                    color: '#c41c47',
-                    '&:hover': {
-                      backgroundColor: '#ffebee',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'inherit' }}>
-                    <Logout fontSize="small" />
-                  </ListItemIcon>
-                  <Typography variant="inherit">Logout</Typography>
-                </MenuItem>
+                <MenuList dense>
+                  <MenuItem
+                    onClick={() => {
+                      handleNavigate('/profile')
+                    }}
+                    sx={{
+                      py: 0.75,
+                      px: 1.5,
+                      minHeight: '36px',
+                      '&:hover': {
+                        backgroundColor: '#f0f7f4',
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: '32px',
+                        color: '#2e7d32',
+                      }}
+                    >
+                      <Person fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Profile"
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleNavigate('/language')
+                    }}
+                    sx={{
+                      py: 0.75,
+                      px: 1.5,
+                      minHeight: '36px',
+                      '&:hover': {
+                        backgroundColor: '#f0f7f4',
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: '32px',
+                        color: '#2e7d32',
+                      }}
+                    >
+                      <Language fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Language"
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </MenuItem>
+                  <Divider sx={{ my: 0.5 }} />
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{
+                      py: 0.75,
+                      px: 1.5,
+                      minHeight: '36px',
+                      color: '#c41c47',
+                      '&:hover': {
+                        backgroundColor: '#ffebee',
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: '32px',
+                        color: 'inherit',
+                      }}
+                    >
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Logout"
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </MenuItem>
+                </MenuList>
               </Menu>
             </>
           )}
