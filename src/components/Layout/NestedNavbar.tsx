@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   AppBar,
@@ -140,7 +140,6 @@ function NestedNavbar() {
   const [user, setUser] = useState<User | null>(null)
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({})
   const [openMenu, setOpenMenu] = useState<string | null>(null)
-  const closeMenuTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({})
 
   // Initialize on mount and when location changes (after login redirect)
   useEffect(() => {
@@ -176,67 +175,22 @@ function NestedNavbar() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      Object.values(closeMenuTimeoutRef.current).forEach((timeout) => clearTimeout(timeout))
-    }
-  }, [])
-
   const handleMenuOpen = (menuLabel: string) => (
     event: React.MouseEvent<HTMLElement>
   ) => {
-    // Cancel any pending close for this menu
-    if (closeMenuTimeoutRef.current[menuLabel]) {
-      clearTimeout(closeMenuTimeoutRef.current[menuLabel])
-      delete closeMenuTimeoutRef.current[menuLabel]
-    }
-
-    // Close previously open menu immediately
-    if (openMenu && openMenu !== menuLabel) {
-      setAnchorEl((prev) => ({ ...prev, [openMenu]: null }))
-      if (closeMenuTimeoutRef.current[openMenu]) {
-        clearTimeout(closeMenuTimeoutRef.current[openMenu])
-        delete closeMenuTimeoutRef.current[openMenu]
-      }
-    }
-
-    // Open new menu
-    setAnchorEl((prev) => ({ ...prev, [menuLabel]: event.currentTarget }))
+    // Close previous menu and open new one immediately
+    setAnchorEl({ [menuLabel]: event.currentTarget })
     setOpenMenu(menuLabel)
   }
 
-  const handleMenuMouseLeave = (menuLabel: string) => () => {
-    // Set a timeout to close the menu
-    // This allows time to move to the dropdown menu
-    closeMenuTimeoutRef.current[menuLabel] = setTimeout(() => {
-      setAnchorEl((prev) => {
-        const updated = { ...prev }
-        delete updated[menuLabel]
-        return updated
-      })
-      if (openMenu === menuLabel) {
-        setOpenMenu(null)
-      }
-      delete closeMenuTimeoutRef.current[menuLabel]
-    }, 150) // 150ms delay
-  }
-
-  const handleMenuMouseEnter = (menuLabel: string) => () => {
-    // Cancel any pending close for this menu
-    if (closeMenuTimeoutRef.current[menuLabel]) {
-      clearTimeout(closeMenuTimeoutRef.current[menuLabel])
-      delete closeMenuTimeoutRef.current[menuLabel]
-    }
+  const handleMenuClose = () => {
+    setAnchorEl({})
+    setOpenMenu(null)
   }
 
   const handleNavigate = (path: string) => {
     navigate(path)
-    // Cancel all timeouts and close all menus
-    Object.values(closeMenuTimeoutRef.current).forEach((timeout) => clearTimeout(timeout))
-    closeMenuTimeoutRef.current = {}
-    setAnchorEl({})
-    setOpenMenu(null)
+    handleMenuClose()
   }
 
   const handleLogin = () => {
@@ -247,11 +201,7 @@ function NestedNavbar() {
     await authService.logout()
     setIsAuthenticated(false)
     setUser(null)
-    // Cancel all timeouts and close all menus
-    Object.values(closeMenuTimeoutRef.current).forEach((timeout) => clearTimeout(timeout))
-    closeMenuTimeoutRef.current = {}
-    setAnchorEl({})
-    setOpenMenu(null)
+    handleMenuClose()
     navigate('/')
   }
 
@@ -318,10 +268,7 @@ function NestedNavbar() {
             }}
           >
             {/* Common Menu */}
-            <Box
-              onMouseEnter={handleMenuMouseEnter('common')}
-              onMouseLeave={handleMenuMouseLeave('common')}
-            >
+            <Box>
               <Button
                 color="inherit"
                 onMouseEnter={handleMenuOpen('common')}
@@ -341,10 +288,7 @@ function NestedNavbar() {
               <Menu
                 anchorEl={anchorEl['common']}
                 open={Boolean(anchorEl['common'])}
-                onClose={() => {
-                  setAnchorEl((prev) => ({ ...prev, common: null }))
-                  if (openMenu === 'common') setOpenMenu(null)
-                }}
+                onClose={handleMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -353,8 +297,6 @@ function NestedNavbar() {
                   vertical: 'top',
                   horizontal: 'left',
                 }}
-                onMouseEnter={handleMenuMouseEnter('common')}
-                onMouseLeave={handleMenuMouseLeave('common')}
                 slotProps={{
                   paper: {
                     sx: {
@@ -366,19 +308,13 @@ function NestedNavbar() {
                 <MenuGroup
                   items={MENU_DATA}
                   onNavigate={handleNavigate}
-                  onClose={() => {
-                    setAnchorEl((prev) => ({ ...prev, common: null }))
-                    if (openMenu === 'common') setOpenMenu(null)
-                  }}
+                  onClose={handleMenuClose}
                 />
               </Menu>
             </Box>
 
             {/* Business Menu */}
-            <Box
-              onMouseEnter={handleMenuMouseEnter('business')}
-              onMouseLeave={handleMenuMouseLeave('business')}
-            >
+            <Box>
               <Button
                 color="inherit"
                 onMouseEnter={handleMenuOpen('business')}
@@ -398,10 +334,7 @@ function NestedNavbar() {
               <Menu
                 anchorEl={anchorEl['business']}
                 open={Boolean(anchorEl['business'])}
-                onClose={() => {
-                  setAnchorEl((prev) => ({ ...prev, business: null }))
-                  if (openMenu === 'business') setOpenMenu(null)
-                }}
+                onClose={handleMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -410,8 +343,6 @@ function NestedNavbar() {
                   vertical: 'top',
                   horizontal: 'left',
                 }}
-                onMouseEnter={handleMenuMouseEnter('business')}
-                onMouseLeave={handleMenuMouseLeave('business')}
                 slotProps={{
                   paper: {
                     sx: {
@@ -423,19 +354,13 @@ function NestedNavbar() {
                 <MenuGroup
                   items={BUSINESS_MENU_DATA}
                   onNavigate={handleNavigate}
-                  onClose={() => {
-                    setAnchorEl((prev) => ({ ...prev, business: null }))
-                    if (openMenu === 'business') setOpenMenu(null)
-                  }}
+                  onClose={handleMenuClose}
                 />
               </Menu>
             </Box>
 
             {/* Security Menu */}
-            <Box
-              onMouseEnter={handleMenuMouseEnter('security')}
-              onMouseLeave={handleMenuMouseLeave('security')}
-            >
+            <Box>
               <Button
                 color="inherit"
                 onMouseEnter={handleMenuOpen('security')}
@@ -455,10 +380,7 @@ function NestedNavbar() {
               <Menu
                 anchorEl={anchorEl['security']}
                 open={Boolean(anchorEl['security'])}
-                onClose={() => {
-                  setAnchorEl((prev) => ({ ...prev, security: null }))
-                  if (openMenu === 'security') setOpenMenu(null)
-                }}
+                onClose={handleMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
                   horizontal: 'left',
@@ -467,8 +389,6 @@ function NestedNavbar() {
                   vertical: 'top',
                   horizontal: 'left',
                 }}
-                onMouseEnter={handleMenuMouseEnter('security')}
-                onMouseLeave={handleMenuMouseLeave('security')}
                 slotProps={{
                   paper: {
                     sx: {
@@ -480,10 +400,7 @@ function NestedNavbar() {
                 <MenuGroup
                   items={SECURITY_MENU_DATA}
                   onNavigate={handleNavigate}
-                  onClose={() => {
-                    setAnchorEl((prev) => ({ ...prev, security: null }))
-                    if (openMenu === 'security') setOpenMenu(null)
-                  }}
+                  onClose={handleMenuClose}
                 />
               </Menu>
             </Box>
@@ -530,10 +447,7 @@ function NestedNavbar() {
               <Menu
                 anchorEl={anchorEl['user']}
                 open={Boolean(anchorEl['user'])}
-                onClose={() => {
-                  setAnchorEl((prev) => ({ ...prev, user: null }))
-                  if (openMenu === 'user') setOpenMenu(null)
-                }}
+                onClose={handleMenuClose}
                 anchorOrigin={{
                   vertical: 'bottom',
                   horizontal: 'right',
