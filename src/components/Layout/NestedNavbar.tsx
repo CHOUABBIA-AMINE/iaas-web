@@ -139,6 +139,7 @@ function NestedNavbar() {
   )
   const [user, setUser] = useState<User | null>(null)
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({})
+  const [openMenu, setOpenMenu] = useState<string | null>(null)
 
   // Initialize on mount and when location changes (after login redirect)
   useEffect(() => {
@@ -178,15 +179,37 @@ function NestedNavbar() {
     event: React.MouseEvent<HTMLElement>
   ) => {
     setAnchorEl((prev) => ({ ...prev, [menuLabel]: event.currentTarget }))
+    setOpenMenu(menuLabel)
   }
 
-  const handleMenuClose = (menuLabel: string) => () => {
-    setAnchorEl((prev) => ({ ...prev, [menuLabel]: null }))
+  const handleMenuClose = (menuLabel?: string) => () => {
+    if (menuLabel) {
+      setAnchorEl((prev) => ({ ...prev, [menuLabel]: null }))
+      if (openMenu === menuLabel) {
+        setOpenMenu(null)
+      }
+    } else {
+      setAnchorEl({})
+      setOpenMenu(null)
+    }
+  }
+
+  const handleNavItemHover = (menuLabel: string) => (
+    event: React.MouseEvent<HTMLElement>
+  ) => {
+    // Close any previously open menu
+    if (openMenu && openMenu !== menuLabel) {
+      setAnchorEl((prev) => ({ ...prev, [openMenu]: null }))
+    }
+    // Open new menu
+    setAnchorEl((prev) => ({ ...prev, [menuLabel]: event.currentTarget }))
+    setOpenMenu(menuLabel)
   }
 
   const handleNavigate = (path: string) => {
     navigate(path)
-    setAnchorEl({}) // Close all menus
+    setAnchorEl({})
+    setOpenMenu(null)
   }
 
   const handleLogin = () => {
@@ -198,6 +221,7 @@ function NestedNavbar() {
     setIsAuthenticated(false)
     setUser(null)
     setAnchorEl({})
+    setOpenMenu(null)
     navigate('/')
   }
 
@@ -267,8 +291,7 @@ function NestedNavbar() {
             <Box>
               <Button
                 color="inherit"
-                onMouseEnter={handleMenuOpen('common')}
-                onClick={handleMenuOpen('common')}
+                onMouseEnter={handleNavItemHover('common')}
                 sx={{
                   textTransform: 'none',
                   fontSize: '1rem',
@@ -314,8 +337,7 @@ function NestedNavbar() {
             <Box>
               <Button
                 color="inherit"
-                onMouseEnter={handleMenuOpen('business')}
-                onClick={handleMenuOpen('business')}
+                onMouseEnter={handleNavItemHover('business')}
                 sx={{
                   textTransform: 'none',
                   fontSize: '1rem',
@@ -361,8 +383,7 @@ function NestedNavbar() {
             <Box>
               <Button
                 color="inherit"
-                onMouseEnter={handleMenuOpen('security')}
-                onClick={handleMenuOpen('security')}
+                onMouseEnter={handleNavItemHover('security')}
                 sx={{
                   textTransform: 'none',
                   fontSize: '1rem',
@@ -429,8 +450,7 @@ function NestedNavbar() {
             <>
               <Button
                 color="inherit"
-                onMouseEnter={handleMenuOpen('user')}
-                onClick={handleMenuOpen('user')}
+                onMouseEnter={handleNavItemHover('user')}
                 sx={{
                   textTransform: 'none',
                   fontSize: '1rem',
@@ -458,7 +478,9 @@ function NestedNavbar() {
                 }}
               >
                 <MenuItem
-                  onClick={() => handleNavigate('/profile')}
+                  onClick={() => {
+                    handleNavigate('/profile')
+                  }}
                   sx={{
                     '&:hover': {
                       backgroundColor: '#e8f5e9',
@@ -471,7 +493,9 @@ function NestedNavbar() {
                   <Typography variant="inherit">Profile</Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => handleNavigate('/language')}
+                  onClick={() => {
+                    handleNavigate('/language')
+                  }}
                   sx={{
                     '&:hover': {
                       backgroundColor: '#e8f5e9',
