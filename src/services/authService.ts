@@ -82,8 +82,29 @@ class AuthService {
   }
 
   getStoredUser(): User | null {
-    const userStr = localStorage.getItem('user')
-    return userStr ? JSON.parse(userStr) : null
+    try {
+      const userStr = localStorage.getItem('user')
+      if (!userStr) {
+        return null
+      }
+      
+      const user = JSON.parse(userStr)
+      
+      // Validate that user object has required properties
+      if (user && typeof user === 'object' && 'id' in user && 'username' in user) {
+        return user as User
+      }
+      
+      // If user data is invalid, clear it and return null
+      console.warn('Invalid user data in localStorage, clearing...')
+      this.clearAuthData()
+      return null
+    } catch (error) {
+      // If JSON parse fails, clear corrupted data and return null
+      console.error('Error parsing stored user data:', error)
+      this.clearAuthData()
+      return null
+    }
   }
 
   isAuthenticated(): boolean {
