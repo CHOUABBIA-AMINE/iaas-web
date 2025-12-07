@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import authService, { User } from '../../services/authService'
 import './NestedNavbar.css'
 
@@ -13,45 +13,61 @@ const MENU_DATA: MenuItem[] = [
   {
     label: 'Common',
     submenu: [
-      { label: 'Administration', submenu: [
-        { label: 'Structure', path: '/common/structure' },
-        { label: 'Job', path: '/common/job' },
-        { label: 'Person', path: '/common/person' },
-        { label: 'Employee', path: '/common/employee' },
-      ]},
-      { label: 'Documents', submenu: [
-        { label: 'ArchiveBox', path: '/common/archivebox' },
-        { label: 'Folder', path: '/common/folder' },
-        { label: 'Document', path: '/common/document' },
-      ]},
-      { label: 'Communication', submenu: [
-        { label: 'Mail', path: '/common/mail' },
-      ]},
-    ]
+      {
+        label: 'Administration',
+        submenu: [
+          { label: 'Structure', path: '/common/structure' },
+          { label: 'Job', path: '/common/job' },
+          { label: 'Person', path: '/common/person' },
+          { label: 'Employee', path: '/common/employee' },
+        ],
+      },
+      {
+        label: 'Documents',
+        submenu: [
+          { label: 'ArchiveBox', path: '/common/archivebox' },
+          { label: 'Folder', path: '/common/folder' },
+          { label: 'Document', path: '/common/document' },
+        ],
+      },
+      {
+        label: 'Communication',
+        submenu: [{ label: 'Mail', path: '/common/mail' }],
+      },
+    ],
   },
   {
     label: 'Business',
     submenu: [
-      { label: 'Providers', submenu: [
-        { label: 'Provider', path: '/business/provider' },
-        { label: 'ProviderRepresentator', path: '/business/representator' },
-        { label: 'Clearance', path: '/business/clearance' },
-        { label: 'ProviderExclusion', path: '/business/exclusion' },
-      ]},
-      { label: 'Financial', submenu: [
-        { label: 'FinancialOperation', path: '/business/financial' },
-        { label: 'BudgetModification', path: '/business/budget' },
-        { label: 'PlannedItem', path: '/business/planned' },
-        { label: 'ItemDistribution', path: '/business/distribution' },
-      ]},
-      { label: 'Procurement', submenu: [
-        { label: 'Consultation', path: '/business/consultation' },
-        { label: 'Submission', path: '/business/submission' },
-        { label: 'Contract', path: '/business/contract' },
-        { label: 'ContractItem', path: '/business/contractitem' },
-        { label: 'Amendment', path: '/business/amendment' },
-      ]},
-    ]
+      {
+        label: 'Providers',
+        submenu: [
+          { label: 'Provider', path: '/business/provider' },
+          { label: 'ProviderRepresentator', path: '/business/representator' },
+          { label: 'Clearance', path: '/business/clearance' },
+          { label: 'ProviderExclusion', path: '/business/exclusion' },
+        ],
+      },
+      {
+        label: 'Financial',
+        submenu: [
+          { label: 'FinancialOperation', path: '/business/financial' },
+          { label: 'BudgetModification', path: '/business/budget' },
+          { label: 'PlannedItem', path: '/business/planned' },
+          { label: 'ItemDistribution', path: '/business/distribution' },
+        ],
+      },
+      {
+        label: 'Procurement',
+        submenu: [
+          { label: 'Consultation', path: '/business/consultation' },
+          { label: 'Submission', path: '/business/submission' },
+          { label: 'Contract', path: '/business/contract' },
+          { label: 'ContractItem', path: '/business/contractitem' },
+          { label: 'Amendment', path: '/business/amendment' },
+        ],
+      },
+    ],
   },
   {
     label: 'Security',
@@ -62,8 +78,8 @@ const MENU_DATA: MenuItem[] = [
       { label: 'LoginSettings', path: '/security/login-settings' },
       { label: 'TwoFactorAuth', path: '/security/2fa' },
       { label: 'SessionManagement', path: '/security/sessions' },
-    ]
-  }
+    ],
+  },
 ]
 
 interface SubmenuProps {
@@ -74,7 +90,13 @@ interface SubmenuProps {
   onHoverEnd?: () => void
 }
 
-function Submenu({ items, onNavigate, level = 1, onHoverStart, onHoverEnd }: SubmenuProps) {
+function Submenu({
+  items,
+  onNavigate,
+  level = 1,
+  onHoverStart,
+  onHoverEnd,
+}: SubmenuProps) {
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null)
 
   const handleItemHoverEnter = (item: MenuItem) => {
@@ -88,8 +110,8 @@ function Submenu({ items, onNavigate, level = 1, onHoverStart, onHoverEnd }: Sub
   }
 
   return (
-    <div 
-      className="navbar-submenu" 
+    <div
+      className="navbar-submenu"
       data-level={level}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
@@ -111,18 +133,22 @@ function Submenu({ items, onNavigate, level = 1, onHoverStart, onHoverEnd }: Sub
           ) : (
             <span className="navbar-submenu-label">
               {item.label}
-              {item.submenu && item.submenu.length > 0 && <span className="arrow">›</span>}
+              {item.submenu && item.submenu.length > 0 && (
+                <span className="arrow">›</span>
+              )}
             </span>
           )}
-          {item.submenu && item.submenu.length > 0 && activeSubmenu === item.label && (
-            <Submenu 
-              items={item.submenu} 
-              onNavigate={onNavigate} 
-              level={level + 1}
-              onHoverStart={onHoverStart}
-              onHoverEnd={onHoverEnd}
-            />
-          )}
+          {item.submenu &&
+            item.submenu.length > 0 &&
+            activeSubmenu === item.label && (
+              <Submenu
+                items={item.submenu}
+                onNavigate={onNavigate}
+                level={level + 1}
+                onHoverStart={onHoverStart}
+                onHoverEnd={onHoverEnd}
+              />
+            )}
         </div>
       ))}
     </div>
@@ -131,19 +157,40 @@ function Submenu({ items, onNavigate, level = 1, onHoverStart, onHoverEnd }: Sub
 
 function NestedNavbar() {
   const navigate = useNavigate()
-  const [isAuthenticated, setIsAuthenticated] = useState(authService.isAuthenticated())
-  const [user, setUser] = useState<User | null>(authService.getStoredUser())
+  const location = useLocation()
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    authService.isAuthenticated()
+  )
+  const [user, setUser] = useState<User | null>(null)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Initialize on mount and when location changes (after login redirect)
+  useEffect(() => {
+    const updateAuthState = () => {
+      const isAuth = authService.isAuthenticated()
+      setIsAuthenticated(isAuth)
+
+      if (isAuth) {
+        // User data is optional now - we don't require it
+        // Just use username from auth or 'User' as default
+        setUser({ username: 'User' })
+      } else {
+        setUser(null)
+      }
+    }
+
+    updateAuthState()
+  }, [location]) // Re-check auth state when location changes (after login redirect)
+
+  // Listen for storage changes (logout from other tabs)
   useEffect(() => {
     const handleStorageChange = () => {
       const token = authService.getStoredToken()
-      const storedUser = authService.getStoredUser()
 
-      if (token && storedUser) {
+      if (token && !authService.isTokenExpired()) {
         setIsAuthenticated(true)
-        setUser(storedUser)
+        setUser({ username: 'User' })
       } else {
         setIsAuthenticated(false)
         setUser(null)
@@ -202,42 +249,39 @@ function NestedNavbar() {
       <div className="navbar-logo">R</div>
       <div className="navbar-title">RAAS</div>
 
-      <div className="navbar-menus">
-        {MENU_DATA.map((menu) => (
-          <div
-            key={menu.label}
-            className="navbar-menu-item"
-            onMouseEnter={() => handleMenuHoverEnter(menu.label)}
-            onMouseLeave={handleMenuHoverLeave}
-          >
-            <button className="navbar-menu-button">
-              {menu.label}
-            </button>
-            {activeMenu === menu.label && menu.submenu && (
-              <Submenu 
-                items={menu.submenu} 
-                onNavigate={handleNavigate}
-                onHoverStart={handleSubmenuHoverEnter}
-                onHoverEnd={handleSubmenuHoverLeave}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {!isAuthenticated ? (
-        <div className="navbar-user">
-          <div className="navbar-menu-item">
-            <button 
-              className="navbar-menu-button"
-              onClick={handleLogin}
+      {/* Only show menus if user is authenticated */}
+      {isAuthenticated && (
+        <div className="navbar-menus">
+          {MENU_DATA.map((menu) => (
+            <div
+              key={menu.label}
+              className="navbar-menu-item"
+              onMouseEnter={() => handleMenuHoverEnter(menu.label)}
+              onMouseLeave={handleMenuHoverLeave}
             >
+              <button className="navbar-menu-button">{menu.label}</button>
+              {activeMenu === menu.label && menu.submenu && (
+                <Submenu
+                  items={menu.submenu}
+                  onNavigate={handleNavigate}
+                  onHoverStart={handleSubmenuHoverEnter}
+                  onHoverEnd={handleSubmenuHoverLeave}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* User section - show Login or Username depending on auth state */}
+      <div className="navbar-user">
+        {!isAuthenticated ? (
+          <div className="navbar-menu-item">
+            <button className="navbar-menu-button" onClick={handleLogin}>
               Login
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="navbar-user">
+        ) : (
           <div
             className="navbar-menu-item"
             onMouseEnter={() => handleMenuHoverEnter('user')}
@@ -247,7 +291,9 @@ function NestedNavbar() {
               {user?.username || 'User'}
             </button>
             {activeMenu === 'user' && (
-              <div className="navbar-submenu user-submenu" data-level="1"
+              <div
+                className="navbar-submenu user-submenu"
+                data-level="1"
                 onMouseEnter={handleSubmenuHoverEnter}
                 onMouseLeave={handleSubmenuHoverLeave}
               >
@@ -278,8 +324,8 @@ function NestedNavbar() {
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   )
 }
