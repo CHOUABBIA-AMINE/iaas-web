@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   AppBar,
@@ -7,6 +7,8 @@ import {
   Button,
   Menu,
   MenuItem,
+  MenuList,
+  ListSubheader,
   Divider,
   Typography,
   ListItemIcon,
@@ -17,81 +19,117 @@ import authService, { User } from '../../services/authService'
 interface MenuItem {
   label: string
   path?: string
-  submenu?: MenuItem[]
+  group?: string
 }
 
+// Flat structure with grouping
 const MENU_DATA: MenuItem[] = [
-  {
-    label: 'Common',
-    submenu: [
-      {
-        label: 'Administration',
-        submenu: [
-          { label: 'Structure', path: '/common/structure' },
-          { label: 'Job', path: '/common/job' },
-          { label: 'Person', path: '/common/person' },
-          { label: 'Employee', path: '/common/employee' },
-        ],
-      },
-      {
-        label: 'Documents',
-        submenu: [
-          { label: 'ArchiveBox', path: '/common/archivebox' },
-          { label: 'Folder', path: '/common/folder' },
-          { label: 'Document', path: '/common/document' },
-        ],
-      },
-      {
-        label: 'Communication',
-        submenu: [{ label: 'Mail', path: '/common/mail' }],
-      },
-    ],
-  },
-  {
-    label: 'Business',
-    submenu: [
-      {
-        label: 'Providers',
-        submenu: [
-          { label: 'Provider', path: '/business/provider' },
-          { label: 'ProviderRepresentator', path: '/business/representator' },
-          { label: 'Clearance', path: '/business/clearance' },
-          { label: 'ProviderExclusion', path: '/business/exclusion' },
-        ],
-      },
-      {
-        label: 'Financial',
-        submenu: [
-          { label: 'FinancialOperation', path: '/business/financial' },
-          { label: 'BudgetModification', path: '/business/budget' },
-          { label: 'PlannedItem', path: '/business/planned' },
-          { label: 'ItemDistribution', path: '/business/distribution' },
-        ],
-      },
-      {
-        label: 'Procurement',
-        submenu: [
-          { label: 'Consultation', path: '/business/consultation' },
-          { label: 'Submission', path: '/business/submission' },
-          { label: 'Contract', path: '/business/contract' },
-          { label: 'ContractItem', path: '/business/contractitem' },
-          { label: 'Amendment', path: '/business/amendment' },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'Security',
-    submenu: [
-      { label: 'Users', path: '/security/users' },
-      { label: 'Roles', path: '/security/roles' },
-      { label: 'Permissions', path: '/security/permissions' },
-      { label: 'LoginSettings', path: '/security/login-settings' },
-      { label: 'TwoFactorAuth', path: '/security/2fa' },
-      { label: 'SessionManagement', path: '/security/sessions' },
-    ],
-  },
+  // Common menu items
+  { label: 'Structure', path: '/common/structure', group: 'Administration' },
+  { label: 'Job', path: '/common/job', group: 'Administration' },
+  { label: 'Person', path: '/common/person', group: 'Administration' },
+  { label: 'Employee', path: '/common/employee', group: 'Administration' },
+  { label: 'ArchiveBox', path: '/common/archivebox', group: 'Documents' },
+  { label: 'Folder', path: '/common/folder', group: 'Documents' },
+  { label: 'Document', path: '/common/document', group: 'Documents' },
+  { label: 'Mail', path: '/common/mail', group: 'Communication' },
 ]
+
+const BUSINESS_MENU_DATA: MenuItem[] = [
+  // Business menu items
+  { label: 'Provider', path: '/business/provider', group: 'Providers' },
+  { label: 'ProviderRepresentator', path: '/business/representator', group: 'Providers' },
+  { label: 'Clearance', path: '/business/clearance', group: 'Providers' },
+  { label: 'ProviderExclusion', path: '/business/exclusion', group: 'Providers' },
+  { label: 'FinancialOperation', path: '/business/financial', group: 'Financial' },
+  { label: 'BudgetModification', path: '/business/budget', group: 'Financial' },
+  { label: 'PlannedItem', path: '/business/planned', group: 'Financial' },
+  { label: 'ItemDistribution', path: '/business/distribution', group: 'Financial' },
+  { label: 'Consultation', path: '/business/consultation', group: 'Procurement' },
+  { label: 'Submission', path: '/business/submission', group: 'Procurement' },
+  { label: 'Contract', path: '/business/contract', group: 'Procurement' },
+  { label: 'ContractItem', path: '/business/contractitem', group: 'Procurement' },
+  { label: 'Amendment', path: '/business/amendment', group: 'Procurement' },
+]
+
+const SECURITY_MENU_DATA: MenuItem[] = [
+  // Security menu items
+  { label: 'Users', path: '/security/users', group: 'Security' },
+  { label: 'Roles', path: '/security/roles', group: 'Security' },
+  { label: 'Permissions', path: '/security/permissions', group: 'Security' },
+  { label: 'LoginSettings', path: '/security/login-settings', group: 'Settings' },
+  { label: 'TwoFactorAuth', path: '/security/2fa', group: 'Settings' },
+  { label: 'SessionManagement', path: '/security/sessions', group: 'Settings' },
+]
+
+interface GroupedMenus {
+  [key: string]: MenuItem[]
+}
+
+const groupMenuItems = (items: MenuItem[]): GroupedMenus => {
+  const grouped: GroupedMenus = {}
+  items.forEach((item) => {
+    const group = item.group || 'Other'
+    if (!grouped[group]) {
+      grouped[group] = []
+    }
+    grouped[group].push(item)
+  })
+  return grouped
+}
+
+interface MenuGroupProps {
+  items: MenuItem[]
+  onNavigate: (path: string) => void
+  onClose: () => void
+}
+
+function MenuGroup({ items, onNavigate, onClose }: MenuGroupProps) {
+  const grouped = groupMenuItems(items)
+  const groupKeys = Object.keys(grouped)
+
+  return (
+    <MenuList>
+      {groupKeys.map((groupKey, groupIndex) => (
+        <Box key={groupKey}>
+          {groupIndex > 0 && <Divider />}
+          <ListSubheader
+            sx={{
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              color: '#2e7d32',
+              py: 1,
+              px: 2,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}
+          >
+            {groupKey}
+          </ListSubheader>
+          {grouped[groupKey].map((item) => (
+            <MenuItem
+              key={item.label}
+              onClick={() => {
+                onNavigate(item.path!)
+                onClose()
+              }}
+              sx={{
+                fontSize: '0.95rem',
+                py: 1,
+                pl: 4,
+                '&:hover': {
+                  backgroundColor: '#e8f5e9',
+                },
+              }}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+        </Box>
+      ))}
+    </MenuList>
+  )
+}
 
 function NestedNavbar() {
   const navigate = useNavigate()
@@ -163,72 +201,6 @@ function NestedNavbar() {
     navigate('/')
   }
 
-  const renderSubmenu = (items: MenuItem[], level: number = 1) => {
-    return items.map((item) => (
-      <Box key={item.label}>
-        {item.path ? (
-          <MenuItem
-            onClick={() => handleNavigate(item.path!)}
-            sx={{
-              fontSize: '0.95rem',
-              py: 1,
-              '&:hover': {
-                backgroundColor: '#e8f5e9',
-              },
-            }}
-          >
-            {item.label}
-          </MenuItem>
-        ) : (
-          <>
-            <MenuItem
-              onMouseEnter={handleMenuOpen(item.label)}
-              onClick={handleMenuOpen(item.label)}
-              sx={{
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                backgroundColor: '#f5f5f5',
-                py: 1,
-                '&:hover': {
-                  backgroundColor: '#eeeeee',
-                },
-              }}
-            >
-              <Typography variant="inherit" sx={{ flex: 1 }}>
-                {item.label}
-              </Typography>
-              {item.submenu && item.submenu.length > 0 && (
-                <Typography variant="caption" sx={{ ml: 1 }}>
-                  ›
-                </Typography>
-              )}
-            </MenuItem>
-            {item.submenu && item.submenu.length > 0 && (
-              <Menu
-                anchorEl={anchorEl[item.label]}
-                open={Boolean(anchorEl[item.label])}
-                onClose={handleMenuClose(item.label)}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                sx={{
-                  ml: 1,
-                }}
-              >
-                {renderSubmenu(item.submenu, level + 1)}
-              </Menu>
-            )}
-          </>
-        )}
-      </Box>
-    ))
-  }
-
   return (
     <AppBar
       position="fixed"
@@ -291,47 +263,146 @@ function NestedNavbar() {
               justifyContent: 'center',
             }}
           >
-            {MENU_DATA.map((menu) => (
-              <Box key={menu.label}>
-                <Button
-                  color="inherit"
-                  onMouseEnter={handleMenuOpen(menu.label)}
-                  onClick={handleMenuOpen(menu.label)}
-                  sx={{
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1,
-                    px: 2,
-                    borderRadius: 1,
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            {/* Common Menu */}
+            <Box>
+              <Button
+                color="inherit"
+                onMouseEnter={handleMenuOpen('common')}
+                onClick={handleMenuOpen('common')}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  },
+                }}
+              >
+                Common
+              </Button>
+              <Menu
+                anchorEl={anchorEl['common']}
+                open={Boolean(anchorEl['common'])}
+                onClose={handleMenuClose('common')}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: '220px',
                     },
-                  }}
-                >
-                  {menu.label}
-                </Button>
-                {menu.submenu && (
-                  <Menu
-                    anchorEl={anchorEl[menu.label]}
-                    open={Boolean(anchorEl[menu.label])}
-                    onClose={handleMenuClose(menu.label)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left',
-                    }}
-                    sx={{
-                      mt: 1,
-                    }}
-                  >
-                    {renderSubmenu(menu.submenu)}
-                  </Menu>
-                )}
-              </Box>
-            ))}
+                  },
+                }}
+              >
+                <MenuGroup
+                  items={MENU_DATA}
+                  onNavigate={handleNavigate}
+                  onClose={handleMenuClose('common')}
+                />
+              </Menu>
+            </Box>
+
+            {/* Business Menu */}
+            <Box>
+              <Button
+                color="inherit"
+                onMouseEnter={handleMenuOpen('business')}
+                onClick={handleMenuOpen('business')}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  },
+                }}
+              >
+                Business
+              </Button>
+              <Menu
+                anchorEl={anchorEl['business']}
+                open={Boolean(anchorEl['business'])}
+                onClose={handleMenuClose('business')}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: '240px',
+                    },
+                  },
+                }}
+              >
+                <MenuGroup
+                  items={BUSINESS_MENU_DATA}
+                  onNavigate={handleNavigate}
+                  onClose={handleMenuClose('business')}
+                />
+              </Menu>
+            </Box>
+
+            {/* Security Menu */}
+            <Box>
+              <Button
+                color="inherit"
+                onMouseEnter={handleMenuOpen('security')}
+                onClick={handleMenuOpen('security')}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  },
+                }}
+              >
+                Security
+              </Button>
+              <Menu
+                anchorEl={anchorEl['security']}
+                open={Boolean(anchorEl['security'])}
+                onClose={handleMenuClose('security')}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      minWidth: '220px',
+                    },
+                  },
+                }}
+              >
+                <MenuGroup
+                  items={SECURITY_MENU_DATA}
+                  onNavigate={handleNavigate}
+                  onClose={handleMenuClose('security')}
+                />
+              </Menu>
+            </Box>
           </Box>
         )}
 
