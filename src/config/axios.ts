@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8080/raas/api'
+const API_BASE_URL = 'http://localhost:8080/iaas/api'
 
 console.log('Axios baseURL configured to:', API_BASE_URL)
 
