@@ -10,9 +10,17 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "strict": true
+    "strict": true,
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
   ]
 }
