@@ -1,4 +1,4 @@
-# RAAS Application v5.0
+# IAAS Web v1.0
 
 Public Procurement Management System - Production Ready
 
@@ -13,7 +13,7 @@ Visit http://localhost:3000
 
 ## Backend Configuration
 
-The application sends POST requests to: `http://localhost:8080/raas/api/auth/login`
+The application sends POST requests to: `http://localhost:8080/iaas/api/auth/login`
 
 Make sure your backend is running before attempting to login.
 
