@@ -1,7 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+  Divider,
+  Typography,
+  ListItemIcon,
+} from '@mui/material'
+import { Person, Language, Logout } from '@mui/icons-material'
 import authService, { User } from '../../services/authService'
-import './NestedNavbar.css'
 
 interface MenuItem {
   label: string
@@ -82,79 +93,6 @@ const MENU_DATA: MenuItem[] = [
   },
 ]
 
-interface SubmenuProps {
-  items: MenuItem[]
-  onNavigate: (path: string) => void
-  level?: number
-  onHoverStart?: () => void
-  onHoverEnd?: () => void
-}
-
-function Submenu({
-  items,
-  onNavigate,
-  level = 1,
-  onHoverStart,
-  onHoverEnd,
-}: SubmenuProps) {
-  const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null)
-
-  const handleItemHoverEnter = (item: MenuItem) => {
-    if (item.submenu && item.submenu.length > 0) {
-      setActiveSubmenu(item.label)
-    }
-  }
-
-  const handleItemHoverLeave = () => {
-    setActiveSubmenu(null)
-  }
-
-  return (
-    <div
-      className="navbar-submenu"
-      data-level={level}
-      onMouseEnter={onHoverStart}
-      onMouseLeave={onHoverEnd}
-    >
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className="navbar-submenu-item"
-          onMouseEnter={() => handleItemHoverEnter(item)}
-          onMouseLeave={handleItemHoverLeave}
-        >
-          {item.path ? (
-            <button
-              onClick={() => onNavigate(item.path!)}
-              className="navbar-submenu-link"
-            >
-              {item.label}
-            </button>
-          ) : (
-            <span className="navbar-submenu-label">
-              {item.label}
-              {item.submenu && item.submenu.length > 0 && (
-                <span className="arrow">›</span>
-              )}
-            </span>
-          )}
-          {item.submenu &&
-            item.submenu.length > 0 &&
-            activeSubmenu === item.label && (
-              <Submenu
-                items={item.submenu}
-                onNavigate={onNavigate}
-                level={level + 1}
-                onHoverStart={onHoverStart}
-                onHoverEnd={onHoverEnd}
-              />
-            )}
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function NestedNavbar() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -162,8 +100,7 @@ function NestedNavbar() {
     authService.isAuthenticated()
   )
   const [user, setUser] = useState<User | null>(null)
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({})
 
   // Initialize on mount and when location changes (after login redirect)
   useEffect(() => {
@@ -172,8 +109,6 @@ function NestedNavbar() {
       setIsAuthenticated(isAuth)
 
       if (isAuth) {
-        // User data is optional now - we don't require it
-        // Just use username from auth or 'User' as default
         setUser({ username: 'User' })
       } else {
         setUser(null)
@@ -181,7 +116,7 @@ function NestedNavbar() {
     }
 
     updateAuthState()
-  }, [location]) // Re-check auth state when location changes (after login redirect)
+  }, [location])
 
   // Listen for storage changes (logout from other tabs)
   useEffect(() => {
@@ -201,132 +136,303 @@ function NestedNavbar() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  const handleMenuHoverEnter = (menuLabel: string) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current)
-    }
-    setActiveMenu(menuLabel)
+  const handleMenuOpen = (menuLabel: string) => (
+    event: React.MouseEvent<HTMLElement>
+  ) => {
+    setAnchorEl((prev) => ({ ...prev, [menuLabel]: event.currentTarget }))
   }
 
-  const handleMenuHoverLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setActiveMenu(null)
-    }, 150)
-  }
-
-  const handleSubmenuHoverEnter = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current)
-    }
-  }
-
-  const handleSubmenuHoverLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setActiveMenu(null)
-    }, 150)
+  const handleMenuClose = (menuLabel: string) => () => {
+    setAnchorEl((prev) => ({ ...prev, [menuLabel]: null }))
   }
 
   const handleNavigate = (path: string) => {
     navigate(path)
-    setActiveMenu(null)
+    setAnchorEl({}) // Close all menus
   }
 
   const handleLogin = () => {
     navigate('/login')
-    setActiveMenu(null)
   }
 
   const handleLogout = async () => {
     await authService.logout()
     setIsAuthenticated(false)
     setUser(null)
-    setActiveMenu(null)
+    setAnchorEl({})
     navigate('/')
   }
 
-  return (
-    <nav className="navbar">
-      <div className="navbar-logo">R</div>
-      <div className="navbar-title">RAAS</div>
-
-      {/* Only show menus if user is authenticated */}
-      {isAuthenticated && (
-        <div className="navbar-menus">
-          {MENU_DATA.map((menu) => (
-            <div
-              key={menu.label}
-              className="navbar-menu-item"
-              onMouseEnter={() => handleMenuHoverEnter(menu.label)}
-              onMouseLeave={handleMenuHoverLeave}
-            >
-              <button className="navbar-menu-button">{menu.label}</button>
-              {activeMenu === menu.label && menu.submenu && (
-                <Submenu
-                  items={menu.submenu}
-                  onNavigate={handleNavigate}
-                  onHoverStart={handleSubmenuHoverEnter}
-                  onHoverEnd={handleSubmenuHoverLeave}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* User section - show Login or Username depending on auth state */}
-      <div className="navbar-user">
-        {!isAuthenticated ? (
-          <div className="navbar-menu-item">
-            <button className="navbar-menu-button" onClick={handleLogin}>
-              Login
-            </button>
-          </div>
-        ) : (
-          <div
-            className="navbar-menu-item"
-            onMouseEnter={() => handleMenuHoverEnter('user')}
-            onMouseLeave={handleMenuHoverLeave}
+  const renderSubmenu = (items: MenuItem[], level: number = 1) => {
+    return items.map((item) => (
+      <Box key={item.label}>
+        {item.path ? (
+          <MenuItem
+            onClick={() => handleNavigate(item.path!)}
+            sx={{
+              fontSize: '0.95rem',
+              py: 1,
+              '&:hover': {
+                backgroundColor: '#e8f5e9',
+              },
+            }}
           >
-            <button className="navbar-menu-button">
-              {user?.username || 'User'}
-            </button>
-            {activeMenu === 'user' && (
-              <div
-                className="navbar-submenu user-submenu"
-                data-level="1"
-                onMouseEnter={handleSubmenuHoverEnter}
-                onMouseLeave={handleSubmenuHoverLeave}
+            {item.label}
+          </MenuItem>
+        ) : (
+          <>
+            <MenuItem
+              onMouseEnter={handleMenuOpen(item.label)}
+              onClick={handleMenuOpen(item.label)}
+              sx={{
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                backgroundColor: '#f5f5f5',
+                py: 1,
+                '&:hover': {
+                  backgroundColor: '#eeeeee',
+                },
+              }}
+            >
+              <Typography variant="inherit" sx={{ flex: 1 }}>
+                {item.label}
+              </Typography>
+              {item.submenu && item.submenu.length > 0 && (
+                <Typography variant="caption" sx={{ ml: 1 }}>
+                  ›
+                </Typography>
+              )}
+            </MenuItem>
+            {item.submenu && item.submenu.length > 0 && (
+              <Menu
+                anchorEl={anchorEl[item.label]}
+                open={Boolean(anchorEl[item.label])}
+                onClose={handleMenuClose(item.label)}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                sx={{
+                  ml: 1,
+                }}
               >
-                <div className="navbar-submenu-item">
-                  <button
-                    onClick={() => handleNavigate('/profile')}
-                    className="navbar-submenu-link"
-                  >
-                    Profile
-                  </button>
-                </div>
-                <div className="navbar-submenu-item">
-                  <button
-                    onClick={() => handleNavigate('/language')}
-                    className="navbar-submenu-link"
-                  >
-                    Language
-                  </button>
-                </div>
-                <div className="navbar-submenu-item">
-                  <button
-                    onClick={handleLogout}
-                    className="navbar-submenu-link logout"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
+                {renderSubmenu(item.submenu, level + 1)}
+              </Menu>
             )}
-          </div>
+          </>
         )}
-      </div>
-    </nav>
+      </Box>
+    ))
+  }
+
+  return (
+    <AppBar
+      position="fixed"
+      sx={{
+        bgcolor: '#2e7d32',
+        zIndex: 1400,
+      }}
+    >
+      <Toolbar
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        {/* Logo and Title */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: 'white',
+              color: '#2e7d32',
+              borderRadius: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              fontSize: '1.25rem',
+            }}
+          >
+            R
+          </Box>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              color: 'white',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            RAAS
+          </Typography>
+        </Box>
+
+        {/* Menus - Only show if authenticated */}
+        {isAuthenticated && (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+            }}
+          >
+            {MENU_DATA.map((menu) => (
+              <Box key={menu.label}>
+                <Button
+                  color="inherit"
+                  onMouseEnter={handleMenuOpen(menu.label)}
+                  onClick={handleMenuOpen(menu.label)}
+                  sx={{
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    py: 1,
+                    px: 2,
+                    borderRadius: 1,
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    },
+                  }}
+                >
+                  {menu.label}
+                </Button>
+                {menu.submenu && (
+                  <Menu
+                    anchorEl={anchorEl[menu.label]}
+                    open={Boolean(anchorEl[menu.label])}
+                    onClose={handleMenuClose(menu.label)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                    sx={{
+                      mt: 1,
+                    }}
+                  >
+                    {renderSubmenu(menu.submenu)}
+                  </Menu>
+                )}
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {/* User Section */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          {!isAuthenticated ? (
+            <Button
+              color="inherit"
+              onClick={handleLogin}
+              sx={{
+                textTransform: 'none',
+                fontSize: '1rem',
+                py: 1,
+                px: 2,
+                borderRadius: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                },
+              }}
+            >
+              Login
+            </Button>
+          ) : (
+            <>
+              <Button
+                color="inherit"
+                onMouseEnter={handleMenuOpen('user')}
+                onClick={handleMenuOpen('user')}
+                sx={{
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 1,
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  },
+                }}
+              >
+                {user?.username || 'User'}
+              </Button>
+              <Menu
+                anchorEl={anchorEl['user']}
+                open={Boolean(anchorEl['user'])}
+                onClose={handleMenuClose('user')}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <MenuItem
+                  onClick={() => handleNavigate('/profile')}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#e8f5e9',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <Person fontSize="small" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Profile</Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => handleNavigate('/language')}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#e8f5e9',
+                    },
+                  }}
+                >
+                  <ListItemIcon>
+                    <Language fontSize="small" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Language</Typography>
+                </MenuItem>
+                <Divider />
+                <MenuItem
+                  onClick={handleLogout}
+                  sx={{
+                    color: '#c41c47',
+                    '&:hover': {
+                      backgroundColor: '#ffebee',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'inherit' }}>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Logout</Typography>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   )
 }
 
