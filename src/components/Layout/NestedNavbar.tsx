@@ -272,6 +272,10 @@ function NestedNavbar() {
     handleMenuClose()
   }
 
+  const handleLogoClick = () => {
+    navigate('/')
+  }
+
   const handleLogin = () => {
     navigate('/login')
   }
@@ -299,12 +303,18 @@ function NestedNavbar() {
           alignItems: 'center',
         }}
       >
-        {/* Logo and Title */}
+        {/* Logo and Title - Clickable */}
         <Box
+          onClick={handleLogoClick}
           sx={{
             display: 'flex',
             alignItems: 'center',
             gap: 2,
+            cursor: 'pointer',
+            transition: 'opacity 0.2s ease',
+            '&:hover': {
+              opacity: 0.8,
+            },
           }}
         >
           <Box
