@@ -367,6 +367,8 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
+                  position: 'relative',
+                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -391,7 +393,7 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      zIndex: 1401,
+                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -416,6 +418,8 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
+                  position: 'relative',
+                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -440,7 +444,7 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '300px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      zIndex: 1401,
+                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -465,6 +469,8 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
+                  position: 'relative',
+                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -489,7 +495,7 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      zIndex: 1401,
+                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -535,6 +541,8 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
+                  position: 'relative',
+                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -559,7 +567,7 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '220px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      zIndex: 1401,
+                      pointerEvents: 'auto',
                     },
                   },
                 }}
