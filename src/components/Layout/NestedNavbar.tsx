@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   AppBar,
@@ -219,6 +219,7 @@ function NestedNavbar() {
   const [user, setUser] = useState<User | null>(null)
   const [anchorEl, setAnchorEl] = useState<Record<string, HTMLElement | null>>({})
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Initialize on mount and when location changes (after login redirect)
   useEffect(() => {
@@ -254,15 +255,50 @@ function NestedNavbar() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const handleMenuOpen = (menuLabel: string) => (
     event: React.MouseEvent<HTMLElement>
   ) => {
+    // Cancel any pending close
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
     // Close previous menu and open new one immediately
     setAnchorEl({ [menuLabel]: event.currentTarget })
     setOpenMenu(menuLabel)
   }
 
+  const handleMenuLeave = () => {
+    // Delay closing to allow moving between navbar items
+    closeTimeoutRef.current = setTimeout(() => {
+      setAnchorEl({})
+      setOpenMenu(null)
+      closeTimeoutRef.current = null
+    }, 200)
+  }
+
+  const handleMenuEnter = () => {
+    // Cancel close timeout if hovering back over menu
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+  }
+
   const handleMenuClose = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
     setAnchorEl({})
     setOpenMenu(null)
   }
@@ -355,6 +391,8 @@ function NestedNavbar() {
               flex: 1,
               justifyContent: 'center',
             }}
+            onMouseLeave={handleMenuLeave}
+            onMouseEnter={handleMenuEnter}
           >
             {/* Common Menu */}
             <Box>
@@ -367,8 +405,6 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
-                  position: 'relative',
-                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -393,7 +429,6 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -418,8 +453,6 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
-                  position: 'relative',
-                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -444,7 +477,6 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '300px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -469,8 +501,6 @@ function NestedNavbar() {
                   py: 1,
                   px: 2,
                   borderRadius: 1,
-                  position: 'relative',
-                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -495,7 +525,6 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      pointerEvents: 'auto',
                     },
                   },
                 }}
@@ -535,14 +564,13 @@ function NestedNavbar() {
               <Button
                 color="inherit"
                 onMouseEnter={handleMenuOpen('user')}
+                onMouseLeave={handleMenuLeave}
                 sx={{
                   textTransform: 'none',
                   fontSize: '1rem',
                   py: 1,
                   px: 2,
                   borderRadius: 1,
-                  position: 'relative',
-                  zIndex: 1301,
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
                   },
@@ -567,7 +595,6 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '220px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
-                      pointerEvents: 'auto',
                     },
                   },
                 }}
