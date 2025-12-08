@@ -29,6 +29,9 @@ import {
   Search,
   Download,
 } from '@mui/icons-material'
+import * as XLSX from 'xlsx'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import authService from '../../services/authService'
 
 interface User {
@@ -57,14 +60,14 @@ function UserList() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5) // Default changed to 5
+  const [rowsPerPage, setRowsPerPage] = useState(5)
   const [sort, setSort] = useState<SortState>({
     field: 'username',
     order: 'asc',
   })
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null)
 
-  // Mock data generator - replace with actual API call
+  // Mock data generator
   const generateMockUsers = (): User[] => {
     const mockUsers: User[] = [
       {
@@ -184,14 +187,6 @@ function UserList() {
     setLoading(true)
     setError(null)
     try {
-      // Replace with actual API call
-      // const response = await fetch('/api/security/users', {
-      //   headers: { Authorization: `Bearer ${authService.getStoredToken()}` }
-      // })
-      // const data = await response.json()
-      // setUsers(data)
-
-      // Using mock data for now
       const mockUsers = generateMockUsers()
       setUsers(mockUsers)
     } catch (err) {
@@ -201,7 +196,6 @@ function UserList() {
     }
   }, [])
 
-  // Initial fetch
   useEffect(() => {
     fetchUsers()
   }, [])
@@ -213,7 +207,6 @@ function UserList() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    // Sort
     filtered.sort((a, b) => {
       let aVal: any
       let bVal: any
@@ -246,7 +239,7 @@ function UserList() {
     })
 
     setFilteredUsers(filtered)
-    setPage(0) // Reset to first page when filtering
+    setPage(0)
   }, [users, searchTerm, sort])
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,13 +262,11 @@ function UserList() {
 
   const handleSort = (field: SortField) => {
     if (sort.field === field) {
-      // Toggle sort order
       setSort({
         field,
         order: sort.order === 'asc' ? 'desc' : 'asc',
       })
     } else {
-      // Change sort field
       setSort({
         field,
         order: 'asc',
@@ -339,17 +330,111 @@ function UserList() {
   }
 
   const exportToXLSX = () => {
-    // Note: Requires xlsx library: npm install xlsx
-    // For now, showing placeholder
-    alert('XLSX export requires xlsx library installation.\nRun: npm install xlsx')
-    handleExportClose()
+    try {
+      // Prepare data for Excel
+      const data = filteredUsers.map((user) => ({
+        ID: user.id,
+        Username: user.username,
+        Email: user.email,
+        Enabled: user.enabled ? 'Yes' : 'No',
+        Locked: user.locked ? 'Yes' : 'No',
+        Created: new Date(user.createdAt).toLocaleString(),
+        'Last Login': user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-',
+      }))
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(data)
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 8 },  // ID
+        { wch: 20 }, // Username
+        { wch: 30 }, // Email
+        { wch: 10 }, // Enabled
+        { wch: 10 }, // Locked
+        { wch: 25 }, // Created
+        { wch: 25 }, // Last Login
+      ]
+      worksheet['!cols'] = columnWidths
+
+      // Create workbook
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Users')
+
+      // Generate file
+      const fileName = `users_${new Date().toISOString().split('T')[0]}.xlsx`
+      XLSX.writeFile(workbook, fileName)
+
+      handleExportClose()
+    } catch (error) {
+      console.error('XLSX export error:', error)
+      alert('Failed to export XLSX file. Please try again.')
+    }
   }
 
   const exportToPDF = () => {
-    // Note: Requires jspdf and jspdf-autotable libraries
-    // For now, showing placeholder
-    alert('PDF export requires jspdf library installation.\nRun: npm install jspdf jspdf-autotable')
-    handleExportClose()
+    try {
+      // Create PDF document
+      const doc = new jsPDF()
+
+      // Add title
+      doc.setFontSize(18)
+      doc.text('Users List', 14, 22)
+
+      // Add date
+      doc.setFontSize(10)
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30)
+      doc.text(`Total Users: ${filteredUsers.length}`, 14, 36)
+
+      // Prepare table data
+      const headers = [['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Created', 'Last Login']]
+      const rows = filteredUsers.map((user) => [
+        user.id,
+        user.username,
+        user.email,
+        user.enabled ? 'Yes' : 'No',
+        user.locked ? 'Yes' : 'No',
+        new Date(user.createdAt).toLocaleDateString(),
+        user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : '-',
+      ])
+
+      // Add table
+      autoTable(doc, {
+        head: headers,
+        body: rows,
+        startY: 42,
+        styles: {
+          fontSize: 9,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [46, 125, 50], // Green color
+          textColor: 255,
+          fontStyle: 'bold',
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+        columnStyles: {
+          0: { cellWidth: 15 },  // ID
+          1: { cellWidth: 30 },  // Username
+          2: { cellWidth: 45 },  // Email
+          3: { cellWidth: 20 },  // Enabled
+          4: { cellWidth: 20 },  // Locked
+          5: { cellWidth: 30 },  // Created
+          6: { cellWidth: 30 },  // Last Login
+        },
+      })
+
+      // Save PDF
+      const fileName = `users_${new Date().toISOString().split('T')[0]}.pdf`
+      doc.save(fileName)
+
+      handleExportClose()
+    } catch (error) {
+      console.error('PDF export error:', error)
+      alert('Failed to export PDF file. Please try again.')
+    }
   }
 
   const paginatedUsers = filteredUsers.slice(
