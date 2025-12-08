@@ -19,12 +19,15 @@ import {
   Card,
   CardHeader,
   CardContent,
+  Menu,
+  MenuItem,
 } from '@mui/material'
 import {
   Add,
   Edit,
   Delete,
   Search,
+  Download,
 } from '@mui/icons-material'
 import authService from '../../services/authService'
 
@@ -54,13 +57,12 @@ function UserList() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(5) // Default changed to 5
   const [sort, setSort] = useState<SortState>({
     field: 'username',
     order: 'asc',
   })
-  const [autoRefresh, setAutoRefresh] = useState(true)
-  const [refreshInterval, setRefreshInterval] = useState(5000) // 5 seconds
+  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null)
 
   // Mock data generator - replace with actual API call
   const generateMockUsers = (): User[] => {
@@ -204,17 +206,6 @@ function UserList() {
     fetchUsers()
   }, [])
 
-  // Auto-refresh effect
-  useEffect(() => {
-    if (!autoRefresh) return
-
-    const interval = setInterval(() => {
-      fetchUsers()
-    }, refreshInterval)
-
-    return () => clearInterval(interval)
-  }, [autoRefresh, refreshInterval, fetchUsers])
-
   // Filter and sort users
   useEffect(() => {
     let filtered = users.filter((user) =>
@@ -310,6 +301,57 @@ function UserList() {
     fetchUsers()
   }
 
+  const handleExportClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setExportAnchorEl(event.currentTarget)
+  }
+
+  const handleExportClose = () => {
+    setExportAnchorEl(null)
+  }
+
+  const exportToCSV = () => {
+    const headers = ['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Created', 'Last Login']
+    const rows = filteredUsers.map((user) => [
+      user.id,
+      user.username,
+      user.email,
+      user.enabled ? 'Yes' : 'No',
+      user.locked ? 'Yes' : 'No',
+      new Date(user.createdAt).toLocaleString(),
+      user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-',
+    ])
+
+    const csv = [
+      headers.join(','),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+    ].join('\n')
+
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `users_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+    handleExportClose()
+  }
+
+  const exportToXLSX = () => {
+    // Note: Requires xlsx library: npm install xlsx
+    // For now, showing placeholder
+    alert('XLSX export requires xlsx library installation.\nRun: npm install xlsx')
+    handleExportClose()
+  }
+
+  const exportToPDF = () => {
+    // Note: Requires jspdf and jspdf-autotable libraries
+    // For now, showing placeholder
+    alert('PDF export requires jspdf library installation.\nRun: npm install jspdf jspdf-autotable')
+    handleExportClose()
+  }
+
   const paginatedUsers = filteredUsers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -328,6 +370,32 @@ function UserList() {
           subheader={`Total: ${filteredUsers.length} users`}
           action={
             <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                startIcon={<Download />}
+                onClick={handleExportClick}
+                sx={{
+                  bgcolor: '#2e7d32',
+                  '&:hover': { bgcolor: '#1b5e20' },
+                }}
+              >
+                Export
+              </Button>
+              <Menu
+                anchorEl={exportAnchorEl}
+                open={Boolean(exportAnchorEl)}
+                onClose={handleExportClose}
+              >
+                <MenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </MenuItem>
+                <MenuItem onClick={exportToXLSX}>
+                  Export as XLSX
+                </MenuItem>
+                <MenuItem onClick={exportToPDF}>
+                  Export as PDF
+                </MenuItem>
+              </Menu>
               <Button
                 variant="contained"
                 startIcon={<Add />}
@@ -378,22 +446,6 @@ function UserList() {
             >
               {loading ? <CircularProgress size={20} /> : 'Refresh'}
             </Button>
-            <Box>
-              <Chip
-                label={autoRefresh ? 'Auto Refresh ON' : 'Auto Refresh OFF'}
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                variant="outlined"
-                sx={{
-                  borderColor: autoRefresh ? '#2e7d32' : '#999',
-                  color: autoRefresh ? '#2e7d32' : '#999',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: autoRefresh ? 'rgba(46, 125, 50, 0.04)' : 'rgba(0, 0, 0, 0.02)',
-                  },
-                }}
-              />
-            </Box>
           </Box>
 
           {/* Error Alert */}
