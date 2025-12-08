@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth_token')
+    const token = localStorage.getItem('accessToken')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
       console.log('Authorization header added')
@@ -37,7 +37,8 @@ axiosInstance.interceptors.response.use(
     console.error('Response error:', error.response?.status, error.response?.data)
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token')
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('user')
       window.location.href = '/login'
     }

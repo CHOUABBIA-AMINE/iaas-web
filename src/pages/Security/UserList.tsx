@@ -32,19 +32,9 @@ import {
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import authService from '../../services/authService'
+import userService, { UserDTO } from '../../services/userService'
 
-interface User {
-  id: number
-  username: string
-  email: string
-  enabled: boolean
-  locked?: boolean
-  createdAt?: string
-  lastLogin?: string
-}
-
-type SortField = 'username' | 'enabled' | 'locked' | 'createdAt'
+type SortField = 'username' | 'email' | 'enabled' | 'accountNonLocked'
 type SortOrder = 'asc' | 'desc'
 
 interface SortState {
@@ -54,8 +44,8 @@ interface SortState {
 
 function UserList() {
   const navigate = useNavigate()
-  const [users, setUsers] = useState<User[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserDTO[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -72,39 +62,8 @@ function UserList() {
     setLoading(true)
     setError(null)
     try {
-      const token = authService.getStoredToken()
-      const response = await fetch('http://localhost:8080/user', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Unauthorized. Please login again.')
-        } else if (response.status === 403) {
-          throw new Error('You do not have permission to view users.')
-        } else {
-          throw new Error(`Failed to fetch users: ${response.statusText}`)
-        }
-      }
-
-      const data = await response.json()
-      
-      // Transform backend data to match frontend User interface
-      const transformedUsers = data.map((user: any) => ({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        enabled: user.enabled,
-        locked: false, // Backend doesn't have locked field, default to false
-        createdAt: new Date().toISOString(), // Backend doesn't have createdAt, use current date
-        lastLogin: undefined, // Backend doesn't have lastLogin
-      }))
-
-      setUsers(transformedUsers)
+      const data = await userService.getAll()
+      setUsers(data)
     } catch (err) {
       console.error('Error fetching users:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch users')
@@ -115,7 +74,7 @@ function UserList() {
 
   useEffect(() => {
     fetchUsers()
-  }, [])
+  }, [fetchUsers])
 
   // Filter and sort users
   useEffect(() => {
@@ -133,17 +92,17 @@ function UserList() {
           aVal = a.username.toLowerCase()
           bVal = b.username.toLowerCase()
           break
+        case 'email':
+          aVal = a.email.toLowerCase()
+          bVal = b.email.toLowerCase()
+          break
         case 'enabled':
           aVal = a.enabled ? 1 : 0
           bVal = b.enabled ? 1 : 0
           break
-        case 'locked':
-          aVal = a.locked ? 1 : 0
-          bVal = b.locked ? 1 : 0
-          break
-        case 'createdAt':
-          aVal = a.createdAt ? new Date(a.createdAt).getTime() : 0
-          bVal = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        case 'accountNonLocked':
+          aVal = a.accountNonLocked ? 1 : 0
+          bVal = b.accountNonLocked ? 1 : 0
           break
         default:
           aVal = a.username
@@ -205,20 +164,7 @@ function UserList() {
     }
 
     try {
-      const token = authService.getStoredToken()
-      const response = await fetch(`http://localhost:8080/user/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete user')
-      }
-
-      // Remove user from local state
+      await userService.delete(userId)
       setUsers(users.filter((u) => u.id !== userId))
     } catch (err) {
       console.error('Error deleting user:', err)
@@ -239,15 +185,15 @@ function UserList() {
   }
 
   const exportToCSV = () => {
-    const headers = ['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Created', 'Last Login']
+    const headers = ['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Roles', 'Groups']
     const rows = filteredUsers.map((user) => [
-      user.id.toString(),
+      user.id?.toString() || '',
       user.username,
       user.email,
       user.enabled ? 'Yes' : 'No',
-      user.locked ? 'Yes' : 'No',
-      user.createdAt ? new Date(user.createdAt).toLocaleString() : '-',
-      user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-',
+      user.accountNonLocked === false ? 'Yes' : 'No',
+      user.roles?.map(r => r.name).join(', ') || '-',
+      user.groups?.map(g => g.name).join(', ') || '-',
     ])
 
     const csv = [
@@ -274,21 +220,21 @@ function UserList() {
         Username: user.username,
         Email: user.email,
         Enabled: user.enabled ? 'Yes' : 'No',
-        Locked: user.locked ? 'Yes' : 'No',
-        Created: user.createdAt ? new Date(user.createdAt).toLocaleString() : '-',
-        'Last Login': user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-',
+        Locked: user.accountNonLocked === false ? 'Yes' : 'No',
+        Roles: user.roles?.map(r => r.name).join(', ') || '-',
+        Groups: user.groups?.map(g => g.name).join(', ') || '-',
       }))
 
       const worksheet = XLSX.utils.json_to_sheet(data)
 
       const columnWidths = [
-        { wch: 8 },
-        { wch: 20 },
-        { wch: 30 },
-        { wch: 10 },
-        { wch: 10 },
-        { wch: 25 },
-        { wch: 25 },
+        { wch: 8 },  // ID
+        { wch: 20 }, // Username
+        { wch: 30 }, // Email
+        { wch: 10 }, // Enabled
+        { wch: 10 }, // Locked
+        { wch: 25 }, // Roles
+        { wch: 25 }, // Groups
       ]
       worksheet['!cols'] = columnWidths
 
@@ -316,15 +262,15 @@ function UserList() {
       doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30)
       doc.text(`Total Users: ${filteredUsers.length}`, 14, 36)
 
-      const headers = [['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Created', 'Last Login']]
+      const headers = [['ID', 'Username', 'Email', 'Enabled', 'Locked', 'Roles', 'Groups']]
       const rows = filteredUsers.map((user) => [
-        user.id.toString(),
+        user.id?.toString() || '',
         user.username,
         user.email,
         user.enabled ? 'Yes' : 'No',
-        user.locked ? 'Yes' : 'No',
-        user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-',
-        user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : '-',
+        user.accountNonLocked === false ? 'Yes' : 'No',
+        user.roles?.map(r => r.name).join(', ') || '-',
+        user.groups?.map(g => g.name).join(', ') || '-',
       ])
 
       autoTable(doc, {
@@ -332,7 +278,7 @@ function UserList() {
         body: rows,
         startY: 42,
         styles: {
-          fontSize: 9,
+          fontSize: 8,
           cellPadding: 2,
         },
         headStyles: {
@@ -344,13 +290,13 @@ function UserList() {
           fillColor: [245, 245, 245],
         },
         columnStyles: {
-          0: { cellWidth: 15 },
-          1: { cellWidth: 30 },
-          2: { cellWidth: 45 },
-          3: { cellWidth: 20 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 30 },
-          6: { cellWidth: 30 },
+          0: { cellWidth: 12 },  // ID
+          1: { cellWidth: 25 },  // Username
+          2: { cellWidth: 40 },  // Email
+          3: { cellWidth: 18 },  // Enabled
+          4: { cellWidth: 18 },  // Locked
+          5: { cellWidth: 30 },  // Roles
+          6: { cellWidth: 30 },  // Groups
         },
       })
 
@@ -368,12 +314,6 @@ function UserList() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   )
-
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-  }
 
   return (
     <Box sx={{ p: 3, pt: 12 }}>
@@ -488,7 +428,18 @@ function UserList() {
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
-                    <strong>Email</strong>
+                    <TableSortLabel
+                      active={sort.field === 'email'}
+                      direction={sort.field === 'email' ? sort.order : 'asc'}
+                      onClick={() => handleSort('email')}
+                      sx={{
+                        '&.MuiTableSortLabel-root.Mui-active': {
+                          color: '#2e7d32',
+                        },
+                      }}
+                    >
+                      <strong>Email</strong>
+                    </TableSortLabel>
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
@@ -506,9 +457,9 @@ function UserList() {
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={sort.field === 'locked'}
-                      direction={sort.field === 'locked' ? sort.order : 'asc'}
-                      onClick={() => handleSort('locked')}
+                      active={sort.field === 'accountNonLocked'}
+                      direction={sort.field === 'accountNonLocked' ? sort.order : 'asc'}
+                      onClick={() => handleSort('accountNonLocked')}
                       sx={{
                         '&.MuiTableSortLabel-root.Mui-active': {
                           color: '#2e7d32',
@@ -519,21 +470,10 @@ function UserList() {
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
-                    <TableSortLabel
-                      active={sort.field === 'createdAt'}
-                      direction={sort.field === 'createdAt' ? sort.order : 'asc'}
-                      onClick={() => handleSort('createdAt')}
-                      sx={{
-                        '&.MuiTableSortLabel-root.Mui-active': {
-                          color: '#2e7d32',
-                        },
-                      }}
-                    >
-                      <strong>Created</strong>
-                    </TableSortLabel>
+                    <strong>Roles</strong>
                   </TableCell>
                   <TableCell>
-                    <strong>Last Login</strong>
+                    <strong>Groups</strong>
                   </TableCell>
                   <TableCell align="center">
                     <strong>Actions</strong>
@@ -574,24 +514,50 @@ function UserList() {
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={user.locked ? 'Locked' : 'Unlocked'}
-                          color={user.locked ? 'error' : 'success'}
+                          label={user.accountNonLocked === false ? 'Locked' : 'Unlocked'}
+                          color={user.accountNonLocked === false ? 'error' : 'success'}
                           size="small"
                           variant="outlined"
                         />
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.875rem' }}>
-                        {formatDate(user.createdAt)}
+                      <TableCell>
+                        {user.roles && user.roles.length > 0 ? (
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                            {user.roles.map((role) => (
+                              <Chip
+                                key={role.id}
+                                label={role.name}
+                                size="small"
+                                sx={{ bgcolor: '#e3f2fd', fontSize: '0.75rem' }}
+                              />
+                            ))}
+                          </Box>
+                        ) : (
+                          <span style={{ color: '#999' }}>-</span>
+                        )}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.875rem' }}>
-                        {formatDate(user.lastLogin)}
+                      <TableCell>
+                        {user.groups && user.groups.length > 0 ? (
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                            {user.groups.map((group) => (
+                              <Chip
+                                key={group.id}
+                                label={group.name}
+                                size="small"
+                                sx={{ bgcolor: '#f3e5f5', fontSize: '0.75rem' }}
+                              />
+                            ))}
+                          </Box>
+                        ) : (
+                          <span style={{ color: '#999' }}>-</span>
+                        )}
                       </TableCell>
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                           <Button
                             size="small"
                             startIcon={<Edit />}
-                            onClick={() => handleEditUser(user.id)}
+                            onClick={() => handleEditUser(user.id!)}
                             sx={{
                               color: '#2e7d32',
                               '&:hover': { bgcolor: 'rgba(46, 125, 50, 0.08)' },
@@ -602,7 +568,7 @@ function UserList() {
                           <Button
                             size="small"
                             startIcon={<Delete />}
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteUser(user.id!)}
                             sx={{
                               color: '#c41c47',
                               '&:hover': { bgcolor: 'rgba(196, 28, 71, 0.08)' },
