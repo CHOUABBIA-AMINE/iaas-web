@@ -391,6 +391,8 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                      zIndex: 1300,
+                      marginTop: 0,
                     },
                   },
                 }}
@@ -439,6 +441,8 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '300px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                      zIndex: 1300,
+                      marginTop: 0,
                     },
                   },
                 }}
@@ -487,6 +491,8 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '280px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                      zIndex: 1300,
+                      marginTop: 0,
                     },
                   },
                 }}
@@ -556,6 +562,8 @@ function NestedNavbar() {
                     sx: {
                       minWidth: '220px',
                       boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
+                      zIndex: 1300,
+                      marginTop: 0,
                     },
                   },
                 }}
