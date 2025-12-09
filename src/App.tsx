@@ -5,7 +5,7 @@ import theme from './theme/theme'
 import Layout from './components/Layout/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './pages/Security'
+import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit, ResetPassword } from './pages/Security'
 
 function App() {
   return (
@@ -34,6 +34,12 @@ function App() {
             <Route path="/security/groups" element={<GroupList />} />
             <Route path="/security/groups/create" element={<GroupEdit />} />
             <Route path="/security/groups/:groupId/edit" element={<GroupEdit />} />
+            
+            {/* Security Routes - Settings */}
+            <Route path="/security/reset-password" element={<ResetPassword />} />
+            <Route path="/security/login-settings" element={<div>Login Settings Page (TODO)</div>} />
+            <Route path="/security/2fa" element={<div>Two Factor Auth Page (TODO)</div>} />
+            <Route path="/security/sessions" element={<div>Session Management Page (TODO)</div>} />
             
             {/* Common Routes */}
             <Route path="/common/structure" element={<div>Structure Page (TODO)</div>} />

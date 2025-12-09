@@ -27,6 +27,7 @@ import {
   SecurityRounded,
   SettingsRounded,
   GroupRounded,
+  LockReset,
 } from '@mui/icons-material'
 import authService, { User } from '../../services/authService'
 
@@ -77,6 +78,7 @@ const SecurityIcons: Record<string, React.ReactNode> = {
   'Roles': <SecurityRounded fontSize="small" />,
   'Groups': <GroupRounded fontSize="small" />,
   'Settings': <SettingsRounded fontSize="small" />,
+  'ResetPassword': <LockReset fontSize="small" />,
   'LoginSettings': <SettingsRounded fontSize="small" />,
   'TwoFactorAuth': <SecurityRounded fontSize="small" />,
   'SessionManagement': <SettingsRounded fontSize="small" />,
@@ -114,6 +116,7 @@ const SECURITY_MENU_DATA: MenuItem[] = [
   { label: 'Users', path: '/security/users', group: 'Security' },
   { label: 'Roles', path: '/security/roles', group: 'Security' },
   { label: 'Groups', path: '/security/groups', group: 'Security' },
+  { label: 'ResetPassword', path: '/security/reset-password', group: 'Settings' },
   { label: 'LoginSettings', path: '/security/login-settings', group: 'Settings' },
   { label: 'TwoFactorAuth', path: '/security/2fa', group: 'Settings' },
   { label: 'SessionManagement', path: '/security/sessions', group: 'Settings' },
