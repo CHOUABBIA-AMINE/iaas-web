@@ -5,7 +5,7 @@ import theme from './theme/theme'
 import Layout from './components/Layout/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import { UserList, UserEdit } from './pages/Security'
+import { UserList, UserEdit, RoleList, RoleEdit } from './pages/Security'
 
 function App() {
   return (
@@ -20,10 +20,15 @@ function App() {
             {/* Home Route */}
             <Route path="/" element={<HomePage />} />
             
-            {/* Security Routes */}
+            {/* Security Routes - Users */}
             <Route path="/security/users" element={<UserList />} />
             <Route path="/security/users/create" element={<UserEdit />} />
             <Route path="/security/users/:userId/edit" element={<UserEdit />} />
+            
+            {/* Security Routes - Roles */}
+            <Route path="/security/roles" element={<RoleList />} />
+            <Route path="/security/roles/create" element={<RoleEdit />} />
+            <Route path="/security/roles/:roleId/edit" element={<RoleEdit />} />
             
             {/* Common Routes */}
             <Route path="/common/structure" element={<div>Structure Page (TODO)</div>} />
