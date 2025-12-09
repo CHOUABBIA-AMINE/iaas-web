@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Box,
   Card,
@@ -15,11 +15,18 @@ import {
 } from '@mui/material'
 import { Save, Visibility, VisibilityOff, LockReset } from '@mui/icons-material'
 import axiosInstance from '../../config/axios'
+import { jwtDecode } from 'jwt-decode'
 
 interface ResetPasswordRequest {
   username: string
   newPassword: string
   confirmPassword: string
+}
+
+interface JwtPayload {
+  sub: string  // username is typically in 'sub' claim
+  username?: string
+  [key: string]: any
 }
 
 function ResetPassword() {
@@ -34,6 +41,27 @@ function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+
+  // ✅ Extract username from JWT token on component mount
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('accessToken')
+      if (token) {
+        const decoded = jwtDecode<JwtPayload>(token)
+        const username = decoded.sub || decoded.username || ''
+        
+        setFormData((prev) => ({
+          ...prev,
+          username: username,
+        }))
+        
+        console.log('Current user:', username)
+      }
+    } catch (err) {
+      console.error('Error decoding token:', err)
+      setError('Unable to get current user information')
+    }
+  }, [])
 
   const handleInputChange = (field: keyof ResetPasswordRequest, value: string) => {
     setFormData((prev) => ({
@@ -91,16 +119,16 @@ function ResetPassword() {
       })
 
       setSuccess(
-        `Password for user "${formData.username}" has been reset successfully`
+        `Your password has been reset successfully. You can now use your new password to login.`
       )
 
-      // Clear form after 2 seconds
+      // Clear password fields after 2 seconds
       setTimeout(() => {
-        setFormData({
-          username: '',
+        setFormData((prev) => ({
+          ...prev,
           newPassword: '',
           confirmPassword: '',
-        })
+        }))
         setSuccess(null)
       }, 3000)
     } catch (err: any) {
@@ -130,11 +158,11 @@ function ResetPassword() {
   }
 
   const handleClear = () => {
-    setFormData({
-      username: '',
+    setFormData((prev) => ({
+      ...prev,
       newPassword: '',
       confirmPassword: '',
-    })
+    }))
     setError(null)
     setSuccess(null)
   }
@@ -158,8 +186,8 @@ function ResetPassword() {
               <LockReset sx={{ color: '#2e7d32', fontSize: 28 }} />
             </Box>
           }
-          title="Reset User Password"
-          subheader="Reset password for any user with administrative permissions"
+          title="Reset Your Password"
+          subheader="Change your current password to a new one"
           sx={{
             '& .MuiCardHeader-title': {
               fontSize: '1.5rem',
@@ -172,8 +200,7 @@ function ResetPassword() {
           {/* Info Alert */}
           <Alert severity="info" sx={{ mb: 3 }}>
             <Typography variant="body2">
-              <strong>Note:</strong> This action will reset the password for the specified user.
-              The user will be able to login with the new password immediately.
+              <strong>Note:</strong> After resetting your password, you will need to use the new password for future logins.
             </Typography>
           </Alert>
 
@@ -191,22 +218,17 @@ function ResetPassword() {
 
           {/* Form */}
           <Grid container spacing={3}>
-            {/* Username */}
+            {/* Username - Disabled (read-only) */}
             <Grid item xs={12}>
               <TextField
                 fullWidth
                 label="Username"
                 value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                required
-                disabled={loading}
-                placeholder="Enter username of the user"
-                helperText="Username of the user whose password needs to be reset"
+                disabled
+                helperText="Your current username (cannot be changed)"
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#2e7d32',
-                    },
+                    bgcolor: '#f5f5f5',
                   },
                 }}
               />
@@ -349,7 +371,7 @@ function ResetPassword() {
                     )
                   }
                   onClick={handleResetPassword}
-                  disabled={loading || !formData.username || !formData.newPassword || !formData.confirmPassword}
+                  disabled={loading || !formData.newPassword || !formData.confirmPassword}
                   sx={{
                     bgcolor: '#2e7d32',
                     '&:hover': { bgcolor: '#1b5e20' },

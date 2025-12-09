@@ -604,6 +604,35 @@ function NestedNavbar() {
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
+                      handleNavigate('/security/reset-password')
+                    }}
+                    sx={{
+                      py: 0.75,
+                      px: 1.5,
+                      minHeight: '36px',
+                      '&:hover': {
+                        backgroundColor: '#f0f7f4',
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: '32px',
+                        color: '#2e7d32',
+                      }}
+                    >
+                      <LockReset fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary="Reset Password"
+                      primaryTypographyProps={{
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                      }}
+                    />
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
                       handleNavigate('/language')
                     }}
                     sx={{
