@@ -469,12 +469,6 @@ function UserList() {
                       <strong>Locked</strong>
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>
-                    <strong>Roles</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Groups</strong>
-                  </TableCell>
                   <TableCell align="center">
                     <strong>Actions</strong>
                   </TableCell>
@@ -483,13 +477,13 @@ function UserList() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                       <CircularProgress size={40} />
                     </TableCell>
                   </TableRow>
                 ) : paginatedUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 4, color: '#999' }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4, color: '#999' }}>
                       {error ? 'Failed to load users' : 'No users found'}
                     </TableCell>
                   </TableRow>
@@ -519,38 +513,6 @@ function UserList() {
                           size="small"
                           variant="outlined"
                         />
-                      </TableCell>
-                      <TableCell>
-                        {user.roles && user.roles.length > 0 ? (
-                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                            {user.roles.map((role) => (
-                              <Chip
-                                key={role.id}
-                                label={role.name}
-                                size="small"
-                                sx={{ bgcolor: '#e3f2fd', fontSize: '0.75rem' }}
-                              />
-                            ))}
-                          </Box>
-                        ) : (
-                          <span style={{ color: '#999' }}>-</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {user.groups && user.groups.length > 0 ? (
-                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                            {user.groups.map((group) => (
-                              <Chip
-                                key={group.id}
-                                label={group.name}
-                                size="small"
-                                sx={{ bgcolor: '#f3e5f5', fontSize: '0.75rem' }}
-                              />
-                            ))}
-                          </Box>
-                        ) : (
-                          <span style={{ color: '#999' }}>-</span>
-                        )}
                       </TableCell>
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
