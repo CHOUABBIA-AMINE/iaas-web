@@ -51,7 +51,7 @@ class AuthService {
         throw new Error(error.response.data?.message || 'Login failed: ' + error.response.status)
       } else if (error.request) {
         // Request made but no response
-        throw new Error('No response from server. Check if backend is running on ' + import.meta.env.VITE_API_BASE_URL)
+        throw new Error('No response from server. Check if backend is running on ')
       } else {
         // Error in request setup
         throw new Error(error.message || 'Login failed')
