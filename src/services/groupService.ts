@@ -1,5 +1,12 @@
 import axiosInstance from '../config/axios'
-import { GroupDTO } from './userService'
+import { RoleDTO } from './roleService'
+
+export interface GroupDTO {
+  id?: number
+  name: string
+  description?: string
+  roles?: RoleDTO[]
+}
 
 class GroupService {
   private readonly BASE_URL = '/group'
@@ -24,6 +31,35 @@ class GroupService {
     }
   }
 
+  async create(group: GroupDTO): Promise<GroupDTO> {
+    try {
+      const response = await axiosInstance.post<GroupDTO>(this.BASE_URL, group)
+      return response.data
+    } catch (error: any) {
+      console.error('Error creating group:', error)
+      throw this.handleError(error)
+    }
+  }
+
+  async update(id: number, group: GroupDTO): Promise<GroupDTO> {
+    try {
+      const response = await axiosInstance.put<GroupDTO>(`${this.BASE_URL}/${id}`, group)
+      return response.data
+    } catch (error: any) {
+      console.error(`Error updating group ${id}:`, error)
+      throw this.handleError(error)
+    }
+  }
+
+  async delete(id: number): Promise<void> {
+    try {
+      await axiosInstance.delete(`${this.BASE_URL}/${id}`)
+    } catch (error: any) {
+      console.error(`Error deleting group ${id}:`, error)
+      throw this.handleError(error)
+    }
+  }
+
   private handleError(error: any): Error {
     if (error.response) {
       const status = error.response.status
@@ -31,7 +67,11 @@ class GroupService {
       if (status === 401) {
         return new Error('Unauthorized. Please login again.')
       } else if (status === 403) {
-        return new Error('You do not have permission to access groups.')
+        return new Error('You do not have permission to manage groups.')
+      } else if (status === 404) {
+        return new Error('Group not found.')
+      } else if (status === 409) {
+        return new Error('A group with this name already exists.')
       } else {
         return new Error(message || `Request failed with status ${status}`)
       }
