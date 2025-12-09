@@ -5,7 +5,7 @@ import theme from './theme/theme'
 import Layout from './components/Layout/Layout'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import { UserList, UserEdit, RoleList, RoleEdit } from './pages/Security'
+import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './pages/Security'
 
 function App() {
   return (
@@ -29,6 +29,11 @@ function App() {
             <Route path="/security/roles" element={<RoleList />} />
             <Route path="/security/roles/create" element={<RoleEdit />} />
             <Route path="/security/roles/:roleId/edit" element={<RoleEdit />} />
+            
+            {/* Security Routes - Groups */}
+            <Route path="/security/groups" element={<GroupList />} />
+            <Route path="/security/groups/create" element={<GroupEdit />} />
+            <Route path="/security/groups/:groupId/edit" element={<GroupEdit />} />
             
             {/* Common Routes */}
             <Route path="/common/structure" element={<div>Structure Page (TODO)</div>} />
