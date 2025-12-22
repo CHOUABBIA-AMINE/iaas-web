@@ -1,105 +1,90 @@
 /**
- * Authentication Service
- * Handles user authentication and token management
+ * Auth Service
+ * Matches: dz.mdn.iaas.system.auth.service.AuthService.java
+ * Communicates with: AuthController.java
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  */
 
-import axiosInstance from '../../../../shared/config/axios'
-import { LoginRequest, TokenResponse, User } from '../dto/AuthDTO'
+import axiosInstance from '../../../../shared/config/axios';
+import { LoginRequestDTO, LoginResponseDTO } from '../dto';
 
 class AuthService {
-  async login(credentials: LoginRequest): Promise<TokenResponse> {
-    const response = await axiosInstance.post<TokenResponse>(
-      '/auth/login',
+  private readonly BASE_URL = '/auth';
+
+  /**
+   * Login user with username and password
+   */
+  async login(credentials: LoginRequestDTO): Promise<LoginResponseDTO> {
+    const response = await axiosInstance.post<LoginResponseDTO>(
+      `${this.BASE_URL}/login`,
       credentials
-    )
+    );
     
-    const { accessToken, refreshToken, expiresIn, tokenType } = response.data
-    this.storeAuthData(accessToken, refreshToken, expiresIn, tokenType)
+    // Store token in localStorage
+    if (response.data.token) {
+      localStorage.setItem('access_token', response.data.token);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refresh_token', response.data.refreshToken);
+      }
+    }
     
-    return response.data
+    return response.data;
   }
 
+  /**
+   * Logout current user
+   */
   async logout(): Promise<void> {
     try {
-      await axiosInstance.post('/auth/logout')
+      await axiosInstance.post(`${this.BASE_URL}/logout`);
     } finally {
-      this.clearAuthData()
+      // Always clear local storage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
     }
   }
 
-  storeAuthData(
-    accessToken: string,
-    refreshToken: string,
-    expiresIn: number,
-    tokenType: string
-  ): void {
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('expiresIn', expiresIn.toString())
-    localStorage.setItem('tokenType', tokenType)
-    localStorage.setItem('tokenTimestamp', Date.now().toString())
-  }
-
-  clearAuthData(): void {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('expiresIn')
-    localStorage.removeItem('tokenType')
-    localStorage.removeItem('tokenTimestamp')
-    localStorage.removeItem('user')
-  }
-
-  getStoredToken(): string | null {
-    return localStorage.getItem('accessToken')
-  }
-
-  getRefreshToken(): string | null {
-    return localStorage.getItem('refreshToken')
-  }
-
-  getTokenType(): string | null {
-    return localStorage.getItem('tokenType') || 'Bearer'
-  }
-
-  getTokenExpiration(): number | null {
-    const expiresIn = localStorage.getItem('expiresIn')
-    const timestamp = localStorage.getItem('tokenTimestamp')
-
-    if (!expiresIn || !timestamp) return null
-
-    return parseInt(timestamp) + parseInt(expiresIn) * 1000
-  }
-
-  isTokenExpired(): boolean {
-    const expirationTime = this.getTokenExpiration()
-    if (!expirationTime) return true
-    return Date.now() >= expirationTime
-  }
-
-  getStoredUser(): User | null {
-    try {
-      const userStr = localStorage.getItem('user')
-      if (!userStr) return null
-      return JSON.parse(userStr)
-    } catch (error) {
-      console.error('Error parsing stored user data:', error)
-      this.clearAuthData()
-      return null
+  /**
+   * Refresh access token
+   */
+  async refreshToken(): Promise<LoginResponseDTO> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
     }
+
+    const response = await axiosInstance.post<LoginResponseDTO>(
+      `${this.BASE_URL}/refresh`,
+      { refreshToken }
+    );
+    
+    // Update tokens
+    if (response.data.token) {
+      localStorage.setItem('access_token', response.data.token);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refresh_token', response.data.refreshToken);
+      }
+    }
+    
+    return response.data;
   }
 
+  /**
+   * Get current authentication token
+   */
+  getToken(): string | null {
+    return localStorage.getItem('access_token');
+  }
+
+  /**
+   * Check if user is authenticated
+   */
   isAuthenticated(): boolean {
-    const token = this.getStoredToken()
-    if (!token) return false
-    if (this.isTokenExpired()) {
-      this.clearAuthData()
-      return false
-    }
-    return true
+    return !!this.getToken();
   }
 }
 
-export default new AuthService()
+export default new AuthService();
