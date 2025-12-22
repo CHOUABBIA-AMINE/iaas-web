@@ -1,0 +1,97 @@
+{
+  "app": {
+    "name": "منصة IAAS",
+    "description": "إدارة البنية التحتية كخدمة"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "actions": "إجراءات",
+    "yes": "نعم",
+    "no": "لا",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "close": "إغلاق"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "signIn": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول...",
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "contactAdmin": "اتصل بالمسؤول",
+    "loginFailed": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد.",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "system": "النظام",
+    "security": "الأمان",
+    "users": "المستخدمون",
+    "roles": "الأدوار",
+    "groups": "المجموعات",
+    "permissions": "الصلاحيات",
+    "auth": "المصادقة",
+    "sessions": "الجلسات",
+    "audit": "التدقيق",
+    "logs": "السجلات",
+    "business": "الأعمال",
+    "network": "الشبكة",
+    "common": "عام",
+    "settings": "الإعدادات",
+    "overview": "نظرة عامة",
+    "profile": "الملف الشخصي"
+  },
+  "user": {
+    "title": "المستخدمون",
+    "createUser": "إنشاء مستخدم",
+    "editUser": "تعديل المستخدم",
+    "deleteUser": "حذف المستخدم",
+    "userDetails": "تفاصيل المستخدم",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "username": "اسم المستخدم",
+    "enabled": "مفعل",
+    "disabled": "معطل",
+    "status": "الحالة",
+    "roles": "الأدوار",
+    "groups": "المجموعات",
+    "createdAt": "تاريخ الإنشاء",
+    "updatedAt": "تاريخ التحديث",
+    "lastLogin": "آخر تسجيل دخول"
+  },
+  "role": {
+    "title": "الأدوار",
+    "createRole": "إنشاء دور",
+    "editRole": "تعديل الدور",
+    "deleteRole": "حذف الدور",
+    "roleDetails": "تفاصيل الدور",
+    "name": "الاسم",
+    "description": "الوصف",
+    "permissions": "الصلاحيات"
+  },
+  "footer": {
+    "copyright": "© {{year}} منصة IAAS. جميع الحقوق محفوظة."
+  },
+  "errors": {
+    "unauthorized": "غير مصرح",
+    "forbidden": "ليس لديك إذن للوصول إلى هذا المورد.",
+    "notFound": "الصفحة غير موجودة",
+    "serverError": "حدث خطأ في الخادم",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك."
+  }
+}

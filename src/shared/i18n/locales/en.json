@@ -1,0 +1,97 @@
+{
+  "app": {
+    "name": "IAAS Platform",
+    "description": "Infrastructure as a Service Management"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signIn": "Sign In",
+    "signingIn": "Signing In...",
+    "username": "Username",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "contactAdmin": "Contact Administrator",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "logoutSuccess": "Logged out successfully"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "system": "System",
+    "security": "Security",
+    "users": "Users",
+    "roles": "Roles",
+    "groups": "Groups",
+    "permissions": "Permissions",
+    "auth": "Authentication",
+    "sessions": "Sessions",
+    "audit": "Audit",
+    "logs": "Logs",
+    "business": "Business",
+    "network": "Network",
+    "common": "Common",
+    "settings": "Settings",
+    "overview": "Overview",
+    "profile": "Profile"
+  },
+  "user": {
+    "title": "Users",
+    "createUser": "Create User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "userDetails": "User Details",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "username": "Username",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "status": "Status",
+    "roles": "Roles",
+    "groups": "Groups",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "lastLogin": "Last Login"
+  },
+  "role": {
+    "title": "Roles",
+    "createRole": "Create Role",
+    "editRole": "Edit Role",
+    "deleteRole": "Delete Role",
+    "roleDetails": "Role Details",
+    "name": "Name",
+    "description": "Description",
+    "permissions": "Permissions"
+  },
+  "footer": {
+    "copyright": "© {{year}} IAAS Platform. All rights reserved."
+  },
+  "errors": {
+    "unauthorized": "Unauthorized",
+    "forbidden": "You don't have permission to access this resource.",
+    "notFound": "Page not found",
+    "serverError": "Server error occurred",
+    "networkError": "Network error. Please check your connection."
+  }
+}

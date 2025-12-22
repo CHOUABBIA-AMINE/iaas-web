@@ -1,0 +1,97 @@
+{
+  "app": {
+    "name": "Plateforme IAAS",
+    "description": "Gestion de l'infrastructure en tant que service"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "actions": "Actions",
+    "yes": "Oui",
+    "no": "Non",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "close": "Fermer"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "signIn": "Se connecter",
+    "signingIn": "Connexion en cours...",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "contactAdmin": "Contacter l'administrateur",
+    "loginFailed": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+    "logoutSuccess": "Déconnexion réussie"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "system": "Système",
+    "security": "Sécurité",
+    "users": "Utilisateurs",
+    "roles": "Rôles",
+    "groups": "Groupes",
+    "permissions": "Permissions",
+    "auth": "Authentification",
+    "sessions": "Sessions",
+    "audit": "Audit",
+    "logs": "Journaux",
+    "business": "Affaires",
+    "network": "Réseau",
+    "common": "Commun",
+    "settings": "Paramètres",
+    "overview": "Aperçu",
+    "profile": "Profil"
+  },
+  "user": {
+    "title": "Utilisateurs",
+    "createUser": "Créer un utilisateur",
+    "editUser": "Modifier l'utilisateur",
+    "deleteUser": "Supprimer l'utilisateur",
+    "userDetails": "Détails de l'utilisateur",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "username": "Nom d'utilisateur",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
+    "status": "Statut",
+    "roles": "Rôles",
+    "groups": "Groupes",
+    "createdAt": "Créé le",
+    "updatedAt": "Mis à jour le",
+    "lastLogin": "Dernière connexion"
+  },
+  "role": {
+    "title": "Rôles",
+    "createRole": "Créer un rôle",
+    "editRole": "Modifier le rôle",
+    "deleteRole": "Supprimer le rôle",
+    "roleDetails": "Détails du rôle",
+    "name": "Nom",
+    "description": "Description",
+    "permissions": "Permissions"
+  },
+  "footer": {
+    "copyright": "© {{year}} Plateforme IAAS. Tous droits réservés."
+  },
+  "errors": {
+    "unauthorized": "Non autorisé",
+    "forbidden": "Vous n'avez pas la permission d'accéder à cette ressource.",
+    "notFound": "Page non trouvée",
+    "serverError": "Erreur serveur",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion."
+  }
+}
