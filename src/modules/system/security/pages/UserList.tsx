@@ -1,6 +1,6 @@
 /**
  * User List Page
- * Simple version with DataGrid, search, and filters (no export for now)
+ * Simple version with DataGrid, search, and filters
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -58,12 +58,29 @@ const UserList = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const data = await userService.getAll();
-      setUsers(data);
+      const response = await userService.getAll();
+      
+      // Handle different response formats
+      let userData: UserDTO[] = [];
+      if (Array.isArray(response)) {
+        userData = response;
+      } else if (response && typeof response === 'object') {
+        // Check common response wrapper patterns
+        userData = response.data || response.content || response.users || [];
+      }
+      
+      // Ensure we have an array
+      if (!Array.isArray(userData)) {
+        console.error('Unexpected response format:', response);
+        userData = [];
+      }
+      
+      setUsers(userData);
       setError('');
     } catch (err: any) {
       console.error('Failed to load users:', err);
       setError(err.message || 'Failed to load users');
+      setUsers([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -71,14 +88,19 @@ const UserList = () => {
 
   // Filter users based on search and filters
   const filteredUsers = useMemo(() => {
+    // Ensure users is an array before filtering
+    if (!Array.isArray(users)) {
+      return [];
+    }
+    
     return users.filter((user) => {
       // Search filter
       const searchLower = searchText.toLowerCase();
       const matchesSearch = !searchText || 
-        user.username.toLowerCase().includes(searchLower) ||
-        user.email?.toLowerCase().includes(searchLower) ||
-        user.firstName?.toLowerCase().includes(searchLower) ||
-        user.lastName?.toLowerCase().includes(searchLower);
+        (user.username && user.username.toLowerCase().includes(searchLower)) ||
+        (user.email && user.email.toLowerCase().includes(searchLower)) ||
+        (user.firstName && user.firstName.toLowerCase().includes(searchLower)) ||
+        (user.lastName && user.lastName.toLowerCase().includes(searchLower));
 
       // Status filter
       const matchesStatus = statusFilter === 'all' || 
@@ -87,7 +109,7 @@ const UserList = () => {
 
       // Role filter
       const matchesRole = roleFilter === 'all' ||
-        user.roles?.some(role => role.name === roleFilter);
+        (user.roles && user.roles.some(role => role.name === roleFilter));
 
       return matchesSearch && matchesStatus && matchesRole;
     });
@@ -95,9 +117,15 @@ const UserList = () => {
 
   // Get unique roles for filter dropdown
   const availableRoles = useMemo(() => {
+    if (!Array.isArray(users)) {
+      return [];
+    }
+    
     const roles = new Set<string>();
     users.forEach(user => {
-      user.roles?.forEach(role => roles.add(role.name));
+      if (user.roles && Array.isArray(user.roles)) {
+        user.roles.forEach(role => roles.add(role.name));
+      }
     });
     return Array.from(roles).sort();
   }, [users]);
@@ -150,7 +178,7 @@ const UserList = () => {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-          {params.value?.map((role: any) => (
+          {params.value && Array.isArray(params.value) && params.value.map((role: any) => (
             <Chip
               key={role.id}
               label={role.name}
