@@ -36,23 +36,40 @@ class AuthService {
       credentials
     );
 
-    const { token, refreshToken } = authResponse.data;
-    console.log('📥 [AuthService] Login response received');
-    console.log('   Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
-    console.log('   RefreshToken:', refreshToken ? 'Present' : 'Not present');
+    console.log('📥 [AuthService] Raw login response:');
+    console.log('   Full response object:', authResponse);
+    console.log('   Response data:', authResponse.data);
+    console.log('   Response data type:', typeof authResponse.data);
+    console.log('   Response data keys:', Object.keys(authResponse.data || {}));
+
+    // Check all possible token field names
+    const responseData = authResponse.data as any;
+    const token = responseData.token || responseData.accessToken || responseData.access_token || responseData.jwt;
+    const refreshToken = responseData.refreshToken || responseData.refresh_token;
+
+    console.log('🔍 [AuthService] Token extraction:');
+    console.log('   responseData.token:', responseData.token);
+    console.log('   responseData.accessToken:', responseData.accessToken);
+    console.log('   responseData.access_token:', responseData.access_token);
+    console.log('   responseData.jwt:', responseData.jwt);
+    console.log('   Extracted token:', token ? `${token.substring(0, 30)}...` : 'NO TOKEN FOUND');
+    console.log('   Extracted refreshToken:', refreshToken ? 'Present' : 'Not present');
 
     // Store token temporarily for the user fetch request
     if (token) {
       localStorage.setItem('access_token', token);
       console.log('💾 [AuthService] Token stored in localStorage');
-      console.log('   Stored token:', localStorage.getItem('access_token')?.substring(0, 20) + '...');
+      console.log('   Stored token:', localStorage.getItem('access_token')?.substring(0, 30) + '...');
       
       if (refreshToken) {
         localStorage.setItem('refresh_token', refreshToken);
         console.log('💾 [AuthService] Refresh token stored in localStorage');
       }
     } else {
-      console.error('❌ [AuthService] No token received from login!');
+      console.error('❌ [AuthService] NO TOKEN FOUND IN RESPONSE!');
+      console.error('   Cannot proceed with user fetch without token');
+      console.error('   Please check backend /auth/login response format');
+      throw new Error('No token received from backend. Check backend response format.');
     }
 
     // Step 2: Fetch user details by username
