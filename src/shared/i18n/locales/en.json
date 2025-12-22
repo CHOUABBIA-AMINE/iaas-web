@@ -36,6 +36,19 @@
     "loginFailed": "Login failed. Please check your credentials.",
     "logoutSuccess": "Logged out successfully"
   },
+  "profile": {
+    "title": "My Profile",
+    "personalInfo": "Personal Information",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordChanged": "Password changed successfully",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "updateProfile": "Update Profile",
+    "profileUpdated": "Profile updated successfully"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "system": "System",

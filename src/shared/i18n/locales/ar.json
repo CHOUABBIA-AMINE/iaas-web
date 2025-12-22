@@ -36,6 +36,19 @@
     "loginFailed": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد.",
     "logoutSuccess": "تم تسجيل الخروج بنجاح"
   },
+  "profile": {
+    "title": "ملفي الشخصي",
+    "personalInfo": "المعلومات الشخصية",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور الجديدة",
+    "passwordChanged": "تم تغيير كلمة المرور بنجاح",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "passwordTooShort": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل",
+    "updateProfile": "تحديث الملف الشخصي",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
+  },
   "nav": {
     "dashboard": "لوحة التحكم",
     "system": "النظام",
