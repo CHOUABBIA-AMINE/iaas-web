@@ -70,14 +70,28 @@ class AuthService {
 
   /**
    * Logout current user
+   * Sends logout request to backend and clears local storage
    */
   async logout(): Promise<void> {
     try {
+      // Send logout request to backend
       await axiosInstance.post(`${this.BASE_URL}/logout`);
+    } catch (error) {
+      // Log error but don't throw - we still want to clear local storage
+      console.error('Logout request failed:', error);
     } finally {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      // Always clear local storage regardless of backend response
+      this.clearLocalStorage();
     }
+  }
+
+  /**
+   * Clear authentication data from local storage
+   */
+  private clearLocalStorage(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
   }
 
   /**

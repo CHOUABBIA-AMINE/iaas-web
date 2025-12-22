@@ -101,13 +101,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async () => {
     try {
+      // Call authService logout which sends request to backend
       await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
+      // Continue with local cleanup even if backend call fails
     } finally {
+      // Always clear local state
       setToken(null);
       setUser(null);
-      localStorage.removeItem('user');
     }
   };
 

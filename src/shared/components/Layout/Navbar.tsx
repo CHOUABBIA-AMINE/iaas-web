@@ -6,7 +6,7 @@
  * @created 12-22-2025
  */
 
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar, Menu, MenuItem, ListItemIcon, ListItemText, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogin = () => {
     navigate('/login');
@@ -54,11 +55,18 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
 
   const handleLogout = async () => {
     handleMenuClose();
+    setIsLoggingOut(true);
+    
     try {
       await logout();
+      // Navigate to login after successful logout
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still navigate to login even if logout request fails
+      navigate('/login');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -82,6 +90,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
             edge="start"
             onClick={onMenuClick}
             sx={{ mr: 2 }}
+            disabled={isLoggingOut}
           >
             <MenuIcon />
           </IconButton>
@@ -126,7 +135,12 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
             <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}>
               {user?.firstName || user?.username || 'User'}
             </Typography>
-            <IconButton color="inherit" size="small" onClick={handleMenuOpen}>
+            <IconButton 
+              color="inherit" 
+              size="small" 
+              onClick={handleMenuOpen}
+              disabled={isLoggingOut}
+            >
               <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
                 <AccountCircleIcon sx={{ fontSize: 20 }} />
               </Avatar>
@@ -138,23 +152,29 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <MenuItem onClick={handleProfile}>
+              <MenuItem onClick={handleProfile} disabled={isLoggingOut}>
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>{t('nav.profile')}</ListItemText>
               </MenuItem>
-              <MenuItem onClick={handleSettings}>
+              <MenuItem onClick={handleSettings} disabled={isLoggingOut}>
                 <ListItemIcon>
                   <SettingsIcon fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>{t('nav.settings')}</ListItemText>
               </MenuItem>
-              <MenuItem onClick={handleLogout}>
+              <MenuItem onClick={handleLogout} disabled={isLoggingOut}>
                 <ListItemIcon>
-                  <LogoutIcon fontSize="small" />
+                  {isLoggingOut ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <LogoutIcon fontSize="small" />
+                  )}
                 </ListItemIcon>
-                <ListItemText>{t('auth.logout')}</ListItemText>
+                <ListItemText>
+                  {isLoggingOut ? 'Logging out...' : t('auth.logout')}
+                </ListItemText>
               </MenuItem>
             </Menu>
           </Box>
