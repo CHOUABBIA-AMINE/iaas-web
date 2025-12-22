@@ -10,9 +10,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import theme from './theme'
-import Layout from './components/Layout/Layout'
-import Login from './pages/auth/Login'
-import Dashboard from './pages/Dashboard/Dashboard'
+import { Layout } from './shared/components/Layout'
+import { Dashboard } from './shared/components/Dashboard'
+import { Login } from './modules/system/auth/pages'
 import { UserList, UserEdit } from './modules/system/security/pages'
 
 function App() {
