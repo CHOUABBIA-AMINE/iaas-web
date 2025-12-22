@@ -20,9 +20,9 @@ import LanguageIcon from '@mui/icons-material/Language';
 import CheckIcon from '@mui/icons-material/Check';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'ar', name: 'Arabic', nativeName: 'العربية', flag: '🇩🇿' }, // Algeria flag
+  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' }, // UK flag
+  { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' }, // France flag
 ];
 
 const LanguageSwitcher = () => {
@@ -44,7 +44,7 @@ const LanguageSwitcher = () => {
     handleClose();
   };
 
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
+  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[1];
 
   return (
     <>
@@ -73,7 +73,9 @@ const LanguageSwitcher = () => {
                 <span style={{ width: 20, textAlign: 'center' }}>{language.flag}</span>
               )}
             </ListItemIcon>
-            <ListItemText>{language.name}</ListItemText>
+            <ListItemText>
+              {language.name} ({language.nativeName})
+            </ListItemText>
           </MenuItem>
         ))}
       </Menu>
