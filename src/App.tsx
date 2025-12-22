@@ -103,7 +103,7 @@ function App() {
                   <Route
                     path="users/create"
                     element={
-                      <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <ProtectedRoute>
                         <UserEdit />
                       </ProtectedRoute>
                     }
@@ -111,7 +111,7 @@ function App() {
                   <Route
                     path="users/:userId/edit"
                     element={
-                      <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <ProtectedRoute>
                         <UserEdit />
                       </ProtectedRoute>
                     }
