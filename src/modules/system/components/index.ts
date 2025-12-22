@@ -1,2 +1,2 @@
-// System module barrel file
-export * from "./system";
+// System module shared components
+// Add system-level component exports here
