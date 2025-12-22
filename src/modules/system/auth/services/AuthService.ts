@@ -26,28 +26,43 @@ class AuthService {
    * After authentication, fetches user details from /user/username/{username}
    */
   async login(credentials: LoginRequestDTO): Promise<LoginResult> {
+    console.log('🔑 [AuthService] Starting login process...');
+    console.log('   Username:', credentials.username);
+    
     // Step 1: Authenticate and get token
+    console.log('📤 [AuthService] Step 1: Calling /auth/login');
     const authResponse = await axiosInstance.post<LoginResponseDTO>(
       `${this.BASE_URL}/login`,
       credentials
     );
 
     const { token, refreshToken } = authResponse.data;
+    console.log('📥 [AuthService] Login response received');
+    console.log('   Token:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
+    console.log('   RefreshToken:', refreshToken ? 'Present' : 'Not present');
 
     // Store token temporarily for the user fetch request
     if (token) {
       localStorage.setItem('access_token', token);
+      console.log('💾 [AuthService] Token stored in localStorage');
+      console.log('   Stored token:', localStorage.getItem('access_token')?.substring(0, 20) + '...');
+      
       if (refreshToken) {
         localStorage.setItem('refresh_token', refreshToken);
+        console.log('💾 [AuthService] Refresh token stored in localStorage');
       }
+    } else {
+      console.error('❌ [AuthService] No token received from login!');
     }
 
     // Step 2: Fetch user details by username
+    console.log('📤 [AuthService] Step 2: Fetching user details...');
     let user: UserDTO;
     try {
       user = await userService.getByUsername(credentials.username);
+      console.log('✅ [AuthService] User fetched successfully:', user.username);
     } catch (error) {
-      console.error('Failed to fetch user details:', error);
+      console.error('❌ [AuthService] Failed to fetch user details:', error);
       // Create a minimal user object if fetch fails
       user = {
         id: 0,
@@ -55,8 +70,10 @@ class AuthService {
         email: credentials.username,
         roles: [],
       };
+      console.log('⚠️  [AuthService] Using fallback minimal user object');
     }
 
+    console.log('✅ [AuthService] Login process complete');
     return {
       token,
       refreshToken,
@@ -68,12 +85,15 @@ class AuthService {
    * Logout current user
    */
   async logout(): Promise<void> {
+    console.log('🚪 [AuthService] Logging out...');
     try {
       await axiosInstance.post(`${this.BASE_URL}/logout`);
+      console.log('✅ [AuthService] Logout request successful');
     } finally {
       // Always clear local storage
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
+      console.log('🗑️  [AuthService] Tokens cleared from localStorage');
     }
   }
 
