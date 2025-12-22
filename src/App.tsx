@@ -21,6 +21,7 @@ import ProtectedRoute from './shared/components/ProtectedRoute';
 import PublicRoute from './shared/components/PublicRoute';
 import { Layout } from './shared/components/Layout';
 import { Dashboard } from './shared/components/Dashboard';
+import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
 import { UserList, UserEdit } from './modules/system/security/pages';
 
@@ -74,6 +75,16 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Profile */}
+                <Route
+                  path="profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
                     </ProtectedRoute>
                   }
                 />

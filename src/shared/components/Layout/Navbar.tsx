@@ -43,11 +43,12 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
 
   const handleProfile = () => {
     handleMenuClose();
-    console.log('Navigate to profile');
+    navigate('/profile');
   };
 
   const handleSettings = () => {
     handleMenuClose();
+    // TODO: Navigate to settings page
     console.log('Navigate to settings');
   };
 
