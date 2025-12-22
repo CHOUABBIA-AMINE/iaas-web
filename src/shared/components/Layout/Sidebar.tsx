@@ -1,6 +1,7 @@
 /**
  * Sidebar Component
- * Side navigation menu
+ * Side navigation menu with collapsible icon-only mode
+ * Expands on hover to show text labels
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -13,24 +14,28 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
   Box,
   Collapse,
+  Tooltip,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SecurityIcon from '@mui/icons-material/Security';
 import PeopleIcon from '@mui/icons-material/People';
-import GroupIcon from '@mui/icons-material/Group';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import GroupIcon from '@mui/icons-material/Group';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
+import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { useState } from 'react';
 
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH_EXPANDED = 260;
+const DRAWER_WIDTH_COLLAPSED = 64;
 
 interface SidebarProps {
   open: boolean;
@@ -44,6 +49,7 @@ interface MenuItem {
   children?: MenuItem[];
 }
 
+// Menu structure aligned with IAAS backend: system -> audit, auth, security, utility
 const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
@@ -52,27 +58,66 @@ const menuItems: MenuItem[] = [
   },
   {
     title: 'System',
-    icon: <SecurityIcon />,
+    icon: <SettingsIcon />,
     children: [
       {
-        title: 'Users',
-        icon: <PeopleIcon />,
-        path: '/security/users',
+        title: 'Security',
+        icon: <SecurityIcon />,
+        children: [
+          {
+            title: 'Users',
+            icon: <PeopleIcon />,
+            path: '/security/users',
+          },
+          {
+            title: 'Roles',
+            icon: <VpnKeyIcon />,
+            path: '/security/roles',
+          },
+          {
+            title: 'Groups',
+            icon: <GroupIcon />,
+            path: '/security/groups',
+          },
+          {
+            title: 'Permissions',
+            icon: <LockPersonIcon />,
+            path: '/security/permissions',
+          },
+        ],
       },
       {
-        title: 'Roles',
-        icon: <VpnKeyIcon />,
-        path: '/security/roles',
+        title: 'Auth',
+        icon: <AdminPanelSettingsIcon />,
+        children: [
+          {
+            title: 'Sessions',
+            icon: <AssignmentIcon />,
+            path: '/auth/sessions',
+          },
+        ],
       },
       {
-        title: 'Groups',
-        icon: <GroupIcon />,
-        path: '/security/groups',
-      },
-      {
-        title: 'Audit Logs',
+        title: 'Audit',
         icon: <AssignmentIcon />,
-        path: '/system/audit',
+        children: [
+          {
+            title: 'Logs',
+            icon: <AssignmentIcon />,
+            path: '/audit/logs',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Business',
+    icon: <BusinessIcon />,
+    children: [
+      {
+        title: 'Overview',
+        icon: <BusinessIcon />,
+        path: '/business/overview',
       },
     ],
   },
@@ -88,22 +133,26 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    title: 'Business',
-    icon: <BusinessIcon />,
+    title: 'Common',
+    icon: <SettingsIcon />,
     children: [
       {
-        title: 'Overview',
-        icon: <BusinessIcon />,
-        path: '/business/overview',
+        title: 'Settings',
+        icon: <SettingsIcon />,
+        path: '/common/settings',
       },
     ],
   },
 ];
 
-const Sidebar = ({ open, onClose }: SidebarProps) => {
+const Sidebar = ({ open }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(['System']);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const isExpanded = open || isHovered;
+  const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED;
 
   const handleItemClick = (item: MenuItem) => {
     if (item.children) {
@@ -118,32 +167,37 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   };
 
   const renderMenuItem = (item: MenuItem, depth = 0) => {
-    const isExpanded = expandedItems.includes(item.title);
+    const isExpandedItem = expandedItems.includes(item.title);
     const isActive = item.path === location.pathname;
+    const hasChildren = Boolean(item.children);
 
-    return (
-      <Box key={item.title}>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => handleItemClick(item)}
-            sx={{
-              pl: 2 + depth * 2,
-              py: 1,
-              bgcolor: isActive ? 'primary.main' : 'transparent',
-              color: isActive ? 'primary.contrastText' : 'text.primary',
-              '&:hover': {
-                bgcolor: isActive ? 'primary.dark' : 'action.hover',
-              },
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 40,
-                color: isActive ? 'primary.contrastText' : 'text.secondary',
-              }}
-            >
-              {item.icon}
-            </ListItemIcon>
+    const listItemButton = (
+      <ListItemButton
+        onClick={() => handleItemClick(item)}
+        sx={{
+          pl: 2 + depth * 2,
+          py: 1.25,
+          minHeight: 48,
+          justifyContent: isExpanded ? 'initial' : 'center',
+          bgcolor: isActive ? 'primary.main' : 'transparent',
+          color: isActive ? 'primary.contrastText' : 'text.primary',
+          '&:hover': {
+            bgcolor: isActive ? 'primary.dark' : 'action.hover',
+          },
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: 0,
+            mr: isExpanded ? 2 : 'auto',
+            justifyContent: 'center',
+            color: isActive ? 'primary.contrastText' : 'text.secondary',
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+        {isExpanded && (
+          <>
             <ListItemText
               primary={item.title}
               primaryTypographyProps={{
@@ -151,14 +205,31 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
                 fontWeight: isActive ? 600 : 500,
               }}
             />
-            {item.children &&
-              (isExpanded ? <ExpandLess /> : <ExpandMore />)}
-          </ListItemButton>
+            {hasChildren && (isExpandedItem ? <ExpandLess /> : <ExpandMore />)}
+          </>
+        )}
+      </ListItemButton>
+    );
+
+    return (
+      <Box key={item.title}>
+        <ListItem disablePadding>
+          {!isExpanded && hasChildren ? (
+            <Tooltip title={item.title} placement="right">
+              {listItemButton}
+            </Tooltip>
+          ) : !isExpanded ? (
+            <Tooltip title={item.title} placement="right">
+              {listItemButton}
+            </Tooltip>
+          ) : (
+            listItemButton
+          )}
         </ListItem>
-        {item.children && (
-          <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+        {hasChildren && (
+          <Collapse in={isExpandedItem && isExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {item.children.map((child) => renderMenuItem(child, depth + 1))}
+              {item.children!.map((child) => renderMenuItem(child, depth + 1))}
             </List>
           </Collapse>
         )}
@@ -169,18 +240,22 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <Drawer
       variant="permanent"
-      open={open}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       sx={{
-        width: DRAWER_WIDTH,
+        width: drawerWidth,
         flexShrink: 0,
+        transition: 'width 0.2s ease-in-out',
         '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
+          width: drawerWidth,
           boxSizing: 'border-box',
           top: 64,
           height: 'calc(100% - 64px - 40px)',
+          overflowX: 'hidden',
           overflowY: 'auto',
+          transition: 'width 0.2s ease-in-out',
           '&::-webkit-scrollbar': {
-            width: '8px',
+            width: '6px',
           },
           '&::-webkit-scrollbar-track': {
             background: 'transparent',
@@ -195,10 +270,9 @@ const Sidebar = ({ open, onClose }: SidebarProps) => {
         },
       }}
     >
-      <List sx={{ pt: 2 }}>
+      <List sx={{ pt: 2, px: 1 }}>
         {menuItems.map((item) => renderMenuItem(item))}
       </List>
-      <Divider />
     </Drawer>
   );
 };

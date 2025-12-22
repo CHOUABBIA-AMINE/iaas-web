@@ -16,10 +16,10 @@ import Footer from './Footer';
 
 const NAVBAR_HEIGHT = 64;
 const FOOTER_HEIGHT = 40;
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH_COLLAPSED = 64;
 
 const Layout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const isAuthenticated = true; // TODO: Get from auth context
 
   const handleMenuClick = () => {
@@ -57,10 +57,11 @@ const Layout = () => {
             flexGrow: 1,
             mt: `${NAVBAR_HEIGHT}px`,
             mb: `${FOOTER_HEIGHT}px`,
-            ml: isAuthenticated ? `${DRAWER_WIDTH}px` : 0,
+            ml: isAuthenticated ? `${DRAWER_WIDTH_COLLAPSED}px` : 0,
             overflow: 'auto',
             bgcolor: 'background.default',
             p: 3,
+            transition: 'margin-left 0.2s ease-in-out',
             '&::-webkit-scrollbar': {
               width: '8px',
             },

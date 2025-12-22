@@ -32,10 +32,13 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         bgcolor: 'background.paper',
         color: 'text.primary',
+        borderBottom: 1,
+        borderColor: 'divider',
       }}
     >
       <Toolbar sx={{ minHeight: 64 }}>
