@@ -52,28 +52,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Initialize auth state from localStorage on mount
   useEffect(() => {
     const initializeAuth = () => {
-      console.log('🔄 [AuthContext] Initializing auth from localStorage...');
-      
       const storedToken = authService.getToken();
       const storedUser = localStorage.getItem('user');
-      
-      console.log('   Stored token:', storedToken ? `${storedToken.substring(0, 20)}...` : 'NO TOKEN');
-      console.log('   Stored user:', storedUser ? 'Present' : 'Not present');
 
       if (storedToken && storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
           setToken(storedToken);
           setUser(parsedUser);
-          console.log('✅ [AuthContext] Auth state restored from localStorage');
         } catch (error) {
-          console.error('❌ [AuthContext] Failed to parse stored user:', error);
-          // Clear invalid data
+          console.error('Failed to parse stored user:', error);
           localStorage.removeItem('user');
           localStorage.removeItem('access_token');
         }
-      } else {
-        console.log('⚠️  [AuthContext] No stored auth data found');
       }
       setIsLoading(false);
     };
@@ -82,23 +73,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const login = async (credentials: LoginRequestDTO) => {
-    console.log('🔑 [AuthContext] Login called');
     try {
       // authService.login returns { token, refreshToken, user }
-      // IMPORTANT: authService already stores the token in localStorage
       const { token: receivedToken, user: userDTO } = await authService.login(credentials);
-
-      console.log('📥 [AuthContext] Login result received:');
-      console.log('   Token:', receivedToken ? `${receivedToken.substring(0, 20)}...` : 'NO TOKEN');
-      console.log('   User:', userDTO.username);
-
-      // Verify token is in localStorage (should already be there from authService)
-      const tokenInStorage = localStorage.getItem('access_token');
-      console.log('   Token in localStorage:', tokenInStorage ? `${tokenInStorage.substring(0, 20)}...` : 'NO TOKEN');
 
       // Set token in state
       setToken(receivedToken);
-      console.log('💾 [AuthContext] Token set in state');
 
       // Convert UserDTO to User format and extract role names
       const userData: User = {
@@ -110,45 +90,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         roles: userDTO.roles?.map(role => role.name) || [],
       };
 
-      console.log('👤 [AuthContext] User data prepared:', userData);
-
       // Store user in localStorage
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
-      console.log('💾 [AuthContext] User stored in localStorage and state');
-      
-      // Final verification
-      console.log('✅ [AuthContext] Login complete - Final state:');
-      console.log('   access_token in localStorage:', localStorage.getItem('access_token') ? 'Present' : 'MISSING');
-      console.log('   user in localStorage:', localStorage.getItem('user') ? 'Present' : 'MISSING');
-      console.log('   token in state:', receivedToken ? 'Set' : 'Not set');
-      console.log('   user in state:', userData.username);
-      
     } catch (error) {
-      console.error('❌ [AuthContext] Login failed:', error);
+      console.error('Login failed:', error);
       throw error;
     }
   };
 
   const logout = async () => {
-    console.log('🚪 [AuthContext] Logout called');
     try {
       await authService.logout();
     } catch (error) {
-      console.error('❌ [AuthContext] Logout error:', error);
+      console.error('Logout error:', error);
     } finally {
-      // Always clear local state
       setToken(null);
       setUser(null);
       localStorage.removeItem('user');
-      console.log('🗑️  [AuthContext] Auth state cleared');
     }
   };
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
-    console.log('✅ [AuthContext] User updated');
   };
 
   const value: AuthContextType = {
