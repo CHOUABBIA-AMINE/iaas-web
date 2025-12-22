@@ -1,7 +1,7 @@
 /**
  * Layout Component
  * Main layout wrapper with navbar, sidebar, footer, and content area
- * No scrollbar on main body - fixed positioning for all elements
+ * Uses AuthContext for authentication state
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { useAuth } from '../../context/AuthContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
@@ -21,10 +22,10 @@ const DRAWER_WIDTH_COLLAPSED = 64;
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  
-  // Check if current route requires authentication
+  const { isAuthenticated } = useAuth();
+
+  // Check if current route is login page
   const isLoginPage = location.pathname === '/login';
-  const isAuthenticated = !isLoginPage; // TODO: Get from auth context
 
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);
@@ -33,15 +34,10 @@ const Layout = () => {
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {/* Navbar */}
-      <Navbar
-        onMenuClick={handleMenuClick}
-        isAuthenticated={isAuthenticated}
-      />
+      <Navbar onMenuClick={handleMenuClick} isAuthenticated={isAuthenticated} />
 
       {/* Sidebar - Only show when authenticated */}
-      {isAuthenticated && (
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      )}
+      {isAuthenticated && <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
 
       {/* Main Content Area */}
       <Box
@@ -64,7 +60,7 @@ const Layout = () => {
             ml: isAuthenticated ? `${DRAWER_WIDTH_COLLAPSED}px` : 0,
             overflow: 'auto',
             bgcolor: 'background.default',
-            p: isLoginPage ? 0 : 3, // No padding for login page
+            p: isLoginPage ? 0 : 3,
             transition: 'margin-left 0.2s ease-in-out',
             '&::-webkit-scrollbar': {
               width: '8px',

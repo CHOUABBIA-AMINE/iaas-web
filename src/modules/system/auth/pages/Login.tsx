@@ -1,6 +1,6 @@
 /**
  * Login Page Component
- * Professional authentication page displayed in main body
+ * Professional authentication page with JWT integration
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -28,9 +28,11 @@ import {
   Lock,
   Login as LoginIcon,
 } from '@mui/icons-material';
+import { useAuth } from '../../../../shared/context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -55,21 +57,17 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement actual authentication API call
-      // const response = await authService.login(formData);
-      
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // For demo: accept any non-empty credentials
-      if (formData.username && formData.password) {
-        // TODO: Store auth token
-        navigate('/dashboard');
-      } else {
-        setError('Please enter both username and password');
-      }
+      // Call AuthContext login which uses AuthService
+      await login(formData);
+      // Navigate to dashboard on success
+      navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      console.error('Login error:', err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Login failed. Please check your credentials.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -82,7 +80,7 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minHeight: 'calc(100vh - 64px - 40px)', // Full height minus navbar and footer
+        minHeight: 'calc(100vh - 64px - 40px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -244,11 +242,7 @@ const Login = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-          >
+          <Typography variant="body2" color="text.secondary" align="center">
             Don't have an account?{' '}
             <Link
               href="#"

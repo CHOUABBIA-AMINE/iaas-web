@@ -1,16 +1,21 @@
 /**
  * Navbar Component
  * Top navigation bar with logo, app name, and user actions
+ * Integrated with AuthContext for logout
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  */
 
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useAuth } from '../../context/AuthContext';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -19,14 +24,41 @@ interface NavbarProps {
 
 const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleLogin = () => {
     navigate('/login');
   };
 
-  const handleLogout = () => {
-    // TODO: Implement logout logic
-    navigate('/login');
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleProfile = () => {
+    handleMenuClose();
+    // TODO: Navigate to profile page
+    console.log('Navigate to profile');
+  };
+
+  const handleSettings = () => {
+    handleMenuClose();
+    // TODO: Navigate to settings page
+    console.log('Navigate to settings');
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
@@ -87,19 +119,40 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
         {/* User Actions */}
         {isAuthenticated ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton color="inherit" size="small">
+            <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}>
+              {user?.firstName || user?.username || 'User'}
+            </Typography>
+            <IconButton color="inherit" size="small" onClick={handleMenuOpen}>
               <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
                 <AccountCircleIcon sx={{ fontSize: 20 }} />
               </Avatar>
             </IconButton>
-            <IconButton
-              color="inherit"
-              onClick={handleLogout}
-              size="small"
-              sx={{ ml: 1 }}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-              <LogoutIcon />
-            </IconButton>
+              <MenuItem onClick={handleProfile}>
+                <ListItemIcon>
+                  <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Profile</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleSettings}>
+                <ListItemIcon>
+                  <SettingsIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Settings</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Logout</ListItemText>
+              </MenuItem>
+            </Menu>
           </Box>
         ) : (
           <Button

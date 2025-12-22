@@ -1,64 +1,102 @@
 /**
  * Main Application Component
- * Handles routing and authentication
+ * Handles routing and authentication with JWT
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  */
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import theme from './theme'
-import { Layout } from './shared/components/Layout'
-import { Dashboard } from './shared/components/Dashboard'
-import { Login } from './modules/system/auth/pages'
-import { UserList, UserEdit } from './modules/system/security/pages'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
+import { AuthProvider } from './shared/context/AuthContext';
+import ProtectedRoute from './shared/components/ProtectedRoute';
+import PublicRoute from './shared/components/PublicRoute';
+import { Layout } from './shared/components/Layout';
+import { Dashboard } from './shared/components/Dashboard';
+import { Login } from './modules/system/auth/pages';
+import { UserList, UserEdit } from './modules/system/security/pages';
 
 function App() {
-  // TODO: Get from auth context
-  const isAuthenticated = false;
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Routes>
-          {/* All routes go through Layout */}
-          <Route path="/" element={<Layout />}>
-            {/* Public Routes */}
-            <Route path="login" element={<Login />} />
-            
-            {/* Root redirect */}
-            <Route index element={
-              isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-            } />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* All routes go through Layout */}
+            <Route path="/" element={<Layout />}>
+              {/* Public Routes */}
+              <Route
+                path="login"
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                }
+              />
 
-            {/* Protected Routes */}
-            <Route path="dashboard" element={
-              isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
-            } />
-            
-            {/* Security Module */}
-            <Route path="security">
-              <Route path="users" element={
-                isAuthenticated ? <UserList /> : <Navigate to="/login" replace />
-              } />
-              <Route path="users/create" element={
-                isAuthenticated ? <UserEdit /> : <Navigate to="/login" replace />
-              } />
-              <Route path="users/:userId/edit" element={
-                isAuthenticated ? <UserEdit /> : <Navigate to="/login" replace />
-              } />
+              {/* Root redirect */}
+              <Route index element={<Navigate to="/dashboard" replace />} />
+
+              {/* Protected Routes */}
+              <Route
+                path="dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Security Module - Protected */}
+              <Route path="security">
+                <Route
+                  path="users"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <UserList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="users/create"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <UserEdit />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="users/:userId/edit"
+                  element={
+                    <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <UserEdit />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
+
+              {/* Unauthorized page */}
+              <Route
+                path="unauthorized"
+                element={
+                  <div style={{ padding: 24 }}>
+                    <h1>403 - Unauthorized</h1>
+                    <p>You don't have permission to access this resource.</p>
+                  </div>
+                }
+              />
+
+              {/* Catch-all */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
-
-            {/* Catch-all */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Route>
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;
