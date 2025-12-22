@@ -1,6 +1,6 @@
 /**
- * User List Page with Advanced Features
- * MUI DataGrid with search, sort, filter, and export (CSV, Excel, PDF)
+ * User List Page
+ * Simple version with DataGrid, search, and filters (no export for now)
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -20,13 +20,10 @@ import {
   Alert,
   TextField,
   InputAdornment,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
   FormControl,
   InputLabel,
   Select,
+  MenuItem,
   Stack,
 } from '@mui/material';
 import {
@@ -34,13 +31,11 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Search as SearchIcon,
-  FileDownload as ExportIcon,
   FilterList as FilterIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { userService } from '../services';
 import { UserDTO } from '../dto';
-import { exportToCSV, exportToExcel, exportToPDF } from '../utils/exportUtils';
 
 const UserList = () => {
   const { t } = useTranslation();
@@ -55,9 +50,6 @@ const UserList = () => {
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
-  
-  // Export menu
-  const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
     loadUsers();
@@ -116,7 +108,6 @@ const UserList = () => {
       field: 'id', 
       headerName: 'ID', 
       width: 70,
-      type: 'number',
     },
     { 
       field: 'username', 
@@ -223,30 +214,6 @@ const UserList = () => {
     setRoleFilter('all');
   };
 
-  // Export handlers
-  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setExportAnchorEl(event.currentTarget);
-  };
-
-  const handleExportMenuClose = () => {
-    setExportAnchorEl(null);
-  };
-
-  const handleExportCSV = () => {
-    exportToCSV(filteredUsers, 'users');
-    handleExportMenuClose();
-  };
-
-  const handleExportExcel = () => {
-    exportToExcel(filteredUsers, 'users');
-    handleExportMenuClose();
-  };
-
-  const handleExportPDF = () => {
-    exportToPDF(filteredUsers, 'users', t);
-    handleExportMenuClose();
-  };
-
   return (
     <Box>
       {/* Header */}
@@ -254,40 +221,14 @@ const UserList = () => {
         <Typography variant="h4" fontWeight={600}>
           {t('user.title')}
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="outlined"
-            startIcon={<ExportIcon />}
-            onClick={handleExportMenuOpen}
-          >
-            {t('common.export')}
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreate}
-          >
-            {t('user.createUser')}
-          </Button>
-        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleCreate}
+        >
+          {t('user.createUser')}
+        </Button>
       </Box>
-
-      {/* Export Menu */}
-      <Menu
-        anchorEl={exportAnchorEl}
-        open={Boolean(exportAnchorEl)}
-        onClose={handleExportMenuClose}
-      >
-        <MenuItem onClick={handleExportCSV}>
-          <ListItemText>{t('common.exportCSV')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportExcel}>
-          <ListItemText>{t('common.exportExcel')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportPDF}>
-          <ListItemText>{t('common.exportPDF')}</ListItemText>
-        </MenuItem>
-      </Menu>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
