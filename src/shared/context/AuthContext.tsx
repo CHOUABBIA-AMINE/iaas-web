@@ -8,7 +8,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '../../modules/system/auth/services';
-import { LoginRequestDTO, LoginResponseDTO } from '../../modules/system/auth/dto';
+import { LoginRequestDTO } from '../../modules/system/auth/dto';
+import { UserDTO } from '../../modules/system/security/dto';
 
 interface User {
   id: number;
@@ -74,21 +75,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (credentials: LoginRequestDTO) => {
     try {
-      const response: LoginResponseDTO = await authService.login(credentials);
-      
+      // authService.login now returns { token, refreshToken, user }
+      const { token, user: userDTO } = await authService.login(credentials);
+
       // Store token (already done in authService)
-      setToken(response.token);
-      
-      // Store and set user
+      setToken(token);
+
+      // Convert UserDTO to User format and extract role names
       const userData: User = {
-        id: response.user.id,
-        username: response.user.username,
-        email: response.user.email,
-        firstName: response.user.firstName,
-        lastName: response.user.lastName,
-        roles: response.user.roles,
+        id: userDTO.id,
+        username: userDTO.username,
+        email: userDTO.email,
+        firstName: userDTO.firstName,
+        lastName: userDTO.lastName,
+        roles: userDTO.roles?.map(role => role.name) || [],
       };
-      
+
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
     } catch (error) {

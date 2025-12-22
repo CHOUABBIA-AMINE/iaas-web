@@ -9,14 +9,7 @@
 export interface LoginResponseDTO {
   token: string;
   refreshToken?: string;
-  tokenType: string;
-  expiresIn: number;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    roles: string[];
-  };
+  tokenType?: string;
+  expiresIn?: number;
+  username?: string; // Username might be in response
 }
