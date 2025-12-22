@@ -1,22 +1,28 @@
+/**
+ * Axios Configuration
+ * Central HTTP client configuration
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-22-2025
+ */
+
 import axios from 'axios'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/iaas/api',
-  timeout: 30000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
+// Request interceptor - Add auth token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')
-    const tokenType = localStorage.getItem('tokenType') || 'Bearer'
-    
     if (token) {
-      config.headers.Authorization = `${tokenType} ${token}`
+      config.headers.Authorization = `Bearer ${token}`
     }
-    
     return config
   },
   (error) => {
@@ -24,10 +30,12 @@ axiosInstance.interceptors.request.use(
   }
 )
 
+// Response interceptor - Handle errors
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Token expired or invalid
       localStorage.clear()
       window.location.href = '/login'
     }

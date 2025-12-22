@@ -1,3 +1,11 @@
+/**
+ * Authentication DTOs
+ * Matches backend auth DTOs
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-22-2025
+ */
+
 export interface LoginRequest {
   username: string
   password: string
