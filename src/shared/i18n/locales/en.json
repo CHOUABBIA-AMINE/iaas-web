@@ -21,7 +21,14 @@
     "next": "Next",
     "previous": "Previous",
     "submit": "Submit",
-    "close": "Close"
+    "close": "Close",
+    "export": "Export",
+    "exportCSV": "Export as CSV",
+    "exportExcel": "Export as Excel",
+    "exportPDF": "Export as PDF",
+    "filters": "Filters",
+    "clearFilters": "Clear Filters",
+    "results": "results"
   },
   "auth": {
     "login": "Login",
@@ -85,7 +92,12 @@
     "groups": "Groups",
     "createdAt": "Created At",
     "updatedAt": "Updated At",
-    "lastLogin": "Last Login"
+    "lastLogin": "Last Login",
+    "searchUsers": "Search users...",
+    "filterByStatus": "Filter by Status",
+    "filterByRole": "Filter by Role",
+    "allStatuses": "All Statuses",
+    "allRoles": "All Roles"
   },
   "role": {
     "title": "Roles",
