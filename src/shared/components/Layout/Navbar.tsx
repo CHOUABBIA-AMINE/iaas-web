@@ -1,7 +1,6 @@
 /**
  * Navbar Component
- * Top navigation bar with logo, app name, and user actions
- * Integrated with AuthContext for logout
+ * Top navigation bar with logo, app name, user actions, and language switcher
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -10,12 +9,14 @@
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '../../context/AuthContext';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -24,6 +25,7 @@ interface NavbarProps {
 
 const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -41,13 +43,11 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
 
   const handleProfile = () => {
     handleMenuClose();
-    // TODO: Navigate to profile page
     console.log('Navigate to profile');
   };
 
   const handleSettings = () => {
     handleMenuClose();
-    // TODO: Navigate to settings page
     console.log('Navigate to settings');
   };
 
@@ -110,15 +110,18 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
               letterSpacing: '-0.01em',
             }}
           >
-            IAAS Platform
+            {t('app.name')}
           </Typography>
         </Box>
 
         <Box sx={{ flexGrow: 1 }} />
 
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* User Actions */}
         {isAuthenticated ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
             <Typography variant="body2" sx={{ mr: 1, display: { xs: 'none', sm: 'block' } }}>
               {user?.firstName || user?.username || 'User'}
             </Typography>
@@ -138,19 +141,19 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
                 <ListItemIcon>
                   <PersonIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Profile</ListItemText>
+                <ListItemText>{t('nav.profile')}</ListItemText>
               </MenuItem>
               <MenuItem onClick={handleSettings}>
                 <ListItemIcon>
                   <SettingsIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Settings</ListItemText>
+                <ListItemText>{t('nav.settings')}</ListItemText>
               </MenuItem>
               <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
-                <ListItemText>Logout</ListItemText>
+                <ListItemText>{t('auth.logout')}</ListItemText>
               </MenuItem>
             </Menu>
           </Box>
@@ -162,7 +165,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
             startIcon={<AccountCircleIcon />}
             sx={{ ml: 2 }}
           >
-            Login
+            {t('auth.login')}
           </Button>
         )}
       </Toolbar>
