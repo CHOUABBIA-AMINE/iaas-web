@@ -1,12 +1,5 @@
 import axiosInstance from '../config/axios'
-import { PermissionDTO } from './permissionService'
-
-export interface RoleDTO {
-  id?: number
-  name: string
-  description?: string
-  permissions?: PermissionDTO[]
-}
+import { RoleDTO, PermissionDTO } from '../types/security'
 
 class RoleService {
   private readonly BASE_URL = '/role'
@@ -56,6 +49,18 @@ class RoleService {
       await axiosInstance.delete(`${this.BASE_URL}/${id}`)
     } catch (error: any) {
       console.error(`Error deleting role ${id}:`, error)
+      throw this.handleError(error)
+    }
+  }
+
+  async assignPermission(roleId: number, permissionId: number): Promise<RoleDTO> {
+    try {
+      const response = await axiosInstance.post<RoleDTO>(
+        `${this.BASE_URL}/${roleId}/permissions/${permissionId}`
+      )
+      return response.data
+    } catch (error: any) {
+      console.error(`Error assigning permission to role:`, error)
       throw this.handleError(error)
     }
   }
