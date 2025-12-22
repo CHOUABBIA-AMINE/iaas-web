@@ -9,7 +9,7 @@ export interface GroupDTO {
 }
 
 class GroupService {
-  private readonly BASE_URL = '/group'
+  private readonly BASE_URL = '/system/security/group'
 
   async getAll(): Promise<GroupDTO[]> {
     try {

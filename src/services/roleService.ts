@@ -9,7 +9,7 @@ export interface RoleDTO {
 }
 
 class RoleService {
-  private readonly BASE_URL = '/role'
+  private readonly BASE_URL = '/system/security/role'
 
   async getAll(): Promise<RoleDTO[]> {
     try {

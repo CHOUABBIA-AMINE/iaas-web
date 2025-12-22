@@ -7,7 +7,7 @@ export interface PermissionDTO {
 }
 
 class PermissionService {
-  private readonly BASE_URL = '/permission'
+  private readonly BASE_URL = '/system/security/permission'
 
   async getAll(): Promise<PermissionDTO[]> {
     try {

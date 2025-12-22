@@ -28,7 +28,7 @@ export interface UserDTO {
 }
 
 class UserService {
-  private readonly BASE_URL = '/user'
+  private readonly BASE_URL = '/system/security/user'
 
   /**
    * Get all users
