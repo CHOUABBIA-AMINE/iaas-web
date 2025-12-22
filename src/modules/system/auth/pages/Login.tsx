@@ -1,6 +1,6 @@
 /**
  * Login Page Component
- * Professional authentication page with modern design
+ * Professional authentication page displayed in main body
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -82,32 +82,18 @@ const Login = () => {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: 'calc(100vh - 64px - 40px)', // Full height minus navbar and footer
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: 'background.default',
-        backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        position: 'relative',
-        overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-          pointerEvents: 'none',
-        },
+        py: 4,
       }}
     >
       <Card
-        elevation={8}
+        elevation={3}
         sx={{
           width: '100%',
           maxWidth: 440,
-          mx: 2,
           borderRadius: 3,
           overflow: 'hidden',
         }}
@@ -273,21 +259,6 @@ const Login = () => {
             </Link>
           </Typography>
         </CardContent>
-
-        <Box
-          sx={{
-            bgcolor: 'background.default',
-            py: 2,
-            px: 3,
-            textAlign: 'center',
-            borderTop: 1,
-            borderColor: 'divider',
-          }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            © 2025 IAAS Platform. All rights reserved.
-          </Typography>
-        </Box>
       </Card>
     </Box>
   );

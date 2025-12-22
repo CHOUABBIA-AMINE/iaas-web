@@ -8,7 +8,7 @@
  */
 
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -20,7 +20,11 @@ const DRAWER_WIDTH_COLLAPSED = 64;
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isAuthenticated = true; // TODO: Get from auth context
+  const location = useLocation();
+  
+  // Check if current route requires authentication
+  const isLoginPage = location.pathname === '/login';
+  const isAuthenticated = !isLoginPage; // TODO: Get from auth context
 
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);
@@ -34,7 +38,7 @@ const Layout = () => {
         isAuthenticated={isAuthenticated}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar - Only show when authenticated */}
       {isAuthenticated && (
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       )}
@@ -60,7 +64,7 @@ const Layout = () => {
             ml: isAuthenticated ? `${DRAWER_WIDTH_COLLAPSED}px` : 0,
             overflow: 'auto',
             bgcolor: 'background.default',
-            p: 3,
+            p: isLoginPage ? 0 : 3, // No padding for login page
             transition: 'margin-left 0.2s ease-in-out',
             '&::-webkit-scrollbar': {
               width: '8px',
