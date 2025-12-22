@@ -1,12 +1,5 @@
 import axiosInstance from '../config/axios'
-import { RoleDTO } from './roleService'
-
-export interface GroupDTO {
-  id?: number
-  name: string
-  description?: string
-  roles?: RoleDTO[]
-}
+import { GroupDTO, RoleDTO } from '../types/security'
 
 class GroupService {
   private readonly BASE_URL = '/system/security/group'
