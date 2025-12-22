@@ -1,14 +1,16 @@
 /**
  * Footer Component
- * Thin footer with copyright information
+ * Fixed footer with copyright information and i18n support
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  */
 
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -29,21 +31,8 @@ const Footer = () => {
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{ fontSize: '0.75rem' }}
-      >
-        © {currentYear}{' '}
-        <Link
-          href="#"
-          underline="hover"
-          color="inherit"
-          sx={{ fontWeight: 500 }}
-        >
-          IAAS Platform
-        </Link>
-        . All rights reserved.
+      <Typography variant="caption" color="text.secondary">
+        {t('footer.copyright', { year: currentYear })}
       </Typography>
     </Box>
   );

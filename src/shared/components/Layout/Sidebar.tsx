@@ -1,7 +1,6 @@
 /**
  * Sidebar Component
- * Side navigation menu with collapsible icon-only mode
- * Expands on hover to show text labels
+ * Side navigation menu with collapsible icon-only mode and i18n support
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -20,6 +19,7 @@ import {
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SecurityIcon from '@mui/icons-material/Security';
 import PeopleIcon from '@mui/icons-material/People';
@@ -43,123 +43,123 @@ interface SidebarProps {
 }
 
 interface MenuItem {
-  title: string;
+  titleKey: string;
   icon: React.ReactElement;
   path?: string;
   children?: MenuItem[];
 }
 
-// Menu structure aligned with IAAS backend: system -> audit, auth, security, utility
-const menuItems: MenuItem[] = [
-  {
-    title: 'Dashboard',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-  },
-  {
-    title: 'System',
-    icon: <SettingsIcon />,
-    children: [
-      {
-        title: 'Security',
-        icon: <SecurityIcon />,
-        children: [
-          {
-            title: 'Users',
-            icon: <PeopleIcon />,
-            path: '/security/users',
-          },
-          {
-            title: 'Roles',
-            icon: <VpnKeyIcon />,
-            path: '/security/roles',
-          },
-          {
-            title: 'Groups',
-            icon: <GroupIcon />,
-            path: '/security/groups',
-          },
-          {
-            title: 'Permissions',
-            icon: <LockPersonIcon />,
-            path: '/security/permissions',
-          },
-        ],
-      },
-      {
-        title: 'Auth',
-        icon: <AdminPanelSettingsIcon />,
-        children: [
-          {
-            title: 'Sessions',
-            icon: <AssignmentIcon />,
-            path: '/auth/sessions',
-          },
-        ],
-      },
-      {
-        title: 'Audit',
-        icon: <AssignmentIcon />,
-        children: [
-          {
-            title: 'Logs',
-            icon: <AssignmentIcon />,
-            path: '/audit/logs',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Business',
-    icon: <BusinessIcon />,
-    children: [
-      {
-        title: 'Overview',
-        icon: <BusinessIcon />,
-        path: '/business/overview',
-      },
-    ],
-  },
-  {
-    title: 'Network',
-    icon: <NetworkCheckIcon />,
-    children: [
-      {
-        title: 'Overview',
-        icon: <NetworkCheckIcon />,
-        path: '/network/overview',
-      },
-    ],
-  },
-  {
-    title: 'Common',
-    icon: <SettingsIcon />,
-    children: [
-      {
-        title: 'Settings',
-        icon: <SettingsIcon />,
-        path: '/common/settings',
-      },
-    ],
-  },
-];
-
 const Sidebar = ({ open }: SidebarProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(['System']);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Menu structure with translation keys
+  const menuItems: MenuItem[] = [
+    {
+      titleKey: 'nav.dashboard',
+      icon: <DashboardIcon />,
+      path: '/dashboard',
+    },
+    {
+      titleKey: 'nav.system',
+      icon: <SettingsIcon />,
+      children: [
+        {
+          titleKey: 'nav.security',
+          icon: <SecurityIcon />,
+          children: [
+            {
+              titleKey: 'nav.users',
+              icon: <PeopleIcon />,
+              path: '/security/users',
+            },
+            {
+              titleKey: 'nav.roles',
+              icon: <VpnKeyIcon />,
+              path: '/security/roles',
+            },
+            {
+              titleKey: 'nav.groups',
+              icon: <GroupIcon />,
+              path: '/security/groups',
+            },
+            {
+              titleKey: 'nav.permissions',
+              icon: <LockPersonIcon />,
+              path: '/security/permissions',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.auth',
+          icon: <AdminPanelSettingsIcon />,
+          children: [
+            {
+              titleKey: 'nav.sessions',
+              icon: <AssignmentIcon />,
+              path: '/auth/sessions',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.audit',
+          icon: <AssignmentIcon />,
+          children: [
+            {
+              titleKey: 'nav.logs',
+              icon: <AssignmentIcon />,
+              path: '/audit/logs',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.business',
+      icon: <BusinessIcon />,
+      children: [
+        {
+          titleKey: 'nav.overview',
+          icon: <BusinessIcon />,
+          path: '/business/overview',
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.network',
+      icon: <NetworkCheckIcon />,
+      children: [
+        {
+          titleKey: 'nav.overview',
+          icon: <NetworkCheckIcon />,
+          path: '/network/overview',
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.common',
+      icon: <SettingsIcon />,
+      children: [
+        {
+          titleKey: 'nav.settings',
+          icon: <SettingsIcon />,
+          path: '/common/settings',
+        },
+      ],
+    },
+  ];
+
   const isExpanded = open || isHovered;
   const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED;
 
   const handleItemClick = (item: MenuItem) => {
+    const title = t(item.titleKey);
     if (item.children) {
       setExpandedItems((prev) =>
-        prev.includes(item.title)
-          ? prev.filter((i) => i !== item.title)
-          : [...prev, item.title]
+        prev.includes(title) ? prev.filter((i) => i !== title) : [...prev, title]
       );
     } else if (item.path) {
       navigate(item.path);
@@ -167,7 +167,8 @@ const Sidebar = ({ open }: SidebarProps) => {
   };
 
   const renderMenuItem = (item: MenuItem, depth = 0) => {
-    const isExpandedItem = expandedItems.includes(item.title);
+    const title = t(item.titleKey);
+    const isExpandedItem = expandedItems.includes(title);
     const isActive = item.path === location.pathname;
     const hasChildren = Boolean(item.children);
 
@@ -199,7 +200,7 @@ const Sidebar = ({ open }: SidebarProps) => {
         {isExpanded && (
           <>
             <ListItemText
-              primary={item.title}
+              primary={title}
               primaryTypographyProps={{
                 fontSize: '0.875rem',
                 fontWeight: isActive ? 600 : 500,
@@ -212,14 +213,10 @@ const Sidebar = ({ open }: SidebarProps) => {
     );
 
     return (
-      <Box key={item.title}>
+      <Box key={item.titleKey}>
         <ListItem disablePadding>
-          {!isExpanded && hasChildren ? (
-            <Tooltip title={item.title} placement="right">
-              {listItemButton}
-            </Tooltip>
-          ) : !isExpanded ? (
-            <Tooltip title={item.title} placement="right">
+          {!isExpanded ? (
+            <Tooltip title={title} placement="right">
               {listItemButton}
             </Tooltip>
           ) : (

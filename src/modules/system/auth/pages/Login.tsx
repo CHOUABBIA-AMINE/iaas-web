@@ -1,6 +1,6 @@
 /**
  * Login Page Component
- * Professional authentication page with JWT integration
+ * Professional authentication page with JWT integration and i18n support
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
@@ -8,6 +8,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Card,
@@ -32,6 +33,7 @@ import { useAuth } from '../../../../shared/context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
@@ -47,7 +49,6 @@ const Login = () => {
       ...prev,
       [name]: value,
     }));
-    // Clear error when user types
     if (error) setError('');
   };
 
@@ -57,16 +58,12 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Call AuthContext login which uses AuthService
       await login(formData);
-      // Navigate to dashboard on success
       navigate('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
       const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        'Login failed. Please check your credentials.';
+        err.response?.data?.message || err.message || t('auth.loginFailed');
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -126,10 +123,10 @@ const Login = () => {
             />
           </Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>
-            IAAS Platform
+            {t('app.name')}
           </Typography>
           <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            Infrastructure as a Service Management
+            {t('app.description')}
           </Typography>
         </Box>
 
@@ -140,7 +137,7 @@ const Login = () => {
             gutterBottom
             sx={{ mb: 3, textAlign: 'center' }}
           >
-            Sign In
+            {t('auth.signIn')}
           </Typography>
 
           {error && (
@@ -152,7 +149,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Username"
+              label={t('auth.username')}
               name="username"
               value={formData.username}
               onChange={handleChange}
@@ -172,7 +169,7 @@ const Login = () => {
 
             <TextField
               fullWidth
-              label="Password"
+              label={t('auth.password')}
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
@@ -188,11 +185,7 @@ const Login = () => {
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      onClick={handleTogglePassword}
-                      edge="end"
-                      size="small"
-                    >
+                    <IconButton onClick={handleTogglePassword} edge="end" size="small">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -214,7 +207,7 @@ const Login = () => {
                 underline="hover"
                 sx={{ color: 'primary.main', fontWeight: 500 }}
               >
-                Forgot password?
+                {t('auth.forgotPassword')}
               </Link>
             </Box>
 
@@ -236,20 +229,20 @@ const Login = () => {
                 },
               }}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? t('auth.signingIn') : t('auth.signIn')}
             </Button>
           </form>
 
           <Divider sx={{ my: 3 }} />
 
           <Typography variant="body2" color="text.secondary" align="center">
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link
               href="#"
               underline="hover"
               sx={{ color: 'primary.main', fontWeight: 600 }}
             >
-              Contact Administrator
+              {t('auth.contactAdmin')}
             </Link>
           </Typography>
         </CardContent>
