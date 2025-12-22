@@ -1,79 +1,45 @@
+/**
+ * Main Application Component
+ * Handles routing and authentication
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-22-2025
+ */
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import theme from './theme/theme'
+import theme from './theme'
 import Layout from './components/Layout/Layout'
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit, ResetPassword } from './pages/Security'
+import Login from './pages/auth/Login'
+import Dashboard from './pages/Dashboard/Dashboard'
+import { UserList, UserEdit } from './modules/system/security/pages'
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Layout>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<LoginPage />} />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected Routes */}
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
             
-            {/* Home Route */}
-            <Route path="/" element={<HomePage />} />
-            
-            {/* Security Routes - Users */}
-            <Route path="/security/users" element={<UserList />} />
-            <Route path="/security/users/create" element={<UserEdit />} />
-            <Route path="/security/users/:userId/edit" element={<UserEdit />} />
-            
-            {/* Security Routes - Roles */}
-            <Route path="/security/roles" element={<RoleList />} />
-            <Route path="/security/roles/create" element={<RoleEdit />} />
-            <Route path="/security/roles/:roleId/edit" element={<RoleEdit />} />
-            
-            {/* Security Routes - Groups */}
-            <Route path="/security/groups" element={<GroupList />} />
-            <Route path="/security/groups/create" element={<GroupEdit />} />
-            <Route path="/security/groups/:groupId/edit" element={<GroupEdit />} />
-            
-            {/* Security Routes - Settings */}
-            <Route path="/security/reset-password" element={<ResetPassword />} />
-            <Route path="/security/login-settings" element={<div>Login Settings Page (TODO)</div>} />
-            <Route path="/security/2fa" element={<div>Two Factor Auth Page (TODO)</div>} />
-            <Route path="/security/sessions" element={<div>Session Management Page (TODO)</div>} />
-            
-            {/* Common Routes */}
-            <Route path="/common/structure" element={<div>Structure Page (TODO)</div>} />
-            <Route path="/common/job" element={<div>Job Page (TODO)</div>} />
-            <Route path="/common/person" element={<div>Person Page (TODO)</div>} />
-            <Route path="/common/employee" element={<div>Employee Page (TODO)</div>} />
-            <Route path="/common/archivebox" element={<div>Archive Box Page (TODO)</div>} />
-            <Route path="/common/folder" element={<div>Folder Page (TODO)</div>} />
-            <Route path="/common/document" element={<div>Document Page (TODO)</div>} />
-            <Route path="/common/mail" element={<div>Mail Page (TODO)</div>} />
-            
-            {/* Business Routes */}
-            <Route path="/business/provider" element={<div>Provider Page (TODO)</div>} />
-            <Route path="/business/representator" element={<div>Provider Representator Page (TODO)</div>} />
-            <Route path="/business/clearance" element={<div>Clearance Page (TODO)</div>} />
-            <Route path="/business/exclusion" element={<div>Provider Exclusion Page (TODO)</div>} />
-            <Route path="/business/financial" element={<div>Financial Operation Page (TODO)</div>} />
-            <Route path="/business/budget" element={<div>Budget Modification Page (TODO)</div>} />
-            <Route path="/business/planned" element={<div>Planned Item Page (TODO)</div>} />
-            <Route path="/business/distribution" element={<div>Item Distribution Page (TODO)</div>} />
-            <Route path="/business/consultation" element={<div>Consultation Page (TODO)</div>} />
-            <Route path="/business/submission" element={<div>Submission Page (TODO)</div>} />
-            <Route path="/business/contract" element={<div>Contract Page (TODO)</div>} />
-            <Route path="/business/contractitem" element={<div>Contract Item Page (TODO)</div>} />
-            <Route path="/business/amendment" element={<div>Amendment Page (TODO)</div>} />
-            
-            {/* User Profile Routes */}
-            <Route path="/profile" element={<div>Profile Page (TODO)</div>} />
-            <Route path="/language" element={<div>Language Settings Page (TODO)</div>} />
-            
-            {/* Catch all - redirect to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Layout>
+            {/* Security Module */}
+            <Route path="security">
+              <Route path="users" element={<UserList />} />
+              <Route path="users/create" element={<UserEdit />} />
+              <Route path="users/:userId/edit" element={<UserEdit />} />
+            </Route>
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Route>
+        </Routes>
       </Router>
     </ThemeProvider>
   )
