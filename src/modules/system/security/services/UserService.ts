@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { UserDTO } from '../dto';
 
 class UserService {
-  private readonly BASE_URL = '/user';
+  private readonly BASE_URL = '/system/security/user';
 
   async getAll(): Promise<UserDTO[]> {
     const response = await axiosInstance.get<UserDTO[]>(this.BASE_URL);
@@ -25,7 +25,7 @@ class UserService {
 
   /**
    * Get user by username
-   * Endpoint: GET /user/username/{username}
+   * Endpoint: GET /system/security/user/username/{username}
    */
   async getByUsername(username: string): Promise<UserDTO> {
     const response = await axiosInstance.get<UserDTO>(`${this.BASE_URL}/username/${username}`);
