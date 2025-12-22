@@ -53,7 +53,7 @@ const Sidebar = ({ open }: SidebarProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['System']);
+  const [expandedItems, setExpandedItems] = useState<string[]>(['System', 'Security']);
   const [isHovered, setIsHovered] = useState(false);
 
   // Menu structure with translation keys
