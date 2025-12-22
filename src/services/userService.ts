@@ -1,8 +1,8 @@
 import axiosInstance from '../config/axios'
-import { UserDTO, RoleDTO, GroupDTO } from '../types/security'
+import { UserDTO } from '../types/security'
 
 class UserService {
-  private readonly BASE_URL = '/system/security/user'
+  private readonly BASE_URL = '/user'
 
   async getAll(): Promise<UserDTO[]> {
     try {

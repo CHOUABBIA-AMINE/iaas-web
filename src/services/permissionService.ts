@@ -2,7 +2,7 @@ import axiosInstance from '../config/axios'
 import { PermissionDTO } from '../types/security'
 
 class PermissionService {
-  private readonly BASE_URL = '/system/security/permission'
+  private readonly BASE_URL = '/permission'
 
   async getAll(): Promise<PermissionDTO[]> {
     try {

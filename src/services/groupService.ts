@@ -1,8 +1,8 @@
 import axiosInstance from '../config/axios'
-import { GroupDTO, RoleDTO } from '../types/security'
+import { GroupDTO } from '../types/security'
 
 class GroupService {
-  private readonly BASE_URL = '/system/security/group'
+  private readonly BASE_URL = '/group'
 
   async getAll(): Promise<GroupDTO[]> {
     try {
