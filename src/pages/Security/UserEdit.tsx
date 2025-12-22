@@ -16,9 +16,10 @@ import {
   Chip,
 } from '@mui/material'
 import { Save, Cancel } from '@mui/icons-material'
-import userService, { UserDTO, RoleDTO, GroupDTO } from '../../services/userService'
+import userService from '../../services/userService'
 import roleService from '../../services/roleService'
 import groupService from '../../services/groupService'
+import { UserDTO, RoleDTO, GroupDTO } from '../../types/security'
 
 function UserEdit() {
   const navigate = useNavigate()
