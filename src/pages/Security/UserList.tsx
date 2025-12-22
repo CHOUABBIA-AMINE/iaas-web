@@ -32,7 +32,8 @@ import {
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import userService, { UserDTO } from '../../services/userService'
+import userService from '../../services/userService'
+import { UserDTO } from '../../types/security'
 
 type SortField = 'username' | 'email' | 'enabled' | 'accountNonLocked'
 type SortOrder = 'asc' | 'desc'
