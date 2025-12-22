@@ -25,17 +25,10 @@ class UserService {
 
   /**
    * Get user by username
+   * Endpoint: GET /user/username/{username}
    */
   async getByUsername(username: string): Promise<UserDTO> {
     const response = await axiosInstance.get<UserDTO>(`${this.BASE_URL}/username/${username}`);
-    return response.data;
-  }
-
-  /**
-   * Get current authenticated user
-   */
-  async getCurrentUser(): Promise<UserDTO> {
-    const response = await axiosInstance.get<UserDTO>(`${this.BASE_URL}/me`);
     return response.data;
   }
 

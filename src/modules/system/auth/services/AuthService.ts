@@ -23,7 +23,7 @@ class AuthService {
 
   /**
    * Login user with username and password
-   * After authentication, fetches user details from /user API
+   * After authentication, fetches user details from /user/username/{username}
    */
   async login(credentials: LoginRequestDTO): Promise<LoginResult> {
     // Step 1: Authenticate and get token
@@ -42,26 +42,19 @@ class AuthService {
       }
     }
 
-    // Step 2: Fetch user details using the token
+    // Step 2: Fetch user details by username
     let user: UserDTO;
     try {
-      // Try to get current user from /user/me endpoint
-      user = await userService.getCurrentUser();
+      user = await userService.getByUsername(credentials.username);
     } catch (error) {
-      console.warn('Failed to fetch from /user/me, trying /user/username/{username}');
-      // Fallback: Get user by username
-      try {
-        user = await userService.getByUsername(credentials.username);
-      } catch (fallbackError) {
-        console.error('Failed to fetch user details:', fallbackError);
-        // If both fail, create a minimal user object
-        user = {
-          id: 0,
-          username: credentials.username,
-          email: credentials.username,
-          roles: [],
-        };
-      }
+      console.error('Failed to fetch user details:', error);
+      // Create a minimal user object if fetch fails
+      user = {
+        id: 0,
+        username: credentials.username,
+        email: credentials.username,
+        roles: [],
+      };
     }
 
     return {
