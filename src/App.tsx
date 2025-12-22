@@ -91,10 +91,11 @@ function App() {
 
                 {/* Security Module - Protected */}
                 <Route path="security">
+                  {/* Users - Accessible to all authenticated users */}
                   <Route
                     path="users"
                     element={
-                      <ProtectedRoute requiredRoles={['ADMIN', 'USER_MANAGER']}>
+                      <ProtectedRoute>
                         <UserList />
                       </ProtectedRoute>
                     }
