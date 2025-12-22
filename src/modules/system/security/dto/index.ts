@@ -3,4 +3,3 @@ export * from './UserDTO';
 export * from './RoleDTO';
 export * from './GroupDTO';
 export * from './PermissionDTO';
-export * from './ResetPasswordRequest';
