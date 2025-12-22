@@ -21,7 +21,14 @@
     "next": "التالي",
     "previous": "السابق",
     "submit": "إرسال",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "export": "تصدير",
+    "exportCSV": "تصدير كـ CSV",
+    "exportExcel": "تصدير كـ Excel",
+    "exportPDF": "تصدير كـ PDF",
+    "filters": "فلاتر",
+    "clearFilters": "مسح الفلاتر",
+    "results": "نتيجة"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -85,7 +92,12 @@
     "groups": "المجموعات",
     "createdAt": "تاريخ الإنشاء",
     "updatedAt": "تاريخ التحديث",
-    "lastLogin": "آخر تسجيل دخول"
+    "lastLogin": "آخر تسجيل دخول",
+    "searchUsers": "بحث عن مستخدمين...",
+    "filterByStatus": "تصفية حسب الحالة",
+    "filterByRole": "تصفية حسب الدور",
+    "allStatuses": "جميع الحالات",
+    "allRoles": "جميع الأدوار"
   },
   "role": {
     "title": "الأدوار",

@@ -21,7 +21,14 @@
     "next": "Suivant",
     "previous": "Précédent",
     "submit": "Soumettre",
-    "close": "Fermer"
+    "close": "Fermer",
+    "export": "Exporter",
+    "exportCSV": "Exporter en CSV",
+    "exportExcel": "Exporter en Excel",
+    "exportPDF": "Exporter en PDF",
+    "filters": "Filtres",
+    "clearFilters": "Effacer les filtres",
+    "results": "résultats"
   },
   "auth": {
     "login": "Connexion",
@@ -85,7 +92,12 @@
     "groups": "Groupes",
     "createdAt": "Créé le",
     "updatedAt": "Mis à jour le",
-    "lastLogin": "Dernière connexion"
+    "lastLogin": "Dernière connexion",
+    "searchUsers": "Rechercher des utilisateurs...",
+    "filterByStatus": "Filtrer par statut",
+    "filterByRole": "Filtrer par rôle",
+    "allStatuses": "Tous les statuts",
+    "allRoles": "Tous les rôles"
   },
   "role": {
     "title": "Rôles",
