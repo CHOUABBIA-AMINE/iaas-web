@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { useEffect, useMemo } from 'react';
@@ -23,7 +24,7 @@ import { Layout } from './shared/components/Layout';
 import { Dashboard } from './shared/components/Dashboard';
 import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
-import { UserList, UserEdit } from './modules/system/security/pages';
+import { UserList, UserEdit, RoleList, RoleEdit } from './modules/system/security/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -91,7 +92,7 @@ function App() {
 
                 {/* Security Module - Protected */}
                 <Route path="security">
-                  {/* Users - Accessible to all authenticated users */}
+                  {/* Users */}
                   <Route
                     path="users"
                     element={
@@ -113,6 +114,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <UserEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Roles */}
+                  <Route
+                    path="roles"
+                    element={
+                      <ProtectedRoute>
+                        <RoleList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="roles/create"
+                    element={
+                      <ProtectedRoute>
+                        <RoleEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="roles/:roleId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <RoleEdit />
                       </ProtectedRoute>
                     }
                   />
