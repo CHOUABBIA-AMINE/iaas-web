@@ -8,7 +8,6 @@
  */
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import authService from '../../modules/system/auth/services/AuthService';
 import { LoginDTO, UserDTO } from '../../modules/system/auth/dto';
 
@@ -25,7 +24,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserDTO | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   // Initialize auth state from storage
   useEffect(() => {
@@ -115,7 +113,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await authService.login(credentials);
       setUser(response.user);
-      navigate('/dashboard');
+      // Use window.location for navigation after login
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -135,7 +134,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleLogout = () => {
     authService.logout();
     setUser(null);
-    navigate('/login');
+    // Use window.location for navigation
+    window.location.href = '/login';
   };
 
   const value = {
