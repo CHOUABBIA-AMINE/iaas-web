@@ -8,6 +8,7 @@
  */
 
 import axios from 'axios';
+import axiosInstance from '../../../shared/config/axios';
 import { LoginDTO, AuthResponseDTO, UserDTO } from '../dto';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/iaas/api';
@@ -19,58 +20,60 @@ class AuthService {
   async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
     console.log('🔐 Login attempt:', credentials.username);
     
-    const response = await axios.post<AuthResponseDTO>(
+    // Step 1: Login and get tokens
+    const loginResponse = await axios.post(
       `${API_BASE_URL}/auth/login`,
       credentials
     );
 
-    console.log('✅ Login response:', response.data);
+    console.log('✅ Login response:', loginResponse.data);
 
-    // Handle different response structures
-    let token = '';
-    let refreshToken = '';
-    let user: UserDTO | null = null;
-
-    // Check if response has nested data property
-    const data = response.data?.data || response.data;
-
-    // Extract token (check multiple possible fields)
-    token = data.token || data.accessToken || data.access_token || '';
-    
-    // Extract refresh token
-    refreshToken = data.refreshToken || data.refresh_token || '';
-    
-    // Extract user
-    user = data.user || data.userInfo || data.userData || null;
-
-    console.log('📦 Extracted data:', { 
-      hasToken: !!token, 
-      hasRefreshToken: !!refreshToken, 
-      hasUser: !!user 
-    });
+    // Handle different response structures for tokens
+    const data = loginResponse.data?.data || loginResponse.data;
+    const token = data.token || data.accessToken || data.access_token || '';
+    const refreshToken = data.refreshToken || data.refresh_token || '';
 
     if (!token) {
-      console.error('❌ No token in response!');
+      console.error('❌ No token in login response!');
       throw new Error('No authentication token received from server');
     }
 
-    if (!user) {
-      console.error('❌ No user data in response!');
-      throw new Error('No user data received from server');
-    }
+    console.log('📦 Tokens extracted:', { 
+      hasToken: !!token, 
+      hasRefreshToken: !!refreshToken 
+    });
 
-    // Store tokens and user info
-    console.log('💾 Storing to localStorage...');
+    // Step 2: Store tokens immediately
+    console.log('💾 Storing tokens to localStorage...');
     localStorage.setItem('access_token', token);
-    console.log('✓ access_token stored');
-    
     if (refreshToken) {
       localStorage.setItem('refresh_token', refreshToken);
-      console.log('✓ refresh_token stored');
     }
+    console.log('✓ Tokens stored');
+
+    // Step 3: Fetch user details with the token
+    console.log('👤 Fetching user details from /auth/me...');
+    let user: UserDTO;
     
+    try {
+      const userResponse = await axiosInstance.get<UserDTO>(`${API_BASE_URL}/auth/me`);
+      user = userResponse.data;
+      console.log('✅ User details fetched:', user);
+    } catch (error) {
+      console.error('❌ Failed to fetch user details:', error);
+      // Fallback: try to get user from login response
+      user = data.user || data.userInfo || data.userData;
+      
+      if (!user) {
+        throw new Error('Failed to fetch user details from server');
+      }
+      console.log('⚠️ Using user from login response:', user);
+    }
+
+    // Step 4: Store user info
+    console.log('💾 Storing user to localStorage...');
     localStorage.setItem('user', JSON.stringify(user));
-    console.log('✓ user stored:', user);
+    console.log('✓ User stored');
 
     // Verify storage
     console.log('🔍 Verifying localStorage:');
@@ -83,6 +86,14 @@ class AuthService {
       refreshToken,
       user,
     };
+  }
+
+  /**
+   * Get current user details from server
+   */
+  async getCurrentUserFromServer(): Promise<UserDTO> {
+    const response = await axiosInstance.get<UserDTO>(`${API_BASE_URL}/auth/me`);
+    return response.data;
   }
 
   /**
@@ -101,7 +112,9 @@ class AuthService {
         { refreshToken }
       );
 
-      const { token, refreshToken: newRefreshToken } = response.data;
+      const data = response.data?.data || response.data;
+      const token = data.token || data.accessToken || data.access_token;
+      const newRefreshToken = data.refreshToken || data.refresh_token;
       
       // Store new tokens
       localStorage.setItem('access_token', token);
