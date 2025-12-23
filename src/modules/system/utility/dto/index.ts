@@ -1,2 +1,9 @@
-// Utility module DTOs (match backend dz.mdn.iaas.system.utility.dto)
-// Add DTO exports here as they are created
+/**
+ * Utility Module DTOs
+ * Data Transfer Objects for Utility operations
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-23-2025
+ */
+
+// Export utility DTOs here
