@@ -12,7 +12,7 @@ import { StateDTO } from './StateDTO';
 
 export interface LocalityDTO {
   id: number;
-  code: string;
+  code?: string;
   nameAr: string;
   nameEn: string;
   nameFr: string;
@@ -21,21 +21,3 @@ export interface LocalityDTO {
   createdAt?: string;
   updatedAt?: string;
 }
-
-/**
- * Get localized name based on current language
- * @param locality Locality object
- * @param language Current language code (ar, en, fr)
- * @returns Localized name
- */
-export const getLocalizedLocalityName = (locality: LocalityDTO, language: string): string => {
-  switch (language.toLowerCase()) {
-    case 'ar':
-      return locality.nameAr || locality.nameEn || locality.nameFr || locality.code;
-    case 'fr':
-      return locality.nameFr || locality.nameEn || locality.nameAr || locality.code;
-    case 'en':
-    default:
-      return locality.nameEn || locality.nameFr || locality.nameAr || locality.code;
-  }
-};
