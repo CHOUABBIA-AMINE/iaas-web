@@ -29,7 +29,8 @@ import {
   ArrowBack as BackIcon,
 } from '@mui/icons-material';
 import { stationService, pipelineSystemService } from '../services';
-import { vendorService } from '../../common/services';
+import { vendorService, operationalStatusService } from '../../common/services';
+import { stationTypeService } from '../../type/services';
 import { StationDTO, StationCreateDTO } from '../dto';
 
 const StationEdit = () => {
@@ -76,9 +77,16 @@ const StationEdit = () => {
       setLoading(true);
       
       // Load real data from APIs in parallel
-      const [vendorsData, pipelineSystemsData] = await Promise.allSettled([
+      const [
+        vendorsData,
+        pipelineSystemsData,
+        stationTypesData,
+        operationalStatusesData
+      ] = await Promise.allSettled([
         vendorService.getAll(),
         pipelineSystemService.getAll(),
+        stationTypeService.getAll(),
+        operationalStatusService.getAll(),
       ]);
 
       // Handle vendors
@@ -100,25 +108,34 @@ const StationEdit = () => {
       } else {
         console.error('Failed to load pipeline systems:', pipelineSystemsData.reason);
       }
+
+      // Handle station types
+      if (stationTypesData.status === 'fulfilled') {
+        const types = Array.isArray(stationTypesData.value) 
+          ? stationTypesData.value 
+          : (stationTypesData.value?.data || stationTypesData.value?.content || []);
+        setStationTypes(types);
+      } else {
+        console.error('Failed to load station types:', stationTypesData.reason);
+      }
+
+      // Handle operational statuses
+      if (operationalStatusesData.status === 'fulfilled') {
+        const statuses = Array.isArray(operationalStatusesData.value) 
+          ? operationalStatusesData.value 
+          : (operationalStatusesData.value?.data || operationalStatusesData.value?.content || []);
+        setOperationalStatuses(statuses);
+      } else {
+        console.error('Failed to load operational statuses:', operationalStatusesData.reason);
+      }
       
-      // TODO: Load from real APIs when available
-      // For now, using mock data for these
-      setOperationalStatuses([
-        { id: 1, name: 'Operational' },
-        { id: 2, name: 'Maintenance' },
-        { id: 3, name: 'Offline' },
-      ]);
-      
-      setStationTypes([
-        { id: 1, name: 'Pumping Station' },
-        { id: 2, name: 'Compression Station' },
-        { id: 3, name: 'Metering Station' },
-      ]);
-      
+      // TODO: Load from real API when available
+      // For now, using mock data for localities
       setLocalities([
         { id: 1, name: 'Hassi Messaoud' },
         { id: 2, name: 'In Amenas' },
         { id: 3, name: 'Hassi R\'Mel' },
+        { id: 4, name: 'Ouargla' },
       ]);
 
       // Load station if editing
@@ -421,11 +438,15 @@ const StationEdit = () => {
                     error={!!validationErrors.stationTypeId}
                     helperText={validationErrors.stationTypeId}
                   >
-                    {stationTypes.map((type) => (
-                      <MenuItem key={type.id} value={type.id}>
-                        {type.name}
-                      </MenuItem>
-                    ))}
+                    {stationTypes.length > 0 ? (
+                      stationTypes.map((type) => (
+                        <MenuItem key={type.id} value={type.id}>
+                          {type.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading types...</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
@@ -440,11 +461,15 @@ const StationEdit = () => {
                     error={!!validationErrors.operationalStatusId}
                     helperText={validationErrors.operationalStatusId}
                   >
-                    {operationalStatuses.map((status) => (
-                      <MenuItem key={status.id} value={status.id}>
-                        {status.name}
-                      </MenuItem>
-                    ))}
+                    {operationalStatuses.length > 0 ? (
+                      operationalStatuses.map((status) => (
+                        <MenuItem key={status.id} value={status.id}>
+                          {status.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading statuses...</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
