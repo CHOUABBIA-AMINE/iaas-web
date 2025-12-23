@@ -1,18 +1,20 @@
 /**
  * Localization Utilities for State and Locality
- * Helper functions to get localized names based on language
+ * Helper functions to get localized designations based on language
+ * Uses designation fields to match iaas backend
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { StateDTO, LocalityDTO } from '../dto';
 
 /**
- * Get localized name from State or Locality based on current language
+ * Get localized designation from State or Locality based on current language
  * @param entity - State or Locality DTO
  * @param language - Current language code ('ar', 'en', 'fr')
- * @returns Localized name string
+ * @returns Localized designation string
  */
 export const getLocalizedName = (
   entity: StateDTO | LocalityDTO | null | undefined,
@@ -25,17 +27,17 @@ export const getLocalizedName = (
 
   switch (lang) {
     case 'ar':
-      return entity.nameAr || entity.nameEn || entity.nameFr || '';
+      return entity.designationAr || entity.designationEn || entity.designationFr || '';
     case 'fr':
-      return entity.nameFr || entity.nameEn || entity.nameAr || '';
+      return entity.designationFr || entity.designationEn || entity.designationAr || '';
     case 'en':
     default:
-      return entity.nameEn || entity.nameFr || entity.nameAr || '';
+      return entity.designationEn || entity.designationFr || entity.designationAr || '';
   }
 };
 
 /**
- * Sort array of States or Localities by localized name
+ * Sort array of States or Localities by localized designation
  * @param items - Array of State or Locality DTOs
  * @param language - Current language code ('ar', 'en', 'fr')
  * @returns Sorted array
