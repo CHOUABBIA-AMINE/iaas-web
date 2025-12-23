@@ -1,5 +1,7 @@
 export interface AuthorityDto {
   id?: number;
-  name?: string;
-  description?: string;
+  code?: string;
+  nameAr?: string;
+  nameEn?: string;
+  nameFr?: string;
 }

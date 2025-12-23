@@ -2,12 +2,14 @@ export interface UserDto {
   id?: number;
   username?: string;
   email?: string;
+  password?: string;
   firstName?: string;
   lastName?: string;
-  enabled?: boolean;
-  accountNonExpired?: boolean;
-  accountNonLocked?: boolean;
-  credentialsNonExpired?: boolean;
-  roleIds?: number[];
+  phoneNumber?: string;
+  isActive?: boolean;
+  isLocked?: boolean;
+  lastLoginDate?: string;
+  createdDate?: string;
   groupIds?: number[];
+  roleIds?: number[];
 }

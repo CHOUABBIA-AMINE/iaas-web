@@ -1,5 +1,6 @@
 export interface ResetPasswordRequest {
-  userId: number;
+  username: string;
+  oldPassword: string;
   newPassword: string;
   confirmPassword: string;
 }
