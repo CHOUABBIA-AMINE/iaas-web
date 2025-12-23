@@ -4,5 +4,8 @@ export interface MilitaryRankDto {
   designationAr?: string;
   designationEn?: string;
   designationFr?: string;
+  abbreviationAr?: string;
+  abbreviationEn?: string;
+  abbreviationFr?: string;
   militaryCategoryId?: number;
 }

@@ -7,6 +7,6 @@ export interface PersonDto {
   lastNameEn?: string;
   lastNameFr?: string;
   birthDate?: string;
-  birthPlace?: string;
-  nationalIdNumber?: string;
+  email?: string;
+  phone?: string;
 }

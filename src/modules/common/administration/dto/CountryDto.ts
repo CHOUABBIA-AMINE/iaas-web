@@ -1,7 +1,7 @@
 export interface CountryDto {
   id?: number;
   code?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
+  nameAr?: string;
+  nameEn?: string;
+  nameFr?: string;
 }

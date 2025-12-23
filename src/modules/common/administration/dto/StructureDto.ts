@@ -1,9 +1,9 @@
 export interface StructureDto {
   id?: number;
   code?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  parentStructureId?: number;
+  nameAr?: string;
+  nameEn?: string;
+  nameFr?: string;
   structureTypeId?: number;
+  parentStructureId?: number;
 }
