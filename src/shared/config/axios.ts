@@ -20,6 +20,8 @@ const axiosInstance = axios.create({
 // Refresh token state management
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
+let refreshAttempts = 0;
+const MAX_REFRESH_ATTEMPTS = 3;
 
 /**
  * Subscribe to token refresh
@@ -38,6 +40,15 @@ const onTokenRefreshed = (token: string) => {
 };
 
 /**
+ * Clear refresh state
+ */
+const clearRefreshState = () => {
+  isRefreshing = false;
+  refreshSubscribers = [];
+  refreshAttempts = 0;
+};
+
+/**
  * Refresh the access token using refresh token
  */
 const refreshAccessToken = async (): Promise<string> => {
@@ -47,8 +58,17 @@ const refreshAccessToken = async (): Promise<string> => {
     throw new Error('No refresh token available');
   }
 
+  // Check if too many attempts
+  if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
+    console.error(`❌ Max refresh attempts (${MAX_REFRESH_ATTEMPTS}) reached`);
+    throw new Error('Max refresh attempts exceeded');
+  }
+
+  refreshAttempts++;
+
   try {
-    console.log('🔄 Refreshing access token...');
+    console.log(`🔄 Refreshing access token (attempt ${refreshAttempts}/${MAX_REFRESH_ATTEMPTS})...`);
+    
     const response = await axios.post(
       `${axiosInstance.defaults.baseURL}/auth/refresh`,
       { refreshToken },
@@ -56,6 +76,7 @@ const refreshAccessToken = async (): Promise<string> => {
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: 10000, // 10 second timeout for refresh
       }
     );
 
@@ -70,7 +91,7 @@ const refreshAccessToken = async (): Promise<string> => {
 
     // Store new tokens
     localStorage.setItem('access_token', token);
-    console.log('✅ Access token refreshed');
+    console.log('✅ Access token refreshed successfully');
     
     // Update refresh token if provided
     if (newRefreshToken) {
@@ -78,13 +99,41 @@ const refreshAccessToken = async (): Promise<string> => {
       console.log('✅ Refresh token updated');
     }
 
+    // Reset attempts on success
+    refreshAttempts = 0;
+
     return token;
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Token refresh failed:', error);
-    // Clear tokens on refresh failure
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
+    
+    // Log detailed error information
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+      
+      // Handle specific error cases
+      if (error.response.status === 500) {
+        console.error('⚠️ Backend error (500) during token refresh');
+        // Don't clear tokens on server errors - backend might be temporarily down
+        if (refreshAttempts < MAX_REFRESH_ATTEMPTS) {
+          console.log('⏳ Will retry on next request...');
+          throw new Error('Token refresh failed - backend error');
+        }
+      } else if (error.response.status === 401 || error.response.status === 403) {
+        console.error('🔒 Refresh token invalid or expired');
+        // Clear tokens only on authentication errors
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+      }
+    } else if (error.request) {
+      console.error('⚠️ No response received from server');
+      // Network error - don't clear tokens
+      if (refreshAttempts < MAX_REFRESH_ATTEMPTS) {
+        console.log('⏳ Will retry on next request...');
+      }
+    }
+    
     throw error;
   }
 };
@@ -114,7 +163,9 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     // Skip refresh for auth endpoints (except refresh itself)
-    if (originalRequest?.url?.includes('/auth/login') || originalRequest?.url?.includes('/auth/logout')) {
+    if (originalRequest?.url?.includes('/auth/login') || 
+        originalRequest?.url?.includes('/auth/logout') ||
+        originalRequest?.url?.includes('/auth/register')) {
       return Promise.reject(error);
     }
 
@@ -127,7 +178,7 @@ axiosInstance.interceptors.response.use(
 
         try {
           const newToken = await refreshAccessToken();
-          isRefreshing = false;
+          clearRefreshState();
           
           // Notify all queued requests
           onTokenRefreshed(newToken);
@@ -137,24 +188,40 @@ axiosInstance.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
           }
           return axiosInstance(originalRequest);
-        } catch (refreshError) {
-          isRefreshing = false;
-          refreshSubscribers = [];
+        } catch (refreshError: any) {
+          clearRefreshState();
           
-          // Redirect to login on refresh failure
-          console.error('🚪 Redirecting to login...');
-          window.location.href = '/login';
+          // Only redirect to login if authentication is truly invalid
+          if (refreshError.response?.status === 401 || 
+              refreshError.response?.status === 403 ||
+              refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
+            console.error('🚪 Redirecting to login...');
+            
+            // Prevent redirect loop
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
+          } else {
+            // For server errors or network issues, just fail the request
+            console.warn('⚠️ Request failed but keeping session (backend might be down)');
+          }
+          
           return Promise.reject(refreshError);
         }
       } else {
         // Token is being refreshed, queue this request
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           subscribeTokenRefresh((token: string) => {
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${token}`;
             }
             resolve(axiosInstance(originalRequest));
           });
+          
+          // Add timeout for queued requests
+          setTimeout(() => {
+            reject(new Error('Token refresh queue timeout'));
+          }, 30000);
         });
       }
     }
@@ -162,6 +229,11 @@ axiosInstance.interceptors.response.use(
     // Handle 403 Forbidden - Access denied
     if (error.response?.status === 403) {
       console.warn('⛔ Access denied:', error.response.data);
+    }
+
+    // Handle 500 Server Error
+    if (error.response?.status === 500) {
+      console.error('🔥 Server error (500):', error.config?.url);
     }
 
     // Handle network errors

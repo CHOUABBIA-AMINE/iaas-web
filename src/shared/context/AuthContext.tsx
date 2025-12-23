@@ -96,12 +96,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               setToken(newToken);
               setUser(parsedUser);
               console.log('✅ Token refreshed successfully on init');
-            } catch (error) {
+            } catch (error: any) {
               console.error('❌ Token refresh failed on init:', error);
-              // Clear invalid session
-              localStorage.removeItem('user');
-              localStorage.removeItem('access_token');
-              localStorage.removeItem('refresh_token');
+              
+              // Only clear session on authentication errors (not server errors)
+              if (error.response?.status === 401 || error.response?.status === 403) {
+                console.log('🔒 Invalid refresh token, clearing session');
+                localStorage.removeItem('user');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+              } else {
+                // For server errors (500) or network issues, keep the session
+                console.log('⚠️ Refresh failed but keeping session (might be temporary backend issue)');
+                setToken(storedToken);
+                setUser(parsedUser);
+              }
             }
           } else {
             // Token is still valid
@@ -143,9 +152,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const newToken = refreshResponse.token || refreshResponse.accessToken || refreshResponse.access_token;
           setToken(newToken);
           console.log('✅ Token refreshed proactively');
-        } catch (error) {
+        } catch (error: any) {
           console.error('❌ Proactive token refresh failed:', error);
-          // Let the axios interceptor handle it on next request
+          
+          // Don't logout on server errors - axios interceptor will handle it
+          if (error.response?.status !== 500 && error.response?.status !== 503) {
+            console.log('🔒 Authentication error during proactive refresh');
+            // Let the axios interceptor handle the redirect
+          } else {
+            console.log('⚠️ Server error during proactive refresh, will retry later');
+          }
         }
       }
     }, 60 * 1000); // Check every 1 minute
