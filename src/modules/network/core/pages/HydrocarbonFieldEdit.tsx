@@ -1,7 +1,7 @@
 /**
  * HydrocarbonField Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing hydrocarbon fields
- * State extracted from locality.state instead of direct stateId
+ * State and Locality with localized names (Ar, En, Fr)
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -33,6 +33,7 @@ import { hydrocarbonFieldService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { hydrocarbonFieldTypeService } from '../../type/services';
 import { stateService, localityService } from '../../../common/administration/services';
+import { getLocalizedName as getAdminLocalizedName } from '../../../common/administration/utils';
 import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -429,7 +430,7 @@ const HydrocarbonFieldEdit = () => {
                     {states.length > 0 ? (
                       states.map((state) => (
                         <MenuItem key={state.id} value={state.id}>
-                          {state.name}
+                          {getAdminLocalizedName(state, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
@@ -461,7 +462,7 @@ const HydrocarbonFieldEdit = () => {
                     ) : localities.length > 0 ? (
                       localities.map((locality) => (
                         <MenuItem key={locality.id} value={locality.id}>
-                          {locality.name}
+                          {getAdminLocalizedName(locality, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
