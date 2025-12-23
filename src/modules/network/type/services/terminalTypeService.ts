@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { TerminalTypeDTO } from '../dto';
 
 class TerminalTypeService {
-  private readonly BASE_URL = '/network/type/terminalType';
+  private readonly BASE_URL = '/network/type/terminal';
 
   /**
    * Get all terminal types
