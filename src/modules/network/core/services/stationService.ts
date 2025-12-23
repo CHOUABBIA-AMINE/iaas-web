@@ -7,59 +7,60 @@
  * @updated 12-23-2025
  */
 
-import axios from 'axios';
+import axiosInstance from '../../../../shared/config/axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/iaas/api';
-const STATION_ENDPOINT = `${API_BASE_URL}/network/core/station`;
+class StationService {
+  private readonly BASE_URL = '/network/core/station';
 
-export const stationService = {
   /**
    * Get all stations
    */
-  getAll: async (): Promise<StationDTO[]> => {
-    const response = await axios.get(STATION_ENDPOINT);
+  async getAll(): Promise<StationDTO[]> {
+    const response = await axiosInstance.get<StationDTO[]>(this.BASE_URL);
     return response.data;
-  },
+  }
 
   /**
    * Get station by ID
    */
-  getById: async (id: number): Promise<StationDTO> => {
-    const response = await axios.get(`${STATION_ENDPOINT}/${id}`);
+  async getById(id: number): Promise<StationDTO> {
+    const response = await axiosInstance.get<StationDTO>(`${this.BASE_URL}/${id}`);
     return response.data;
-  },
+  }
 
   /**
    * Create new station
    */
-  create: async (data: StationCreateDTO): Promise<StationDTO> => {
-    const response = await axios.post(STATION_ENDPOINT, data);
+  async create(data: StationCreateDTO): Promise<StationDTO> {
+    const response = await axiosInstance.post<StationDTO>(this.BASE_URL, data);
     return response.data;
-  },
+  }
 
   /**
    * Update existing station
    */
-  update: async (id: number, data: StationUpdateDTO): Promise<StationDTO> => {
-    const response = await axios.put(`${STATION_ENDPOINT}/${id}`, data);
+  async update(id: number, data: StationUpdateDTO): Promise<StationDTO> {
+    const response = await axiosInstance.put<StationDTO>(`${this.BASE_URL}/${id}`, data);
     return response.data;
-  },
+  }
 
   /**
    * Delete station
    */
-  delete: async (id: number): Promise<void> => {
-    await axios.delete(`${STATION_ENDPOINT}/${id}`);
-  },
+  async delete(id: number): Promise<void> {
+    await axiosInstance.delete(`${this.BASE_URL}/${id}`);
+  }
 
   /**
    * Search stations
    */
-  search: async (query: string): Promise<StationDTO[]> => {
-    const response = await axios.get(`${STATION_ENDPOINT}/search`, {
+  async search(query: string): Promise<StationDTO[]> {
+    const response = await axiosInstance.get<StationDTO[]>(`${this.BASE_URL}/search`, {
       params: { q: query }
     });
     return response.data;
-  },
-};
+  }
+}
+
+export default new StationService();
