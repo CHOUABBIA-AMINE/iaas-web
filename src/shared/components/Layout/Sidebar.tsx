@@ -31,6 +31,14 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import RouterIcon from '@mui/icons-material/Router';
+import DeviceHubIcon from '@mui/icons-material/DeviceHub';
+import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
+import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
+import LayersIcon from '@mui/icons-material/Layers';
+import BalanceIcon from '@mui/icons-material/Balance';
+import VpnLockIcon from '@mui/icons-material/VpnLock';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -113,6 +121,58 @@ const Sidebar = ({ open }: SidebarProps) => {
       ],
     },
     {
+      titleKey: 'nav.network',
+      icon: <NetworkCheckIcon />,
+      children: [
+        {
+          titleKey: 'nav.topology',
+          icon: <AccountTreeIcon />,
+          path: '/network/topology',
+        },
+        {
+          titleKey: 'nav.devices',
+          icon: <DeviceHubIcon />,
+          children: [
+            {
+              titleKey: 'nav.routers',
+              icon: <RouterIcon />,
+              path: '/network/devices/routers',
+            },
+            {
+              titleKey: 'nav.switches',
+              icon: <DeviceHubIcon />,
+              path: '/network/devices/switches',
+            },
+            {
+              titleKey: 'nav.firewalls',
+              icon: <SecurityOutlinedIcon />,
+              path: '/network/devices/firewalls',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.subnets',
+          icon: <SubdirectoryArrowRightIcon />,
+          path: '/network/subnets',
+        },
+        {
+          titleKey: 'nav.vlans',
+          icon: <LayersIcon />,
+          path: '/network/vlans',
+        },
+        {
+          titleKey: 'nav.loadBalancers',
+          icon: <BalanceIcon />,
+          path: '/network/load-balancers',
+        },
+        {
+          titleKey: 'nav.vpn',
+          icon: <VpnLockIcon />,
+          path: '/network/vpn',
+        },
+      ],
+    },
+    {
       titleKey: 'nav.business',
       icon: <BusinessIcon />,
       children: [
@@ -120,17 +180,6 @@ const Sidebar = ({ open }: SidebarProps) => {
           titleKey: 'nav.overview',
           icon: <BusinessIcon />,
           path: '/business/overview',
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.network',
-      icon: <NetworkCheckIcon />,
-      children: [
-        {
-          titleKey: 'nav.overview',
-          icon: <NetworkCheckIcon />,
-          path: '/network/overview',
         },
       ],
     },
