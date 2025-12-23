@@ -1,9 +1,5 @@
-/**
- * Core Module DTOs
- * Data Transfer Objects for Core business operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
-
-// Export core DTOs here
+export * from './ApprovalStatusDto';
+export * from './CurrencyDto';
+export * from './ProcurementDirectorDto';
+export * from './ProcurementNatureDto';
+export * from './ProcurementStatusDto';
