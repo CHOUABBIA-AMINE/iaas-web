@@ -1,7 +1,7 @@
 /**
  * Station Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing stations
- * State extracted from locality.state instead of direct stateId
+ * State extracted from locality.state with multilingual support
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -33,6 +33,7 @@ import { stationService, pipelineSystemService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { stationTypeService } from '../../type/services';
 import { stateService, localityService } from '../../../common/administration/services';
+import { getStateLocalizedName, getLocalityLocalizedName } from '../../../common/administration/dto';
 import { StationDTO, StationCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -458,7 +459,7 @@ const StationEdit = () => {
                     {states.length > 0 ? (
                       states.map((state) => (
                         <MenuItem key={state.id} value={state.id}>
-                          {state.name}
+                          {getStateLocalizedName(state, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
@@ -490,7 +491,7 @@ const StationEdit = () => {
                     ) : localities.length > 0 ? (
                       localities.map((locality) => (
                         <MenuItem key={locality.id} value={locality.id}>
-                          {locality.name}
+                          {getLocalityLocalizedName(locality, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
