@@ -4,12 +4,13 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import axios from 'axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/iaas/api';
 const STATION_ENDPOINT = `${API_BASE_URL}/network/core/stations`;
 
 export const stationService = {
