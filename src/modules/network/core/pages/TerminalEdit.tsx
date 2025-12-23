@@ -1,6 +1,7 @@
 /**
  * Terminal Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing terminals
+ * State and Locality with REST API integration
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -31,6 +32,7 @@ import {
 import { terminalService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { terminalTypeService } from '../../type/services';
+import { stateService, localityService } from '../../../common/administration/services';
 import { TerminalDTO, TerminalCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -57,6 +59,7 @@ const TerminalEdit = () => {
     operationalStatusId: 0,
     terminalTypeId: 0,
     vendorId: 0,
+    stateId: 0,
     localityId: 0,
   });
 
@@ -64,7 +67,9 @@ const TerminalEdit = () => {
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
   const [terminalTypes, setTerminalTypes] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
   const [localities, setLocalities] = useState<any[]>([]);
+  const [loadingLocalities, setLoadingLocalities] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -75,6 +80,19 @@ const TerminalEdit = () => {
   useEffect(() => {
     loadData();
   }, [terminalId]);
+
+  // Load localities when state changes
+  useEffect(() => {
+    if (terminal.stateId && terminal.stateId > 0) {
+      loadLocalitiesByState(terminal.stateId);
+    } else {
+      setLocalities([]);
+      // Clear locality if state is cleared
+      if (terminal.localityId) {
+        setTerminal(prev => ({ ...prev, localityId: 0 }));
+      }
+    }
+  }, [terminal.stateId]);
 
   // Sort options by localized name
   const sortedTerminalTypes = useMemo(
@@ -91,48 +109,23 @@ const TerminalEdit = () => {
     try {
       setLoading(true);
       
-      // TODO: Load from real API when available
-      // For now, using mock data for localities
-      const mockLocalities = [
-        { id: 1, name: 'Hassi Messaoud' },
-        { id: 2, name: 'In Amenas' },
-        { id: 3, name: 'Hassi R\'Mel' },
-        { id: 4, name: 'Ouargla' },
-        { id: 5, name: 'Arzew' },
-        { id: 6, name: 'Skikda' },
-      ];
-      
-      // Load terminal if editing
+      // Load terminal first if editing
       let terminalData: TerminalDTO | null = null;
       if (isEditMode) {
         terminalData = await terminalService.getById(Number(terminalId));
-        
-        // If terminal has a locality from backend, add it to the list if not present
-        if (terminalData.locality && terminalData.localityId) {
-          const localityExists = mockLocalities.some(loc => loc.id === terminalData!.localityId);
-          if (!localityExists) {
-            // Add the locality from DTO to the list
-            mockLocalities.push({
-              id: terminalData.localityId,
-              name: terminalData.locality.name || `Locality ${terminalData.localityId}`
-            });
-          }
-        }
-        
-        setTerminal(terminalData);
       }
       
-      setLocalities(mockLocalities);
-      
-      // Load real data from APIs in parallel
+      // Load all data from REST APIs in parallel
       const [
         vendorsData,
         terminalTypesData,
-        operationalStatusesData
+        operationalStatusesData,
+        statesData
       ] = await Promise.allSettled([
         vendorService.getAll(),
         terminalTypeService.getAll(),
         operationalStatusService.getAll(),
+        stateService.getAll(),
       ]);
 
       // Handle vendors
@@ -165,12 +158,44 @@ const TerminalEdit = () => {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
       }
 
+      // Handle states
+      if (statesData.status === 'fulfilled') {
+        const states = Array.isArray(statesData.value) 
+          ? statesData.value 
+          : (statesData.value?.data || statesData.value?.content || []);
+        setStates(states);
+      } else {
+        console.error('Failed to load states:', statesData.reason);
+      }
+
+      // Set terminal data if editing
+      if (terminalData) {
+        setTerminal(terminalData);
+        // Localities will be loaded by useEffect when stateId is set
+      }
+
       setError('');
     } catch (err: any) {
       console.error('Failed to load data:', err);
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLocalitiesByState = async (stateId: number) => {
+    try {
+      setLoadingLocalities(true);
+      const localitiesData = await localityService.getByStateId(stateId);
+      const localities = Array.isArray(localitiesData) 
+        ? localitiesData 
+        : (localitiesData?.data || localitiesData?.content || []);
+      setLocalities(localities);
+    } catch (err: any) {
+      console.error('Failed to load localities:', err);
+      setLocalities([]);
+    } finally {
+      setLoadingLocalities(false);
     }
   };
 
@@ -207,6 +232,10 @@ const TerminalEdit = () => {
 
     if (!terminal.vendorId) {
       errors.vendorId = 'Vendor is required';
+    }
+
+    if (!terminal.stateId) {
+      errors.stateId = 'State is required';
     }
 
     if (!terminal.localityId) {
@@ -251,6 +280,7 @@ const TerminalEdit = () => {
         operationalStatusId: Number(terminal.operationalStatusId),
         terminalTypeId: Number(terminal.terminalTypeId),
         vendorId: Number(terminal.vendorId),
+        stateId: Number(terminal.stateId),
         localityId: Number(terminal.localityId),
       };
 
@@ -371,18 +401,54 @@ const TerminalEdit = () => {
                   <TextField
                     fullWidth
                     select
+                    label="State"
+                    value={terminal.stateId || ''}
+                    onChange={handleChange('stateId')}
+                    required
+                    error={!!validationErrors.stateId}
+                    helperText={validationErrors.stateId || 'Select state first to load localities'}
+                  >
+                    {states.length > 0 ? (
+                      states.map((state) => (
+                        <MenuItem key={state.id} value={state.id}>
+                          {state.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading states...</MenuItem>
+                    )}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
                     label="Locality"
                     value={terminal.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
+                    disabled={!terminal.stateId || loadingLocalities}
                     error={!!validationErrors.localityId}
-                    helperText={validationErrors.localityId}
+                    helperText={
+                      !terminal.stateId 
+                        ? 'Please select a state first' 
+                        : loadingLocalities 
+                        ? 'Loading localities...' 
+                        : validationErrors.localityId
+                    }
                   >
-                    {localities.map((locality) => (
-                      <MenuItem key={locality.id} value={locality.id}>
-                        {locality.name}
-                      </MenuItem>
-                    ))}
+                    {loadingLocalities ? (
+                      <MenuItem disabled>Loading localities...</MenuItem>
+                    ) : localities.length > 0 ? (
+                      localities.map((locality) => (
+                        <MenuItem key={locality.id} value={locality.id}>
+                          {locality.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No localities available</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
