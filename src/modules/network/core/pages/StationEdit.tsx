@@ -5,7 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -433,7 +433,8 @@ const StationEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                {/* Row 1: Place Name alone */}
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     label="Place Name"
@@ -445,6 +446,7 @@ const StationEdit = () => {
                   />
                 </Grid>
 
+                {/* Row 2: State and Locality */}
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
@@ -500,6 +502,7 @@ const StationEdit = () => {
                   </TextField>
                 </Grid>
 
+                {/* Row 3: Latitude, Longitude, Elevation */}
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
