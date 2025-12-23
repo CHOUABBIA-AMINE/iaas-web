@@ -107,7 +107,19 @@
     "roleDetails": "Détails du rôle",
     "name": "Nom",
     "description": "Description",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "searchRoles": "Rechercher des rôles..."
+  },
+  "group": {
+    "title": "Groupes",
+    "createGroup": "Créer un groupe",
+    "editGroup": "Modifier le groupe",
+    "deleteGroup": "Supprimer le groupe",
+    "groupDetails": "Détails du groupe",
+    "name": "Nom du groupe",
+    "description": "Description",
+    "users": "Utilisateurs",
+    "searchGroups": "Rechercher des groupes..."
   },
   "footer": {
     "copyright": "© {{year}} Plateforme IAAS. Tous droits réservés."

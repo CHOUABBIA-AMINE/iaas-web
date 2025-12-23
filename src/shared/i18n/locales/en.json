@@ -107,7 +107,19 @@
     "roleDetails": "Role Details",
     "name": "Name",
     "description": "Description",
-    "permissions": "Permissions"
+    "permissions": "Permissions",
+    "searchRoles": "Search roles..."
+  },
+  "group": {
+    "title": "Groups",
+    "createGroup": "Create Group",
+    "editGroup": "Edit Group",
+    "deleteGroup": "Delete Group",
+    "groupDetails": "Group Details",
+    "name": "Group Name",
+    "description": "Description",
+    "users": "Users",
+    "searchGroups": "Search groups..."
   },
   "footer": {
     "copyright": "© {{year}} IAAS Platform. All rights reserved."

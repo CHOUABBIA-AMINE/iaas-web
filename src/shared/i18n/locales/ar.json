@@ -107,7 +107,19 @@
     "roleDetails": "تفاصيل الدور",
     "name": "الاسم",
     "description": "الوصف",
-    "permissions": "الصلاحيات"
+    "permissions": "الصلاحيات",
+    "searchRoles": "بحث عن أدوار..."
+  },
+  "group": {
+    "title": "المجموعات",
+    "createGroup": "إنشاء مجموعة",
+    "editGroup": "تعديل المجموعة",
+    "deleteGroup": "حذف المجموعة",
+    "groupDetails": "تفاصيل المجموعة",
+    "name": "اسم المجموعة",
+    "description": "الوصف",
+    "users": "المستخدمون",
+    "searchGroups": "بحث عن مجموعات..."
   },
   "footer": {
     "copyright": "© {{year}} منصة IAAS. جميع الحقوق محفوظة."
