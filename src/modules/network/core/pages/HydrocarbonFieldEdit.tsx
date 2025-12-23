@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -90,6 +91,39 @@ const HydrocarbonFieldEdit = () => {
     try {
       setLoading(true);
       
+      // TODO: Load from real API when available
+      // For now, using mock data for localities
+      const mockLocalities = [
+        { id: 1, name: 'Hassi Messaoud' },
+        { id: 2, name: 'In Amenas' },
+        { id: 3, name: 'Hassi R\'Mel' },
+        { id: 4, name: 'Ouargla' },
+        { id: 5, name: 'Berkine Basin' },
+        { id: 6, name: 'Illizi Basin' },
+      ];
+      
+      // Load field if editing
+      let fieldData: HydrocarbonFieldDTO | null = null;
+      if (isEditMode) {
+        fieldData = await hydrocarbonFieldService.getById(Number(fieldId));
+        
+        // If field has a locality from backend, add it to the list if not present
+        if (fieldData.locality && fieldData.localityId) {
+          const localityExists = mockLocalities.some(loc => loc.id === fieldData!.localityId);
+          if (!localityExists) {
+            // Add the locality from DTO to the list
+            mockLocalities.push({
+              id: fieldData.localityId,
+              name: fieldData.locality.name || `Locality ${fieldData.localityId}`
+            });
+          }
+        }
+        
+        setField(fieldData);
+      }
+      
+      setLocalities(mockLocalities);
+      
       // Load real data from APIs in parallel
       const [
         vendorsData,
@@ -129,23 +163,6 @@ const HydrocarbonFieldEdit = () => {
         setOperationalStatuses(statuses);
       } else {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
-      }
-      
-      // TODO: Load from real API when available
-      // For now, using mock data for localities
-      setLocalities([
-        { id: 1, name: 'Hassi Messaoud' },
-        { id: 2, name: 'In Amenas' },
-        { id: 3, name: 'Hassi R\'Mel' },
-        { id: 4, name: 'Ouargla' },
-        { id: 5, name: 'Berkine Basin' },
-        { id: 6, name: 'Illizi Basin' },
-      ]);
-
-      // Load field if editing
-      if (isEditMode) {
-        const fieldData = await hydrocarbonFieldService.getById(Number(fieldId));
-        setField(fieldData);
       }
 
       setError('');
