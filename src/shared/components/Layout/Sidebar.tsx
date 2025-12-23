@@ -31,14 +31,14 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PublicIcon from '@mui/icons-material/Public';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import CategoryIcon from '@mui/icons-material/Category';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import RouterIcon from '@mui/icons-material/Router';
-import DeviceHubIcon from '@mui/icons-material/DeviceHub';
-import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
-import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
-import LayersIcon from '@mui/icons-material/Layers';
-import BalanceIcon from '@mui/icons-material/Balance';
-import VpnLockIcon from '@mui/icons-material/VpnLock';
+import FactoryIcon from '@mui/icons-material/Factory';
+import OilBarrelIcon from '@mui/icons-material/OilBarrel';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -125,50 +125,137 @@ const Sidebar = ({ open }: SidebarProps) => {
       icon: <NetworkCheckIcon />,
       children: [
         {
-          titleKey: 'nav.topology',
-          icon: <AccountTreeIcon />,
-          path: '/network/topology',
-        },
-        {
-          titleKey: 'nav.devices',
-          icon: <DeviceHubIcon />,
+          titleKey: 'nav.common',
+          icon: <PublicIcon />,
           children: [
             {
-              titleKey: 'nav.routers',
-              icon: <RouterIcon />,
-              path: '/network/devices/routers',
+              titleKey: 'nav.alloys',
+              icon: <CategoryIcon />,
+              path: '/network/common/alloys',
             },
             {
-              titleKey: 'nav.switches',
-              icon: <DeviceHubIcon />,
-              path: '/network/devices/switches',
+              titleKey: 'nav.locations',
+              icon: <LocationOnIcon />,
+              path: '/network/common/locations',
             },
             {
-              titleKey: 'nav.firewalls',
-              icon: <SecurityOutlinedIcon />,
-              path: '/network/devices/firewalls',
+              titleKey: 'nav.partners',
+              icon: <BusinessCenterIcon />,
+              path: '/network/common/partners',
+            },
+            {
+              titleKey: 'nav.products',
+              icon: <OilBarrelIcon />,
+              path: '/network/common/products',
+            },
+            {
+              titleKey: 'nav.regions',
+              icon: <PublicIcon />,
+              path: '/network/common/regions',
+            },
+            {
+              titleKey: 'nav.vendors',
+              icon: <BusinessIcon />,
+              path: '/network/common/vendors',
+            },
+            {
+              titleKey: 'nav.zones',
+              icon: <PublicIcon />,
+              path: '/network/common/zones',
+            },
+            {
+              titleKey: 'nav.operationalStatus',
+              icon: <AssignmentIcon />,
+              path: '/network/common/operational-status',
             },
           ],
         },
         {
-          titleKey: 'nav.subnets',
-          icon: <SubdirectoryArrowRightIcon />,
-          path: '/network/subnets',
+          titleKey: 'nav.core',
+          icon: <AccountTreeIcon />,
+          children: [
+            {
+              titleKey: 'nav.equipment',
+              icon: <PrecisionManufacturingIcon />,
+              path: '/network/core/equipment',
+            },
+            {
+              titleKey: 'nav.facilities',
+              icon: <FactoryIcon />,
+              path: '/network/core/facilities',
+            },
+            {
+              titleKey: 'nav.hydrocarbonFields',
+              icon: <OilBarrelIcon />,
+              path: '/network/core/hydrocarbon-fields',
+            },
+            {
+              titleKey: 'nav.pipelines',
+              icon: <AccountTreeIcon />,
+              path: '/network/core/pipelines',
+            },
+            {
+              titleKey: 'nav.pipelineSegments',
+              icon: <AccountTreeIcon />,
+              path: '/network/core/pipeline-segments',
+            },
+            {
+              titleKey: 'nav.pipelineSystems',
+              icon: <AccountTreeIcon />,
+              path: '/network/core/pipeline-systems',
+            },
+            {
+              titleKey: 'nav.stations',
+              icon: <FactoryIcon />,
+              path: '/network/core/stations',
+            },
+            {
+              titleKey: 'nav.terminals',
+              icon: <FactoryIcon />,
+              path: '/network/core/terminals',
+            },
+          ],
         },
         {
-          titleKey: 'nav.vlans',
-          icon: <LayersIcon />,
-          path: '/network/vlans',
-        },
-        {
-          titleKey: 'nav.loadBalancers',
-          icon: <BalanceIcon />,
-          path: '/network/load-balancers',
-        },
-        {
-          titleKey: 'nav.vpn',
-          icon: <VpnLockIcon />,
-          path: '/network/vpn',
+          titleKey: 'nav.types',
+          icon: <CategoryIcon />,
+          children: [
+            {
+              titleKey: 'nav.equipmentTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/equipment-types',
+            },
+            {
+              titleKey: 'nav.facilityTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/facility-types',
+            },
+            {
+              titleKey: 'nav.fieldTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/field-types',
+            },
+            {
+              titleKey: 'nav.stationTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/station-types',
+            },
+            {
+              titleKey: 'nav.terminalTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/terminal-types',
+            },
+            {
+              titleKey: 'nav.companyTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/company-types',
+            },
+            {
+              titleKey: 'nav.vendorTypes',
+              icon: <CategoryIcon />,
+              path: '/network/types/vendor-types',
+            },
+          ],
         },
       ],
     },
@@ -180,17 +267,6 @@ const Sidebar = ({ open }: SidebarProps) => {
           titleKey: 'nav.overview',
           icon: <BusinessIcon />,
           path: '/business/overview',
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.common',
-      icon: <SettingsIcon />,
-      children: [
-        {
-          titleKey: 'nav.settings',
-          icon: <SettingsIcon />,
-          path: '/common/settings',
         },
       ],
     },
