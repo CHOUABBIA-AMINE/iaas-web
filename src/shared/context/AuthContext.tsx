@@ -1,9 +1,10 @@
 /**
  * Auth Context
- * Global authentication state management with JWT
+ * Global authentication state management with JWT and token refresh
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -49,17 +50,64 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  /**
+   * Check if JWT token is expired
+   */
+  const isTokenExpired = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expirationTime = payload.exp * 1000; // Convert to milliseconds
+      return Date.now() >= expirationTime;
+    } catch (error) {
+      return true; // Consider expired if parsing fails
+    }
+  };
+
+  /**
+   * Check if token is expiring soon (within 5 minutes)
+   */
+  const isTokenExpiringSoon = (token: string): boolean => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expirationTime = payload.exp * 1000;
+      const fiveMinutes = 5 * 60 * 1000;
+      return Date.now() >= (expirationTime - fiveMinutes);
+    } catch (error) {
+      return false;
+    }
+  };
+
   // Initialize auth state from localStorage on mount
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       const storedToken = authService.getToken();
       const storedUser = localStorage.getItem('user');
 
       if (storedToken && storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          setToken(storedToken);
-          setUser(parsedUser);
+          
+          // Check if token is expired
+          if (isTokenExpired(storedToken)) {
+            console.log('🔄 Token expired on init, attempting refresh...');
+            try {
+              const refreshResponse = await authService.refreshToken();
+              const newToken = refreshResponse.token || refreshResponse.accessToken || refreshResponse.access_token;
+              setToken(newToken);
+              setUser(parsedUser);
+              console.log('✅ Token refreshed successfully on init');
+            } catch (error) {
+              console.error('❌ Token refresh failed on init:', error);
+              // Clear invalid session
+              localStorage.removeItem('user');
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+            }
+          } else {
+            // Token is still valid
+            setToken(storedToken);
+            setUser(parsedUser);
+          }
         } catch (error) {
           console.error('Failed to parse stored user:', error);
           localStorage.removeItem('user');
@@ -71,6 +119,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     initializeAuth();
   }, []);
+
+  // Set up proactive token refresh
+  useEffect(() => {
+    if (!token || !user) return;
+
+    // Check token every 1 minute
+    const intervalId = setInterval(async () => {
+      const currentToken = authService.getToken();
+      
+      if (!currentToken) {
+        console.log('⚠️ No token found, logging out...');
+        setToken(null);
+        setUser(null);
+        return;
+      }
+
+      // Proactively refresh if expiring soon
+      if (isTokenExpiringSoon(currentToken)) {
+        console.log('🔄 Token expiring soon, refreshing proactively...');
+        try {
+          const refreshResponse = await authService.refreshToken();
+          const newToken = refreshResponse.token || refreshResponse.accessToken || refreshResponse.access_token;
+          setToken(newToken);
+          console.log('✅ Token refreshed proactively');
+        } catch (error) {
+          console.error('❌ Proactive token refresh failed:', error);
+          // Let the axios interceptor handle it on next request
+        }
+      }
+    }, 60 * 1000); // Check every 1 minute
+
+    return () => clearInterval(intervalId);
+  }, [token, user]);
 
   const login = async (credentials: LoginRequestDTO) => {
     try {

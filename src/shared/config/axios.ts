@@ -48,6 +48,7 @@ const refreshAccessToken = async (): Promise<string> => {
   }
 
   try {
+    console.log('🔄 Refreshing access token...');
     const response = await axios.post(
       `${axiosInstance.defaults.baseURL}/auth/refresh`,
       { refreshToken },
@@ -58,18 +59,28 @@ const refreshAccessToken = async (): Promise<string> => {
       }
     );
 
-    const { token, refreshToken: newRefreshToken } = response.data;
+    // Handle different response structures
+    const data = response.data?.data || response.data;
+    const token = data.token || data.accessToken || data.access_token;
+    const newRefreshToken = data.refreshToken || data.refresh_token;
     
+    if (!token) {
+      throw new Error('No token in refresh response');
+    }
+
     // Store new tokens
     localStorage.setItem('access_token', token);
+    console.log('✅ Access token refreshed');
     
     // Update refresh token if provided
     if (newRefreshToken) {
       localStorage.setItem('refresh_token', newRefreshToken);
+      console.log('✅ Refresh token updated');
     }
 
     return token;
   } catch (error) {
+    console.error('❌ Token refresh failed:', error);
     // Clear tokens on refresh failure
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -102,8 +113,8 @@ axiosInstance.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Skip refresh for auth endpoints
-    if (originalRequest?.url?.includes('/auth/')) {
+    // Skip refresh for auth endpoints (except refresh itself)
+    if (originalRequest?.url?.includes('/auth/login') || originalRequest?.url?.includes('/auth/logout')) {
       return Promise.reject(error);
     }
 
@@ -131,7 +142,7 @@ axiosInstance.interceptors.response.use(
           refreshSubscribers = [];
           
           // Redirect to login on refresh failure
-          console.error('Token refresh failed:', refreshError);
+          console.error('🚪 Redirecting to login...');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
@@ -150,12 +161,12 @@ axiosInstance.interceptors.response.use(
 
     // Handle 403 Forbidden - Access denied
     if (error.response?.status === 403) {
-      console.warn('Access denied:', error.response.data);
+      console.warn('⛔ Access denied:', error.response.data);
     }
 
     // Handle network errors
     if (!error.response) {
-      console.error('Network error:', error.message);
+      console.error('🌐 Network error:', error.message);
     }
 
     return Promise.reject(error);
