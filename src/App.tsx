@@ -24,7 +24,7 @@ import { Layout } from './shared/components/Layout';
 import { Dashboard } from './shared/components/Dashboard';
 import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
-import { UserList, UserEdit, RoleList, RoleEdit } from './modules/system/security/pages';
+import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './modules/system/security/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -140,6 +140,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <RoleEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Groups */}
+                  <Route
+                    path="groups"
+                    element={
+                      <ProtectedRoute>
+                        <GroupList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="groups/create"
+                    element={
+                      <ProtectedRoute>
+                        <GroupEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="groups/:groupId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <GroupEdit />
                       </ProtectedRoute>
                     }
                   />
