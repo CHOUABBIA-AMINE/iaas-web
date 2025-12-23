@@ -2,11 +2,10 @@
  * Station Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing stations
  * State and Locality with localized names (Ar, En, Fr)
- * Uses .getList() for dropdown data to ensure simple list responses
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-24-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -122,26 +121,70 @@ const StationEdit = () => {
         stationData = await stationService.getById(Number(stationId));
       }
       
-      // Load all dropdown data using .getList() for simple list responses
+      // Load all data from REST APIs in parallel
       const [
         vendorsData,
         pipelineSystemsData,
         stationTypesData,
         operationalStatusesData,
         statesData
-      ] = await Promise.all([
-        vendorService.getList(),
-        pipelineSystemService.getList(),
-        stationTypeService.getList(),
-        operationalStatusService.getList(),
-        stateService.getList(),
+      ] = await Promise.allSettled([
+        vendorService.getAll(),
+        pipelineSystemService.getAll(),
+        stationTypeService.getAll(),
+        operationalStatusService.getAll(),
+        stateService.getAll(),
       ]);
 
-      setVendors(vendorsData);
-      setPipelineSystems(pipelineSystemsData);
-      setStationTypes(stationTypesData);
-      setOperationalStatuses(operationalStatusesData);
-      setStates(statesData);
+      // Handle vendors
+      if (vendorsData.status === 'fulfilled') {
+        const vendors = Array.isArray(vendorsData.value) 
+          ? vendorsData.value 
+          : (vendorsData.value?.data || vendorsData.value?.content || []);
+        setVendors(vendors);
+      } else {
+        console.error('Failed to load vendors:', vendorsData.reason);
+      }
+
+      // Handle pipeline systems
+      if (pipelineSystemsData.status === 'fulfilled') {
+        const systems = Array.isArray(pipelineSystemsData.value) 
+          ? pipelineSystemsData.value 
+          : (pipelineSystemsData.value?.data || pipelineSystemsData.value?.content || []);
+        setPipelineSystems(systems);
+      } else {
+        console.error('Failed to load pipeline systems:', pipelineSystemsData.reason);
+      }
+
+      // Handle station types
+      if (stationTypesData.status === 'fulfilled') {
+        const types = Array.isArray(stationTypesData.value) 
+          ? stationTypesData.value 
+          : (stationTypesData.value?.data || stationTypesData.value?.content || []);
+        setStationTypes(types);
+      } else {
+        console.error('Failed to load station types:', stationTypesData.reason);
+      }
+
+      // Handle operational statuses
+      if (operationalStatusesData.status === 'fulfilled') {
+        const statuses = Array.isArray(operationalStatusesData.value) 
+          ? operationalStatusesData.value 
+          : (operationalStatusesData.value?.data || operationalStatusesData.value?.content || []);
+        setOperationalStatuses(statuses);
+      } else {
+        console.error('Failed to load operational statuses:', operationalStatusesData.reason);
+      }
+
+      // Handle states
+      if (statesData.status === 'fulfilled') {
+        const states = Array.isArray(statesData.value) 
+          ? statesData.value 
+          : (statesData.value?.data || statesData.value?.content || []);
+        setStates(states);
+      } else {
+        console.error('Failed to load states:', statesData.reason);
+      }
 
       // Set station data if editing
       if (stationData) {
@@ -168,7 +211,10 @@ const StationEdit = () => {
   const loadLocalitiesByState = async (stateId: number) => {
     try {
       setLoadingLocalities(true);
-      const localities = await localityService.getByStateId(stateId);
+      const localitiesData = await localityService.getByStateId(stateId);
+      const localities = Array.isArray(localitiesData) 
+        ? localitiesData 
+        : (localitiesData?.data || localitiesData?.content || []);
       setLocalities(localities);
     } catch (err: any) {
       console.error('Failed to load localities:', err);
