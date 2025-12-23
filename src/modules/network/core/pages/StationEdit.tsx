@@ -1,6 +1,7 @@
 /**
  * Station Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing stations
+ * State and Locality with REST API integration
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -31,6 +32,7 @@ import {
 import { stationService, pipelineSystemService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { stationTypeService } from '../../type/services';
+import { stateService, localityService } from '../../../common/administration/services';
 import { StationDTO, StationCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -59,6 +61,7 @@ const StationEdit = () => {
     stationTypeId: 0,
     pipelineSystemId: undefined,
     vendorId: 0,
+    stateId: 0,
     localityId: 0,
   });
 
@@ -67,7 +70,9 @@ const StationEdit = () => {
   const [stationTypes, setStationTypes] = useState<any[]>([]);
   const [pipelineSystems, setPipelineSystems] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
   const [localities, setLocalities] = useState<any[]>([]);
+  const [loadingLocalities, setLoadingLocalities] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -78,6 +83,19 @@ const StationEdit = () => {
   useEffect(() => {
     loadData();
   }, [stationId]);
+
+  // Load localities when state changes
+  useEffect(() => {
+    if (station.stateId && station.stateId > 0) {
+      loadLocalitiesByState(station.stateId);
+    } else {
+      setLocalities([]);
+      // Clear locality if state is cleared
+      if (station.localityId) {
+        setStation(prev => ({ ...prev, localityId: 0 }));
+      }
+    }
+  }, [station.stateId]);
 
   // Sort options by localized name
   const sortedStationTypes = useMemo(
@@ -94,17 +112,25 @@ const StationEdit = () => {
     try {
       setLoading(true);
       
-      // Load real data from APIs in parallel
+      // Load station first if editing
+      let stationData: StationDTO | null = null;
+      if (isEditMode) {
+        stationData = await stationService.getById(Number(stationId));
+      }
+      
+      // Load all data from REST APIs in parallel
       const [
         vendorsData,
         pipelineSystemsData,
         stationTypesData,
-        operationalStatusesData
+        operationalStatusesData,
+        statesData
       ] = await Promise.allSettled([
         vendorService.getAll(),
         pipelineSystemService.getAll(),
         stationTypeService.getAll(),
         operationalStatusService.getAll(),
+        stateService.getAll(),
       ]);
 
       // Handle vendors
@@ -146,20 +172,21 @@ const StationEdit = () => {
       } else {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
       }
-      
-      // TODO: Load from real API when available
-      // For now, using mock data for localities
-      setLocalities([
-        { id: 1, name: 'Hassi Messaoud' },
-        { id: 2, name: 'In Amenas' },
-        { id: 3, name: 'Hassi R\'Mel' },
-        { id: 4, name: 'Ouargla' },
-      ]);
 
-      // Load station if editing
-      if (isEditMode) {
-        const stationData = await stationService.getById(Number(stationId));
+      // Handle states
+      if (statesData.status === 'fulfilled') {
+        const states = Array.isArray(statesData.value) 
+          ? statesData.value 
+          : (statesData.value?.data || statesData.value?.content || []);
+        setStates(states);
+      } else {
+        console.error('Failed to load states:', statesData.reason);
+      }
+
+      // Set station data if editing
+      if (stationData) {
         setStation(stationData);
+        // Localities will be loaded by useEffect when stateId is set
       }
 
       setError('');
@@ -168,6 +195,22 @@ const StationEdit = () => {
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLocalitiesByState = async (stateId: number) => {
+    try {
+      setLoadingLocalities(true);
+      const localitiesData = await localityService.getByStateId(stateId);
+      const localities = Array.isArray(localitiesData) 
+        ? localitiesData 
+        : (localitiesData?.data || localitiesData?.content || []);
+      setLocalities(localities);
+    } catch (err: any) {
+      console.error('Failed to load localities:', err);
+      setLocalities([]);
+    } finally {
+      setLoadingLocalities(false);
     }
   };
 
@@ -204,6 +247,10 @@ const StationEdit = () => {
 
     if (!station.vendorId) {
       errors.vendorId = 'Vendor is required';
+    }
+
+    if (!station.stateId) {
+      errors.stateId = 'State is required';
     }
 
     if (!station.localityId) {
@@ -250,6 +297,7 @@ const StationEdit = () => {
         stationTypeId: Number(station.stationTypeId),
         pipelineSystemId: station.pipelineSystemId ? Number(station.pipelineSystemId) : undefined,
         vendorId: Number(station.vendorId),
+        stateId: Number(station.stateId),
         localityId: Number(station.localityId),
       };
 
@@ -382,18 +430,54 @@ const StationEdit = () => {
                   <TextField
                     fullWidth
                     select
+                    label="State"
+                    value={station.stateId || ''}
+                    onChange={handleChange('stateId')}
+                    required
+                    error={!!validationErrors.stateId}
+                    helperText={validationErrors.stateId || 'Select state first to load localities'}
+                  >
+                    {states.length > 0 ? (
+                      states.map((state) => (
+                        <MenuItem key={state.id} value={state.id}>
+                          {state.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading states...</MenuItem>
+                    )}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
                     label="Locality"
                     value={station.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
+                    disabled={!station.stateId || loadingLocalities}
                     error={!!validationErrors.localityId}
-                    helperText={validationErrors.localityId}
+                    helperText={
+                      !station.stateId 
+                        ? 'Please select a state first' 
+                        : loadingLocalities 
+                        ? 'Loading localities...' 
+                        : validationErrors.localityId
+                    }
                   >
-                    {localities.map((locality) => (
-                      <MenuItem key={locality.id} value={locality.id}>
-                        {locality.name}
-                      </MenuItem>
-                    ))}
+                    {loadingLocalities ? (
+                      <MenuItem disabled>Loading localities...</MenuItem>
+                    ) : localities.length > 0 ? (
+                      localities.map((locality) => (
+                        <MenuItem key={locality.id} value={locality.id}>
+                          {locality.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No localities available</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
