@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -90,6 +91,39 @@ const TerminalEdit = () => {
     try {
       setLoading(true);
       
+      // TODO: Load from real API when available
+      // For now, using mock data for localities
+      const mockLocalities = [
+        { id: 1, name: 'Hassi Messaoud' },
+        { id: 2, name: 'In Amenas' },
+        { id: 3, name: 'Hassi R\'Mel' },
+        { id: 4, name: 'Ouargla' },
+        { id: 5, name: 'Arzew' },
+        { id: 6, name: 'Skikda' },
+      ];
+      
+      // Load terminal if editing
+      let terminalData: TerminalDTO | null = null;
+      if (isEditMode) {
+        terminalData = await terminalService.getById(Number(terminalId));
+        
+        // If terminal has a locality from backend, add it to the list if not present
+        if (terminalData.locality && terminalData.localityId) {
+          const localityExists = mockLocalities.some(loc => loc.id === terminalData!.localityId);
+          if (!localityExists) {
+            // Add the locality from DTO to the list
+            mockLocalities.push({
+              id: terminalData.localityId,
+              name: terminalData.locality.name || `Locality ${terminalData.localityId}`
+            });
+          }
+        }
+        
+        setTerminal(terminalData);
+      }
+      
+      setLocalities(mockLocalities);
+      
       // Load real data from APIs in parallel
       const [
         vendorsData,
@@ -129,23 +163,6 @@ const TerminalEdit = () => {
         setOperationalStatuses(statuses);
       } else {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
-      }
-      
-      // TODO: Load from real API when available
-      // For now, using mock data for localities
-      setLocalities([
-        { id: 1, name: 'Hassi Messaoud' },
-        { id: 2, name: 'In Amenas' },
-        { id: 3, name: 'Hassi R\'Mel' },
-        { id: 4, name: 'Ouargla' },
-        { id: 5, name: 'Arzew' },
-        { id: 6, name: 'Skikda' },
-      ]);
-
-      // Load terminal if editing
-      if (isEditMode) {
-        const terminalData = await terminalService.getById(Number(terminalId));
-        setTerminal(terminalData);
       }
 
       setError('');
