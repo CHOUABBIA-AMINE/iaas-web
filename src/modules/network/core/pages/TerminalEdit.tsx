@@ -1,7 +1,7 @@
 /**
  * Terminal Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing terminals
- * State extracted from locality.state instead of direct stateId
+ * State extracted from locality.state with multilingual support
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -33,6 +33,7 @@ import { terminalService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { terminalTypeService } from '../../type/services';
 import { stateService, localityService } from '../../../common/administration/services';
+import { getStateLocalizedName, getLocalityLocalizedName } from '../../../common/administration/dto';
 import { TerminalDTO, TerminalCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -429,7 +430,7 @@ const TerminalEdit = () => {
                     {states.length > 0 ? (
                       states.map((state) => (
                         <MenuItem key={state.id} value={state.id}>
-                          {state.name}
+                          {getStateLocalizedName(state, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
@@ -461,7 +462,7 @@ const TerminalEdit = () => {
                     ) : localities.length > 0 ? (
                       localities.map((locality) => (
                         <MenuItem key={locality.id} value={locality.id}>
-                          {locality.name}
+                          {getLocalityLocalizedName(locality, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
