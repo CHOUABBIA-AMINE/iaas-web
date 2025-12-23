@@ -1,3 +1,9 @@
-// Auth module DTOs (match backend dz.mdn.iaas.system.auth.dto)
-export * from './LoginRequestDTO';
-export * from './LoginResponseDTO';
+/**
+ * Auth Module DTOs
+ * Data Transfer Objects for Authentication operations
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-23-2025
+ */
+
+// Export auth DTOs here
