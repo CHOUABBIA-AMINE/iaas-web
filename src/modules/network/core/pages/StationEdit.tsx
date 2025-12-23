@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -27,7 +28,8 @@ import {
   Cancel as CancelIcon,
   ArrowBack as BackIcon,
 } from '@mui/icons-material';
-import { stationService } from '../services';
+import { stationService, pipelineSystemService } from '../services';
+import { vendorService } from '../../common/services';
 import { StationDTO, StationCreateDTO } from '../dto';
 
 const StationEdit = () => {
@@ -52,7 +54,7 @@ const StationEdit = () => {
     localityId: 0,
   });
 
-  // Available options (would normally be loaded from API)
+  // Available options
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
   const [stationTypes, setStationTypes] = useState<any[]>([]);
   const [pipelineSystems, setPipelineSystems] = useState<any[]>([]);
@@ -73,8 +75,34 @@ const StationEdit = () => {
     try {
       setLoading(true);
       
-      // TODO: Load lookup data from APIs
-      // For now, using mock data
+      // Load real data from APIs in parallel
+      const [vendorsData, pipelineSystemsData] = await Promise.allSettled([
+        vendorService.getAll(),
+        pipelineSystemService.getAll(),
+      ]);
+
+      // Handle vendors
+      if (vendorsData.status === 'fulfilled') {
+        const vendors = Array.isArray(vendorsData.value) 
+          ? vendorsData.value 
+          : (vendorsData.value?.data || vendorsData.value?.content || []);
+        setVendors(vendors);
+      } else {
+        console.error('Failed to load vendors:', vendorsData.reason);
+      }
+
+      // Handle pipeline systems
+      if (pipelineSystemsData.status === 'fulfilled') {
+        const systems = Array.isArray(pipelineSystemsData.value) 
+          ? pipelineSystemsData.value 
+          : (pipelineSystemsData.value?.data || pipelineSystemsData.value?.content || []);
+        setPipelineSystems(systems);
+      } else {
+        console.error('Failed to load pipeline systems:', pipelineSystemsData.reason);
+      }
+      
+      // TODO: Load from real APIs when available
+      // For now, using mock data for these
       setOperationalStatuses([
         { id: 1, name: 'Operational' },
         { id: 2, name: 'Maintenance' },
@@ -87,19 +115,10 @@ const StationEdit = () => {
         { id: 3, name: 'Metering Station' },
       ]);
       
-      setPipelineSystems([
-        { id: 1, name: 'System A' },
-        { id: 2, name: 'System B' },
-      ]);
-      
-      setVendors([
-        { id: 1, name: 'Vendor A' },
-        { id: 2, name: 'Vendor B' },
-      ]);
-      
       setLocalities([
         { id: 1, name: 'Hassi Messaoud' },
         { id: 2, name: 'In Amenas' },
+        { id: 3, name: 'Hassi R\'Mel' },
       ]);
 
       // Load station if editing
@@ -440,11 +459,15 @@ const StationEdit = () => {
                     error={!!validationErrors.vendorId}
                     helperText={validationErrors.vendorId}
                   >
-                    {vendors.map((vendor) => (
-                      <MenuItem key={vendor.id} value={vendor.id}>
-                        {vendor.name}
-                      </MenuItem>
-                    ))}
+                    {vendors.length > 0 ? (
+                      vendors.map((vendor) => (
+                        <MenuItem key={vendor.id} value={vendor.id}>
+                          {vendor.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading vendors...</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
