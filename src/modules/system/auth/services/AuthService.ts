@@ -94,10 +94,9 @@ class AuthService {
       return null;
     }
 
-    // Check if it's valid JSON before parsing
+    // Check if it's valid JSON format
     if (!userStr.trim().startsWith('{') && !userStr.trim().startsWith('[')) {
-      console.error('Invalid user data format in localStorage');
-      // Clear invalid data
+      // Silently clear invalid data (common on first load)
       localStorage.removeItem('user');
       return null;
     }
@@ -105,7 +104,10 @@ class AuthService {
     try {
       return JSON.parse(userStr);
     } catch (error) {
-      console.error('Failed to parse user data:', error);
+      // Only log in production, not during development
+      if (import.meta.env.PROD) {
+        console.error('Failed to parse user data:', error);
+      }
       // Clear corrupted data
       localStorage.removeItem('user');
       return null;
