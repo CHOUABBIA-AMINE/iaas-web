@@ -33,8 +33,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const token = authService.getAccessToken();
         
         if (storedUser && token) {
-          setUser(storedUser);
-          
           // Check token expiration
           const tokenExpired = isTokenExpired(token);
           if (tokenExpired) {
@@ -46,6 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               console.error('Token refresh failed:', error);
               handleLogout();
             }
+          } else {
+            // Token is valid, set user
+            setUser(storedUser);
           }
         }
       } catch (error) {
@@ -112,9 +113,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginDTO) => {
     try {
       const response = await authService.login(credentials);
+      // Set user state - this will trigger PublicRoute to redirect
       setUser(response.user);
-      // Use window.location for navigation after login
-      window.location.href = '/dashboard';
+      // Don't use window.location - let React Router handle navigation via PublicRoute
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -134,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleLogout = () => {
     authService.logout();
     setUser(null);
-    // Use window.location for navigation
+    // Use window.location for logout (full cleanup)
     window.location.href = '/login';
   };
 
