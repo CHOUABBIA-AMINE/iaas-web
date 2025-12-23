@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -13,10 +14,10 @@ class LocalityService {
   private readonly BASE_URL = '/common/administration/locality';
 
   /**
-   * Get all localities
+   * Get all localities (non-paginated)
    */
   async getAll(): Promise<LocalityDTO[]> {
-    const response = await axiosInstance.get<LocalityDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 
@@ -29,10 +30,10 @@ class LocalityService {
   }
 
   /**
-   * Get localities by state ID
+   * Get localities by state ID (non-paginated)
    */
   async getByStateId(stateId: number): Promise<LocalityDTO[]> {
-    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/state/${stateId}`);
+    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/state/${stateId}/all`);
     return response.data;
   }
 }

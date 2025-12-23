@@ -14,10 +14,10 @@ class HydrocarbonFieldTypeService {
   private readonly BASE_URL = '/network/type/hydrocarbonField';
 
   /**
-   * Get all hydrocarbon field types
+   * Get all hydrocarbon field types (non-paginated)
    */
   async getAll(): Promise<HydrocarbonFieldTypeDTO[]> {
-    const response = await axiosInstance.get<HydrocarbonFieldTypeDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<HydrocarbonFieldTypeDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

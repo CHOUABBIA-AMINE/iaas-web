@@ -14,10 +14,10 @@ class StationTypeService {
   private readonly BASE_URL = '/network/type/station';
 
   /**
-   * Get all station types
+   * Get all station types (non-paginated)
    */
   async getAll(): Promise<StationTypeDTO[]> {
-    const response = await axiosInstance.get<StationTypeDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<StationTypeDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

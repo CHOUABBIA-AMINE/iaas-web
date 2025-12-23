@@ -14,10 +14,10 @@ class OperationalStatusService {
   private readonly BASE_URL = '/network/common/operationalStatus';
 
   /**
-   * Get all operational statuses
+   * Get all operational statuses (non-paginated)
    */
   async getAll(): Promise<OperationalStatusDTO[]> {
-    const response = await axiosInstance.get<OperationalStatusDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<OperationalStatusDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

@@ -14,10 +14,10 @@ class TerminalTypeService {
   private readonly BASE_URL = '/network/type/terminal';
 
   /**
-   * Get all terminal types
+   * Get all terminal types (non-paginated)
    */
   async getAll(): Promise<TerminalTypeDTO[]> {
-    const response = await axiosInstance.get<TerminalTypeDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<TerminalTypeDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

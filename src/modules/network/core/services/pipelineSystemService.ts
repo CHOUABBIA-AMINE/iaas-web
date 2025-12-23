@@ -14,10 +14,10 @@ class PipelineSystemService {
   private readonly BASE_URL = '/network/core/pipelineSystem';
 
   /**
-   * Get all pipeline systems
+   * Get all pipeline systems (non-paginated)
    */
   async getAll(): Promise<PipelineSystemDTO[]> {
-    const response = await axiosInstance.get<PipelineSystemDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<PipelineSystemDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 
