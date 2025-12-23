@@ -1,9 +1,5 @@
-/**
- * Consultation Module DTOs
- * Data Transfer Objects for Consultation business operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
-
-// Export consultation DTOs here
+export * from './AwardMethodDto';
+export * from './ConsultationDto';
+export * from './ConsultationPhaseDto';
+export * from './ConsultationStepDto';
+export * from './SubmissionDto';
