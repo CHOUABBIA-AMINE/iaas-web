@@ -4,13 +4,14 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { HydrocarbonFieldTypeDTO } from '../dto';
 
 class HydrocarbonFieldTypeService {
-  private readonly BASE_URL = '/network/type/hydrocarbon-field';
+  private readonly BASE_URL = '/network/type/hydrocarbonField';
 
   /**
    * Get all hydrocarbon field types
