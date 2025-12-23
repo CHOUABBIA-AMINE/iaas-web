@@ -1,166 +1,132 @@
 /**
- * Authentication Context
- * Manages user authentication state and token lifecycle
+ * Auth Context
+ * Global authentication state management with JWT
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
  */
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import authService from '../../modules/system/auth/services/AuthService';
-import { LoginDTO, UserDTO } from '../../modules/system/auth/dto';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { authService } from '../../modules/system/auth/services';
+import { LoginRequestDTO } from '../../modules/system/auth/dto';
+import { UserDTO } from '../../modules/system/security/dto';
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+}
 
 interface AuthContextType {
-  user: UserDTO | null;
-  loading: boolean;
-  login: (credentials: LoginDTO) => Promise<void>;
-  logout: () => void;
+  user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (credentials: LoginRequestDTO) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserDTO | null>(null);
-  const [loading, setLoading] = useState(true);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
-  // Initialize auth state from storage
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Initialize auth state from localStorage on mount
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const storedUser = authService.getCurrentUser();
-        const token = authService.getAccessToken();
-        
-        if (storedUser && token) {
-          // Check token expiration
-          const tokenExpired = isTokenExpired(token);
-          if (tokenExpired) {
-            // Try to refresh token
-            try {
-              await authService.refreshToken();
-              setUser(authService.getCurrentUser());
-            } catch (error) {
-              console.error('Token refresh failed:', error);
-              handleLogout();
-            }
-          } else {
-            // Token is valid, set user
-            setUser(storedUser);
-          }
+    const initializeAuth = () => {
+      const storedToken = authService.getToken();
+      const storedUser = localStorage.getItem('user');
+
+      if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setToken(storedToken);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Failed to parse stored user:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('access_token');
         }
-      } catch (error) {
-        console.error('Auth initialization failed:', error);
-      } finally {
-        setLoading(false);
       }
+      setIsLoading(false);
     };
 
-    initAuth();
+    initializeAuth();
   }, []);
 
-  // Set up token refresh interval
-  useEffect(() => {
-    if (!user) return;
-
-    // Check token every 5 minutes
-    const interval = setInterval(async () => {
-      const token = authService.getAccessToken();
-      if (token && isTokenExpiringSoon(token)) {
-        try {
-          await authService.refreshToken();
-          console.log('Token refreshed proactively');
-        } catch (error) {
-          console.error('Proactive token refresh failed:', error);
-          handleLogout();
-        }
-      }
-    }, 5 * 60 * 1000); // 5 minutes
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  /**
-   * Check if JWT token is expired
-   */
-  const isTokenExpired = (token: string): boolean => {
+  const login = async (credentials: LoginRequestDTO) => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationTime = payload.exp * 1000; // Convert to milliseconds
-      return Date.now() >= expirationTime;
-    } catch (error) {
-      return true; // Consider expired if parsing fails
-    }
-  };
+      // authService.login returns { token, refreshToken, user }
+      const { token: receivedToken, user: userDTO } = await authService.login(credentials);
 
-  /**
-   * Check if token is expiring soon (within 5 minutes)
-   */
-  const isTokenExpiringSoon = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationTime = payload.exp * 1000;
-      const fiveMinutes = 5 * 60 * 1000;
-      return Date.now() >= (expirationTime - fiveMinutes);
-    } catch (error) {
-      return false;
-    }
-  };
+      // Set token in state
+      setToken(receivedToken);
 
-  /**
-   * Login user
-   */
-  const login = async (credentials: LoginDTO) => {
-    try {
-      // Call login service (stores tokens and user in localStorage)
-      const response = await authService.login(credentials);
-      
-      // Update state
-      setUser(response.user);
-      
-      // Small delay to ensure localStorage is written
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Redirect using window.location for full page reload
-      window.location.href = '/dashboard';
+      // Convert UserDTO to User format and extract role names
+      const userData: User = {
+        id: userDTO.id,
+        username: userDTO.username,
+        email: userDTO.email,
+        firstName: userDTO.firstName,
+        lastName: userDTO.lastName,
+        roles: userDTO.roles?.map(role => role.name) || [],
+      };
+
+      // Store user in localStorage
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
     }
   };
 
-  /**
-   * Logout user
-   */
-  const logout = () => {
-    handleLogout();
+  const logout = async () => {
+    try {
+      // Call authService logout which sends request to backend
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Continue with local cleanup even if backend call fails
+    } finally {
+      // Always clear local state
+      setToken(null);
+      setUser(null);
+    }
   };
 
-  /**
-   * Handle logout internally
-   */
-  const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-    // Use window.location for logout (full cleanup)
-    window.location.href = '/login';
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
-    loading,
+    token,
+    isAuthenticated: !!token && !!user,
+    isLoading,
     login,
     logout,
-    isAuthenticated: !!user,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

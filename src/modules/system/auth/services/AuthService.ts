@@ -1,85 +1,65 @@
 /**
- * Authentication Service
- * Handles user authentication, token management, and session control
+ * Auth Service
+ * Matches: dz.mdn.iaas.system.auth.service.AuthService.java
+ * Communicates with: AuthController.java
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
  */
 
-import axios from 'axios';
-import axiosInstance from '../../../shared/config/axios';
-import { LoginDTO, AuthResponseDTO, UserDTO } from '../dto';
+import axiosInstance from '../../../../shared/config/axios';
+import { LoginRequestDTO, LoginResponseDTO } from '../dto';
+import { userService } from '../../security/services';
+import { UserDTO } from '../../security/dto';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/iaas/api';
+interface LoginResult {
+  token: string;
+  refreshToken?: string;
+  user: UserDTO;
+}
 
 class AuthService {
+  private readonly BASE_URL = '/auth';
+
   /**
-   * Login user with credentials
+   * Login user with username and password
+   * After authentication, fetches user details from /system/security/user/username/{username}
    */
-  async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
-    console.log('🔐 Login attempt:', credentials.username);
-    
-    // Step 1: Login and get tokens
-    const loginResponse = await axios.post(
-      `${API_BASE_URL}/auth/login`,
+  async login(credentials: LoginRequestDTO): Promise<LoginResult> {
+    // Step 1: Authenticate and get token
+    const authResponse = await axiosInstance.post<LoginResponseDTO>(
+      `${this.BASE_URL}/login`,
       credentials
     );
 
-    console.log('✅ Login response:', loginResponse.data);
-
-    // Handle different response structures for tokens
-    const data = loginResponse.data?.data || loginResponse.data;
-    const token = data.token || data.accessToken || data.access_token || '';
-    const refreshToken = data.refreshToken || data.refresh_token || '';
+    // Extract token (check multiple possible field names)
+    const responseData = authResponse.data as any;
+    const token = responseData.token || responseData.accessToken || responseData.access_token || responseData.jwt;
+    const refreshToken = responseData.refreshToken || responseData.refresh_token;
 
     if (!token) {
-      console.error('❌ No token in login response!');
-      throw new Error('No authentication token received from server');
+      throw new Error('No token received from backend');
     }
 
-    console.log('📦 Tokens extracted:', { 
-      hasToken: !!token, 
-      hasRefreshToken: !!refreshToken 
-    });
-
-    // Step 2: Store tokens immediately
-    console.log('💾 Storing tokens to localStorage...');
+    // Store token for the user fetch request
     localStorage.setItem('access_token', token);
     if (refreshToken) {
       localStorage.setItem('refresh_token', refreshToken);
     }
-    console.log('✓ Tokens stored');
 
-    // Step 3: Fetch user details with the token
-    console.log('👤 Fetching user details from /auth/me...');
+    // Step 2: Fetch user details by username
     let user: UserDTO;
-    
     try {
-      const userResponse = await axiosInstance.get<UserDTO>(`${API_BASE_URL}/auth/me`);
-      user = userResponse.data;
-      console.log('✅ User details fetched:', user);
+      user = await userService.getByUsername(credentials.username);
     } catch (error) {
-      console.error('❌ Failed to fetch user details:', error);
-      // Fallback: try to get user from login response
-      user = data.user || data.userInfo || data.userData;
-      
-      if (!user) {
-        throw new Error('Failed to fetch user details from server');
-      }
-      console.log('⚠️ Using user from login response:', user);
+      // Create minimal user object if fetch fails
+      user = {
+        id: 0,
+        username: credentials.username,
+        email: credentials.username,
+        roles: [],
+      };
     }
-
-    // Step 4: Store user info
-    console.log('💾 Storing user to localStorage...');
-    localStorage.setItem('user', JSON.stringify(user));
-    console.log('✓ User stored');
-
-    // Verify storage
-    console.log('🔍 Verifying localStorage:');
-    console.log('- access_token:', localStorage.getItem('access_token')?.substring(0, 20) + '...');
-    console.log('- refresh_token:', localStorage.getItem('refresh_token')?.substring(0, 20) + '...');
-    console.log('- user:', localStorage.getItem('user'));
 
     return {
       token,
@@ -89,109 +69,68 @@ class AuthService {
   }
 
   /**
-   * Get current user details from server
+   * Logout current user
+   * Sends logout request to backend and clears local storage
    */
-  async getCurrentUserFromServer(): Promise<UserDTO> {
-    const response = await axiosInstance.get<UserDTO>(`${API_BASE_URL}/auth/me`);
-    return response.data;
+  async logout(): Promise<void> {
+    try {
+      // Send logout request to backend
+      await axiosInstance.post(`${this.BASE_URL}/logout`);
+    } catch (error) {
+      // Log error but don't throw - we still want to clear local storage
+      console.error('Logout request failed:', error);
+    } finally {
+      // Always clear local storage regardless of backend response
+      this.clearLocalStorage();
+    }
   }
 
   /**
-   * Refresh access token using refresh token
+   * Clear authentication data from local storage
    */
-  async refreshToken(): Promise<string> {
+  private clearLocalStorage(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+  }
+
+  /**
+   * Refresh access token
+   */
+  async refreshToken(): Promise<LoginResponseDTO> {
     const refreshToken = localStorage.getItem('refresh_token');
-    
+
     if (!refreshToken) {
       throw new Error('No refresh token available');
     }
 
-    try {
-      const response = await axios.post<{ token: string; refreshToken?: string }>(
-        `${API_BASE_URL}/auth/refresh`,
-        { refreshToken }
-      );
+    const response = await axiosInstance.post<LoginResponseDTO>(
+      `${this.BASE_URL}/refresh`,
+      { refreshToken }
+    );
 
-      const data = response.data?.data || response.data;
-      const token = data.token || data.accessToken || data.access_token;
-      const newRefreshToken = data.refreshToken || data.refresh_token;
-      
-      // Store new tokens
-      localStorage.setItem('access_token', token);
-      if (newRefreshToken) {
-        localStorage.setItem('refresh_token', newRefreshToken);
+    if (response.data.token) {
+      localStorage.setItem('access_token', response.data.token);
+      if (response.data.refreshToken) {
+        localStorage.setItem('refresh_token', response.data.refreshToken);
       }
-
-      return token;
-    } catch (error) {
-      // Clear tokens on refresh failure
-      this.logout();
-      throw error;
     }
+
+    return response.data;
   }
 
   /**
-   * Logout user and clear tokens
+   * Get current authentication token
    */
-  logout(): void {
-    console.log('🚪 Logging out...');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    console.log('✓ Tokens cleared');
+  getToken(): string | null {
+    return localStorage.getItem('access_token');
   }
 
   /**
    * Check if user is authenticated
    */
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('access_token');
-    return !!token;
-  }
-
-  /**
-   * Get current user from storage
-   */
-  getCurrentUser(): UserDTO | null {
-    const userStr = localStorage.getItem('user');
-    
-    // Return null if no user data
-    if (!userStr) {
-      return null;
-    }
-
-    // Check if it's valid JSON format
-    if (!userStr.trim().startsWith('{') && !userStr.trim().startsWith('[')) {
-      // Silently clear invalid data (common on first load)
-      localStorage.removeItem('user');
-      return null;
-    }
-
-    try {
-      return JSON.parse(userStr);
-    } catch (error) {
-      // Only log in production, not during development
-      if (import.meta.env.PROD) {
-        console.error('Failed to parse user data:', error);
-      }
-      // Clear corrupted data
-      localStorage.removeItem('user');
-      return null;
-    }
-  }
-
-  /**
-   * Get access token
-   */
-  getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-  }
-
-  /**
-   * Get refresh token
-   */
-  getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    return !!this.getToken();
   }
 }
 
