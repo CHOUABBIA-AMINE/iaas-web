@@ -1,7 +1,7 @@
 /**
  * State DTO
  * Data Transfer Object for State entity
- * Supports multilingual names with Ar, En, Fr suffixes
+ * Aligned with iaas repository structure
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -19,23 +19,19 @@ export interface StateDTO {
 }
 
 /**
- * Get localized name for State based on current language
- * @param state - State object with multilingual names
- * @param language - Current language code ('ar', 'en', 'fr')
- * @returns Localized name or fallback to English
+ * Get localized name based on current language
+ * @param state State object
+ * @param language Current language code (ar, en, fr)
+ * @returns Localized name
  */
-export const getStateLocalizedName = (state: StateDTO, language: string): string => {
-  if (!state) return '';
-  
-  const lang = language.toLowerCase();
-  
-  switch (lang) {
+export const getLocalizedStateName = (state: StateDTO, language: string): string => {
+  switch (language.toLowerCase()) {
     case 'ar':
-      return state.nameAr || state.nameEn || state.nameFr || '';
+      return state.nameAr || state.nameEn || state.nameFr || state.code;
     case 'fr':
-      return state.nameFr || state.nameEn || state.nameAr || '';
+      return state.nameFr || state.nameEn || state.nameAr || state.code;
     case 'en':
     default:
-      return state.nameEn || state.nameFr || state.nameAr || '';
+      return state.nameEn || state.nameFr || state.nameAr || state.code;
   }
 };

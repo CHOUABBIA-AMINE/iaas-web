@@ -1,7 +1,7 @@
 /**
  * Locality DTO
  * Data Transfer Object for Locality entity
- * Supports multilingual names with Ar, En, Fr suffixes
+ * Aligned with iaas repository structure
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -23,23 +23,19 @@ export interface LocalityDTO {
 }
 
 /**
- * Get localized name for Locality based on current language
- * @param locality - Locality object with multilingual names
- * @param language - Current language code ('ar', 'en', 'fr')
- * @returns Localized name or fallback to English
+ * Get localized name based on current language
+ * @param locality Locality object
+ * @param language Current language code (ar, en, fr)
+ * @returns Localized name
  */
-export const getLocalityLocalizedName = (locality: LocalityDTO, language: string): string => {
-  if (!locality) return '';
-  
-  const lang = language.toLowerCase();
-  
-  switch (lang) {
+export const getLocalizedLocalityName = (locality: LocalityDTO, language: string): string => {
+  switch (language.toLowerCase()) {
     case 'ar':
-      return locality.nameAr || locality.nameEn || locality.nameFr || '';
+      return locality.nameAr || locality.nameEn || locality.nameFr || locality.code;
     case 'fr':
-      return locality.nameFr || locality.nameEn || locality.nameAr || '';
+      return locality.nameFr || locality.nameEn || locality.nameAr || locality.code;
     case 'en':
     default:
-      return locality.nameEn || locality.nameFr || locality.nameAr || '';
+      return locality.nameEn || locality.nameFr || locality.nameAr || locality.code;
   }
 };
