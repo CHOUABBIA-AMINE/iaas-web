@@ -52,6 +52,9 @@ const StationEdit = () => {
     latitude: 0,
     longitude: 0,
     elevation: undefined,
+    installationDate: undefined,
+    commissioningDate: undefined,
+    decommissioningDate: undefined,
     operationalStatusId: 0,
     stationTypeId: 0,
     pipelineSystemId: undefined,
@@ -240,6 +243,9 @@ const StationEdit = () => {
         latitude: Number(station.latitude),
         longitude: Number(station.longitude),
         elevation: station.elevation ? Number(station.elevation) : undefined,
+        installationDate: station.installationDate,
+        commissioningDate: station.commissioningDate,
+        decommissioningDate: station.decommissioningDate,
         operationalStatusId: Number(station.operationalStatusId),
         stationTypeId: Number(station.stationTypeId),
         pipelineSystemId: station.pipelineSystemId ? Number(station.pipelineSystemId) : undefined,
@@ -526,6 +532,51 @@ const StationEdit = () => {
                       </MenuItem>
                     ))}
                   </TextField>
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Important Dates */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Important Dates
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Installation Date"
+                    type="date"
+                    value={station.installationDate || ''}
+                    onChange={handleChange('installationDate')}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Commissioning Date"
+                    type="date"
+                    value={station.commissioningDate || ''}
+                    onChange={handleChange('commissioningDate')}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Decommissioning Date"
+                    type="date"
+                    value={station.decommissioningDate || ''}
+                    onChange={handleChange('decommissioningDate')}
+                    InputLabelProps={{ shrink: true }}
+                  />
                 </Grid>
               </Grid>
             </Box>
