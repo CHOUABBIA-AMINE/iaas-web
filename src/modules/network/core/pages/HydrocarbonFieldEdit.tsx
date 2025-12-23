@@ -1,7 +1,7 @@
 /**
  * HydrocarbonField Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing hydrocarbon fields
- * State and Locality with REST API integration
+ * State extracted from locality.state instead of direct stateId
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -59,9 +59,11 @@ const HydrocarbonFieldEdit = () => {
     operationalStatusId: 0,
     hydrocarbonFieldTypeId: 0,
     vendorId: 0,
-    stateId: 0,
     localityId: 0,
   });
+
+  // UI state for state selection (not in entity)
+  const [selectedStateId, setSelectedStateId] = useState<number>(0);
 
   // Available options
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
@@ -81,10 +83,10 @@ const HydrocarbonFieldEdit = () => {
     loadData();
   }, [fieldId]);
 
-  // Load localities when state changes
+  // Load localities when selected state changes
   useEffect(() => {
-    if (field.stateId && field.stateId > 0) {
-      loadLocalitiesByState(field.stateId);
+    if (selectedStateId && selectedStateId > 0) {
+      loadLocalitiesByState(selectedStateId);
     } else {
       setLocalities([]);
       // Clear locality if state is cleared
@@ -92,7 +94,7 @@ const HydrocarbonFieldEdit = () => {
         setField(prev => ({ ...prev, localityId: 0 }));
       }
     }
-  }, [field.stateId]);
+  }, [selectedStateId]);
 
   // Sort options by localized name
   const sortedFieldTypes = useMemo(
@@ -171,7 +173,14 @@ const HydrocarbonFieldEdit = () => {
       // Set field data if editing
       if (fieldData) {
         setField(fieldData);
-        // Localities will be loaded by useEffect when stateId is set
+        
+        // Extract state from locality if available
+        if (fieldData.locality?.state?.id) {
+          setSelectedStateId(fieldData.locality.state.id);
+        } else if (fieldData.locality?.stateId) {
+          setSelectedStateId(fieldData.locality.stateId);
+        }
+        // Localities will be loaded by useEffect when selectedStateId is set
       }
 
       setError('');
@@ -234,7 +243,7 @@ const HydrocarbonFieldEdit = () => {
       errors.vendorId = 'Vendor is required';
     }
 
-    if (!field.stateId) {
+    if (!selectedStateId) {
       errors.stateId = 'State is required';
     }
 
@@ -253,6 +262,16 @@ const HydrocarbonFieldEdit = () => {
     // Clear validation error for this field
     if (validationErrors[fieldName]) {
       setValidationErrors({ ...validationErrors, [fieldName]: '' });
+    }
+  };
+
+  const handleStateChange = (e: any) => {
+    const value = e.target.value;
+    setSelectedStateId(value);
+    
+    // Clear validation error
+    if (validationErrors.stateId) {
+      setValidationErrors({ ...validationErrors, stateId: '' });
     }
   };
 
@@ -280,7 +299,6 @@ const HydrocarbonFieldEdit = () => {
         operationalStatusId: Number(field.operationalStatusId),
         hydrocarbonFieldTypeId: Number(field.hydrocarbonFieldTypeId),
         vendorId: Number(field.vendorId),
-        stateId: Number(field.stateId),
         localityId: Number(field.localityId),
       };
 
@@ -402,8 +420,8 @@ const HydrocarbonFieldEdit = () => {
                     fullWidth
                     select
                     label="State"
-                    value={field.stateId || ''}
-                    onChange={handleChange('stateId')}
+                    value={selectedStateId || ''}
+                    onChange={handleStateChange}
                     required
                     error={!!validationErrors.stateId}
                     helperText={validationErrors.stateId || 'Select state first to load localities'}
@@ -428,10 +446,10 @@ const HydrocarbonFieldEdit = () => {
                     value={field.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
-                    disabled={!field.stateId || loadingLocalities}
+                    disabled={!selectedStateId || loadingLocalities}
                     error={!!validationErrors.localityId}
                     helperText={
-                      !field.stateId 
+                      !selectedStateId 
                         ? 'Please select a state first' 
                         : loadingLocalities 
                         ? 'Loading localities...' 
