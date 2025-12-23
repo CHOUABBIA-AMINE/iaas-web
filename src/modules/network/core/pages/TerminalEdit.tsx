@@ -1,7 +1,7 @@
 /**
  * Terminal Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing terminals
- * State and Locality with REST API integration
+ * State extracted from locality.state instead of direct stateId
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -59,9 +59,11 @@ const TerminalEdit = () => {
     operationalStatusId: 0,
     terminalTypeId: 0,
     vendorId: 0,
-    stateId: 0,
     localityId: 0,
   });
+
+  // UI state for state selection (not in entity)
+  const [selectedStateId, setSelectedStateId] = useState<number>(0);
 
   // Available options
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
@@ -81,10 +83,10 @@ const TerminalEdit = () => {
     loadData();
   }, [terminalId]);
 
-  // Load localities when state changes
+  // Load localities when selected state changes
   useEffect(() => {
-    if (terminal.stateId && terminal.stateId > 0) {
-      loadLocalitiesByState(terminal.stateId);
+    if (selectedStateId && selectedStateId > 0) {
+      loadLocalitiesByState(selectedStateId);
     } else {
       setLocalities([]);
       // Clear locality if state is cleared
@@ -92,7 +94,7 @@ const TerminalEdit = () => {
         setTerminal(prev => ({ ...prev, localityId: 0 }));
       }
     }
-  }, [terminal.stateId]);
+  }, [selectedStateId]);
 
   // Sort options by localized name
   const sortedTerminalTypes = useMemo(
@@ -171,7 +173,14 @@ const TerminalEdit = () => {
       // Set terminal data if editing
       if (terminalData) {
         setTerminal(terminalData);
-        // Localities will be loaded by useEffect when stateId is set
+        
+        // Extract state from locality if available
+        if (terminalData.locality?.state?.id) {
+          setSelectedStateId(terminalData.locality.state.id);
+        } else if (terminalData.locality?.stateId) {
+          setSelectedStateId(terminalData.locality.stateId);
+        }
+        // Localities will be loaded by useEffect when selectedStateId is set
       }
 
       setError('');
@@ -234,7 +243,7 @@ const TerminalEdit = () => {
       errors.vendorId = 'Vendor is required';
     }
 
-    if (!terminal.stateId) {
+    if (!selectedStateId) {
       errors.stateId = 'State is required';
     }
 
@@ -253,6 +262,16 @@ const TerminalEdit = () => {
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors({ ...validationErrors, [field]: '' });
+    }
+  };
+
+  const handleStateChange = (e: any) => {
+    const value = e.target.value;
+    setSelectedStateId(value);
+    
+    // Clear validation error
+    if (validationErrors.stateId) {
+      setValidationErrors({ ...validationErrors, stateId: '' });
     }
   };
 
@@ -280,7 +299,6 @@ const TerminalEdit = () => {
         operationalStatusId: Number(terminal.operationalStatusId),
         terminalTypeId: Number(terminal.terminalTypeId),
         vendorId: Number(terminal.vendorId),
-        stateId: Number(terminal.stateId),
         localityId: Number(terminal.localityId),
       };
 
@@ -402,8 +420,8 @@ const TerminalEdit = () => {
                     fullWidth
                     select
                     label="State"
-                    value={terminal.stateId || ''}
-                    onChange={handleChange('stateId')}
+                    value={selectedStateId || ''}
+                    onChange={handleStateChange}
                     required
                     error={!!validationErrors.stateId}
                     helperText={validationErrors.stateId || 'Select state first to load localities'}
@@ -428,10 +446,10 @@ const TerminalEdit = () => {
                     value={terminal.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
-                    disabled={!terminal.stateId || loadingLocalities}
+                    disabled={!selectedStateId || loadingLocalities}
                     error={!!validationErrors.localityId}
                     helperText={
-                      !terminal.stateId 
+                      !selectedStateId 
                         ? 'Please select a state first' 
                         : loadingLocalities 
                         ? 'Loading localities...' 
