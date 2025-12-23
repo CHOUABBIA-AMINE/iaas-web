@@ -1,2 +1,2 @@
 // Audit module DTOs (match backend dz.mdn.iaas.system.audit.dto)
-// Add DTO exports here as they are created
+export * from './AuditedDTO';
