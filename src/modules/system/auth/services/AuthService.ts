@@ -1,136 +1,116 @@
 /**
- * Auth Service
- * Matches: dz.mdn.iaas.system.auth.service.AuthService.java
- * Communicates with: AuthController.java
+ * Authentication Service
+ * Handles user authentication, token management, and session control
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
-import axiosInstance from '../../../../shared/config/axios';
-import { LoginRequestDTO, LoginResponseDTO } from '../dto';
-import { userService } from '../../security/services';
-import { UserDTO } from '../../security/dto';
+import axios from 'axios';
+import { LoginDTO, AuthResponseDTO, UserDTO } from '../dto';
 
-interface LoginResult {
-  token: string;
-  refreshToken?: string;
-  user: UserDTO;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/iaas/api';
 
 class AuthService {
-  private readonly BASE_URL = '/auth';
-
   /**
-   * Login user with username and password
-   * After authentication, fetches user details from /system/security/user/username/{username}
+   * Login user with credentials
    */
-  async login(credentials: LoginRequestDTO): Promise<LoginResult> {
-    // Step 1: Authenticate and get token
-    const authResponse = await axiosInstance.post<LoginResponseDTO>(
-      `${this.BASE_URL}/login`,
+  async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
+    const response = await axios.post<AuthResponseDTO>(
+      `${API_BASE_URL}/auth/login`,
       credentials
     );
 
-    // Extract token (check multiple possible field names)
-    const responseData = authResponse.data as any;
-    const token = responseData.token || responseData.accessToken || responseData.access_token || responseData.jwt;
-    const refreshToken = responseData.refreshToken || responseData.refresh_token;
+    const { token, refreshToken, user } = response.data;
 
-    if (!token) {
-      throw new Error('No token received from backend');
-    }
-
-    // Store token for the user fetch request
+    // Store tokens and user info
     localStorage.setItem('access_token', token);
     if (refreshToken) {
       localStorage.setItem('refresh_token', refreshToken);
     }
+    localStorage.setItem('user', JSON.stringify(user));
 
-    // Step 2: Fetch user details by username
-    let user: UserDTO;
-    try {
-      user = await userService.getByUsername(credentials.username);
-    } catch (error) {
-      // Create minimal user object if fetch fails
-      user = {
-        id: 0,
-        username: credentials.username,
-        email: credentials.username,
-        roles: [],
-      };
-    }
-
-    return {
-      token,
-      refreshToken,
-      user,
-    };
+    return response.data;
   }
 
   /**
-   * Logout current user
-   * Sends logout request to backend and clears local storage
+   * Refresh access token using refresh token
    */
-  async logout(): Promise<void> {
+  async refreshToken(): Promise<string> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
     try {
-      // Send logout request to backend
-      await axiosInstance.post(`${this.BASE_URL}/logout`);
+      const response = await axios.post<{ token: string; refreshToken?: string }>(
+        `${API_BASE_URL}/auth/refresh`,
+        { refreshToken }
+      );
+
+      const { token, refreshToken: newRefreshToken } = response.data;
+      
+      // Store new tokens
+      localStorage.setItem('access_token', token);
+      if (newRefreshToken) {
+        localStorage.setItem('refresh_token', newRefreshToken);
+      }
+
+      return token;
     } catch (error) {
-      // Log error but don't throw - we still want to clear local storage
-      console.error('Logout request failed:', error);
-    } finally {
-      // Always clear local storage regardless of backend response
-      this.clearLocalStorage();
+      // Clear tokens on refresh failure
+      this.logout();
+      throw error;
     }
   }
 
   /**
-   * Clear authentication data from local storage
+   * Logout user and clear tokens
    */
-  private clearLocalStorage(): void {
+  logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
   }
 
   /**
-   * Refresh access token
+   * Check if user is authenticated
    */
-  async refreshToken(): Promise<LoginResponseDTO> {
-    const refreshToken = localStorage.getItem('refresh_token');
-
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await axiosInstance.post<LoginResponseDTO>(
-      `${this.BASE_URL}/refresh`,
-      { refreshToken }
-    );
-
-    if (response.data.token) {
-      localStorage.setItem('access_token', response.data.token);
-      if (response.data.refreshToken) {
-        localStorage.setItem('refresh_token', response.data.refreshToken);
-      }
-    }
-
-    return response.data;
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('access_token');
+    return !!token;
   }
 
   /**
-   * Get current authentication token
+   * Get current user from storage
    */
-  getToken(): string | null {
+  getCurrentUser(): UserDTO | null {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get access token
+   */
+  getAccessToken(): string | null {
     return localStorage.getItem('access_token');
   }
 
   /**
-   * Check if user is authenticated
+   * Get refresh token
    */
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  getRefreshToken(): string | null {
+    return localStorage.getItem('refresh_token');
   }
 }
 

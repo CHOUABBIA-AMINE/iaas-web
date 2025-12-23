@@ -1,12 +1,13 @@
 /**
  * Axios Instance Configuration
- * Centralized HTTP client with interceptors
+ * Centralized HTTP client with interceptors and refresh token management
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/iaas/api',
@@ -16,53 +17,145 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor - Add auth token to requests
+// Refresh token state management
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+/**
+ * Subscribe to token refresh
+ * Used to queue requests while token is being refreshed
+ */
+const subscribeTokenRefresh = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
+/**
+ * Notify all subscribers when token is refreshed
+ */
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+};
+
+/**
+ * Refresh the access token using refresh token
+ */
+const refreshAccessToken = async (): Promise<string> => {
+  const refreshToken = localStorage.getItem('refresh_token');
+  
+  if (!refreshToken) {
+    throw new Error('No refresh token available');
+  }
+
+  try {
+    const response = await axios.post(
+      `${axiosInstance.defaults.baseURL}/auth/refresh`,
+      { refreshToken },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const { token, refreshToken: newRefreshToken } = response.data;
+    
+    // Store new tokens
+    localStorage.setItem('access_token', token);
+    
+    // Update refresh token if provided
+    if (newRefreshToken) {
+      localStorage.setItem('refresh_token', newRefreshToken);
+    }
+
+    return token;
+  } catch (error) {
+    // Clear tokens on refresh failure
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    throw error;
+  }
+};
+
+/**
+ * Request interceptor - Add auth token to requests
+ */
 axiosInstance.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('access_token');
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
+  (error: AxiosError) => {
     return Promise.reject(error);
   }
 );
 
-// Response interceptor - Handle errors globally
+/**
+ * Response interceptor - Handle token refresh and errors
+ */
 axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Handle 401 Unauthorized - Token expired
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Skip refresh for auth endpoints
+    if (originalRequest?.url?.includes('/auth/')) {
+      return Promise.reject(error);
+    }
+
+    // Handle 401 Unauthorized - Token expired or invalid
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      try {
-        // Try to refresh token
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          const response = await axios.post(
-            `${axiosInstance.defaults.baseURL}/auth/refresh`,
-            { refreshToken }
-          );
+      if (!isRefreshing) {
+        isRefreshing = true;
 
-          const { token } = response.data;
-          localStorage.setItem('access_token', token);
+        try {
+          const newToken = await refreshAccessToken();
+          isRefreshing = false;
+          
+          // Notify all queued requests
+          onTokenRefreshed(newToken);
 
           // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
           return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          isRefreshing = false;
+          refreshSubscribers = [];
+          
+          // Redirect to login on refresh failure
+          console.error('Token refresh failed:', refreshError);
+          window.location.href = '/login';
+          return Promise.reject(refreshError);
         }
-      } catch (refreshError) {
-        // Refresh failed - redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
+      } else {
+        // Token is being refreshed, queue this request
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token: string) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            resolve(axiosInstance(originalRequest));
+          });
+        });
       }
+    }
+
+    // Handle 403 Forbidden - Access denied
+    if (error.response?.status === 403) {
+      console.warn('Access denied:', error.response.data);
+    }
+
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network error:', error.message);
     }
 
     return Promise.reject(error);
