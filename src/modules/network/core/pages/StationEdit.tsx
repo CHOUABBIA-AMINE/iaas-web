@@ -1,0 +1,501 @@
+/**
+ * Station Edit/Create Page - Professional Version
+ * Comprehensive form for creating and editing stations
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-23-2025
+ */
+
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  Alert,
+  Grid,
+  Paper,
+  Divider,
+  Stack,
+  MenuItem,
+} from '@mui/material';
+import {
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  ArrowBack as BackIcon,
+} from '@mui/icons-material';
+import { stationService } from '../services';
+import { StationDTO, StationCreateDTO } from '../dto';
+
+const StationEdit = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { stationId } = useParams<{ stationId: string }>();
+  const isEditMode = !!stationId;
+
+  // Form state
+  const [station, setStation] = useState<Partial<StationDTO>>({
+    name: '',
+    code: '',
+    description: '',
+    placeName: '',
+    latitude: 0,
+    longitude: 0,
+    elevation: undefined,
+    operationalStatusId: 0,
+    stationTypeId: 0,
+    pipelineSystemId: undefined,
+    vendorId: 0,
+    localityId: 0,
+  });
+
+  // Available options (would normally be loaded from API)
+  const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
+  const [stationTypes, setStationTypes] = useState<any[]>([]);
+  const [pipelineSystems, setPipelineSystems] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [localities, setLocalities] = useState<any[]>([]);
+
+  // UI state
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadData();
+  }, [stationId]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      
+      // TODO: Load lookup data from APIs
+      // For now, using mock data
+      setOperationalStatuses([
+        { id: 1, name: 'Operational' },
+        { id: 2, name: 'Maintenance' },
+        { id: 3, name: 'Offline' },
+      ]);
+      
+      setStationTypes([
+        { id: 1, name: 'Pumping Station' },
+        { id: 2, name: 'Compression Station' },
+        { id: 3, name: 'Metering Station' },
+      ]);
+      
+      setPipelineSystems([
+        { id: 1, name: 'System A' },
+        { id: 2, name: 'System B' },
+      ]);
+      
+      setVendors([
+        { id: 1, name: 'Vendor A' },
+        { id: 2, name: 'Vendor B' },
+      ]);
+      
+      setLocalities([
+        { id: 1, name: 'Hassi Messaoud' },
+        { id: 2, name: 'In Amenas' },
+      ]);
+
+      // Load station if editing
+      if (isEditMode) {
+        const stationData = await stationService.getById(Number(stationId));
+        setStation(stationData);
+      }
+
+      setError('');
+    } catch (err: any) {
+      console.error('Failed to load data:', err);
+      setError(err.message || 'Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!station.name || station.name.trim().length < 2) {
+      errors.name = 'Station name must be at least 2 characters';
+    }
+
+    if (!station.code || station.code.trim().length < 2) {
+      errors.code = 'Station code is required';
+    }
+
+    if (!station.placeName || station.placeName.trim().length < 2) {
+      errors.placeName = 'Place name is required';
+    }
+
+    if (!station.latitude || station.latitude === 0) {
+      errors.latitude = 'Latitude is required';
+    }
+
+    if (!station.longitude || station.longitude === 0) {
+      errors.longitude = 'Longitude is required';
+    }
+
+    if (!station.operationalStatusId) {
+      errors.operationalStatusId = 'Operational status is required';
+    }
+
+    if (!station.stationTypeId) {
+      errors.stationTypeId = 'Station type is required';
+    }
+
+    if (!station.vendorId) {
+      errors.vendorId = 'Vendor is required';
+    }
+
+    if (!station.localityId) {
+      errors.localityId = 'Locality is required';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleChange = (field: keyof StationDTO) => (e: any) => {
+    const value = e.target.value;
+    setStation({ ...station, [field]: value });
+    
+    // Clear validation error for this field
+    if (validationErrors[field]) {
+      setValidationErrors({ ...validationErrors, [field]: '' });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError('');
+
+      const stationData: StationCreateDTO = {
+        name: station.name!,
+        code: station.code!,
+        description: station.description,
+        placeName: station.placeName!,
+        latitude: Number(station.latitude),
+        longitude: Number(station.longitude),
+        elevation: station.elevation ? Number(station.elevation) : undefined,
+        operationalStatusId: Number(station.operationalStatusId),
+        stationTypeId: Number(station.stationTypeId),
+        pipelineSystemId: station.pipelineSystemId ? Number(station.pipelineSystemId) : undefined,
+        vendorId: Number(station.vendorId),
+        localityId: Number(station.localityId),
+      };
+
+      if (isEditMode) {
+        await stationService.update(Number(stationId), { id: Number(stationId), ...stationData });
+      } else {
+        await stationService.create(stationData);
+      }
+
+      navigate('/network/core/stations');
+    } catch (err: any) {
+      console.error('Failed to save station:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to save station');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/network/core/stations');
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box>
+      {/* Header */}
+      <Box sx={{ mb: 3 }}>
+        <Button
+          startIcon={<BackIcon />}
+          onClick={handleCancel}
+          sx={{ mb: 2 }}
+        >
+          {t('common.back')}
+        </Button>
+        <Typography variant="h4" fontWeight={700} color="text.primary">
+          {isEditMode ? 'Edit Station' : 'Create Station'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          {isEditMode ? 'Update station information and details' : 'Create a new pipeline station'}
+        </Typography>
+      </Box>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <Stack spacing={3}>
+          {/* Basic Information */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Basic Information
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Station Name"
+                    value={station.name || ''}
+                    onChange={handleChange('name')}
+                    required
+                    error={!!validationErrors.name}
+                    helperText={validationErrors.name}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Station Code"
+                    value={station.code || ''}
+                    onChange={handleChange('code')}
+                    required
+                    error={!!validationErrors.code}
+                    helperText={validationErrors.code}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Description"
+                    value={station.description || ''}
+                    onChange={handleChange('description')}
+                    multiline
+                    rows={3}
+                    placeholder="Describe the station"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Location Information */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Location Information
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Place Name"
+                    value={station.placeName || ''}
+                    onChange={handleChange('placeName')}
+                    required
+                    error={!!validationErrors.placeName}
+                    helperText={validationErrors.placeName}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Locality"
+                    value={station.localityId || ''}
+                    onChange={handleChange('localityId')}
+                    required
+                    error={!!validationErrors.localityId}
+                    helperText={validationErrors.localityId}
+                  >
+                    {localities.map((locality) => (
+                      <MenuItem key={locality.id} value={locality.id}>
+                        {locality.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Latitude"
+                    type="number"
+                    value={station.latitude || ''}
+                    onChange={handleChange('latitude')}
+                    required
+                    error={!!validationErrors.latitude}
+                    helperText={validationErrors.latitude}
+                    inputProps={{ step: 0.000001 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Longitude"
+                    type="number"
+                    value={station.longitude || ''}
+                    onChange={handleChange('longitude')}
+                    required
+                    error={!!validationErrors.longitude}
+                    helperText={validationErrors.longitude}
+                    inputProps={{ step: 0.000001 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Elevation (m)"
+                    type="number"
+                    value={station.elevation || ''}
+                    onChange={handleChange('elevation')}
+                    inputProps={{ step: 0.1 }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Technical Details */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Technical Details
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Station Type"
+                    value={station.stationTypeId || ''}
+                    onChange={handleChange('stationTypeId')}
+                    required
+                    error={!!validationErrors.stationTypeId}
+                    helperText={validationErrors.stationTypeId}
+                  >
+                    {stationTypes.map((type) => (
+                      <MenuItem key={type.id} value={type.id}>
+                        {type.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Operational Status"
+                    value={station.operationalStatusId || ''}
+                    onChange={handleChange('operationalStatusId')}
+                    required
+                    error={!!validationErrors.operationalStatusId}
+                    helperText={validationErrors.operationalStatusId}
+                  >
+                    {operationalStatuses.map((status) => (
+                      <MenuItem key={status.id} value={status.id}>
+                        {status.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Vendor"
+                    value={station.vendorId || ''}
+                    onChange={handleChange('vendorId')}
+                    required
+                    error={!!validationErrors.vendorId}
+                    helperText={validationErrors.vendorId}
+                  >
+                    {vendors.map((vendor) => (
+                      <MenuItem key={vendor.id} value={vendor.id}>
+                        {vendor.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
+                    label="Pipeline System (Optional)"
+                    value={station.pipelineSystemId || ''}
+                    onChange={handleChange('pipelineSystemId')}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {pipelineSystems.map((system) => (
+                      <MenuItem key={system.id} value={system.id}>
+                        {system.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Actions */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
+            <Box sx={{ p: 2.5, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              <Button
+                variant="outlined"
+                startIcon={<CancelIcon />}
+                onClick={handleCancel}
+                disabled={saving}
+                size="large"
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+                disabled={saving}
+                size="large"
+                sx={{ minWidth: 150 }}
+              >
+                {saving ? t('common.loading') : t('common.save')}
+              </Button>
+            </Box>
+          </Paper>
+        </Stack>
+      </form>
+    </Box>
+  );
+};
+
+export default StationEdit;

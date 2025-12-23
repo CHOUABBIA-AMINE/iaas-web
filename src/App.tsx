@@ -25,6 +25,7 @@ import { Dashboard } from './shared/components/Dashboard';
 import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
 import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './modules/system/security/pages';
+import { StationList, StationEdit } from './modules/network/core/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -169,6 +170,37 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                </Route>
+
+                {/* Network Module - Protected */}
+                <Route path="network">
+                  {/* Core - Stations */}
+                  <Route path="core">
+                    <Route
+                      path="stations"
+                      element={
+                        <ProtectedRoute>
+                          <StationList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="stations/create"
+                      element={
+                        <ProtectedRoute>
+                          <StationEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="stations/:stationId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <StationEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Route>
                 </Route>
 
                 {/* Unauthorized page */}
