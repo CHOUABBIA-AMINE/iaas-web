@@ -1,6 +1,7 @@
 /**
  * HydrocarbonField Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing hydrocarbon fields
+ * State and Locality with REST API integration
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -31,6 +32,7 @@ import {
 import { hydrocarbonFieldService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { hydrocarbonFieldTypeService } from '../../type/services';
+import { stateService, localityService } from '../../../common/administration/services';
 import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -57,6 +59,7 @@ const HydrocarbonFieldEdit = () => {
     operationalStatusId: 0,
     hydrocarbonFieldTypeId: 0,
     vendorId: 0,
+    stateId: 0,
     localityId: 0,
   });
 
@@ -64,7 +67,9 @@ const HydrocarbonFieldEdit = () => {
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
   const [fieldTypes, setFieldTypes] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
   const [localities, setLocalities] = useState<any[]>([]);
+  const [loadingLocalities, setLoadingLocalities] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -75,6 +80,19 @@ const HydrocarbonFieldEdit = () => {
   useEffect(() => {
     loadData();
   }, [fieldId]);
+
+  // Load localities when state changes
+  useEffect(() => {
+    if (field.stateId && field.stateId > 0) {
+      loadLocalitiesByState(field.stateId);
+    } else {
+      setLocalities([]);
+      // Clear locality if state is cleared
+      if (field.localityId) {
+        setField(prev => ({ ...prev, localityId: 0 }));
+      }
+    }
+  }, [field.stateId]);
 
   // Sort options by localized name
   const sortedFieldTypes = useMemo(
@@ -91,48 +109,23 @@ const HydrocarbonFieldEdit = () => {
     try {
       setLoading(true);
       
-      // TODO: Load from real API when available
-      // For now, using mock data for localities
-      const mockLocalities = [
-        { id: 1, name: 'Hassi Messaoud' },
-        { id: 2, name: 'In Amenas' },
-        { id: 3, name: 'Hassi R\'Mel' },
-        { id: 4, name: 'Ouargla' },
-        { id: 5, name: 'Berkine Basin' },
-        { id: 6, name: 'Illizi Basin' },
-      ];
-      
-      // Load field if editing
+      // Load field first if editing
       let fieldData: HydrocarbonFieldDTO | null = null;
       if (isEditMode) {
         fieldData = await hydrocarbonFieldService.getById(Number(fieldId));
-        
-        // If field has a locality from backend, add it to the list if not present
-        if (fieldData.locality && fieldData.localityId) {
-          const localityExists = mockLocalities.some(loc => loc.id === fieldData!.localityId);
-          if (!localityExists) {
-            // Add the locality from DTO to the list
-            mockLocalities.push({
-              id: fieldData.localityId,
-              name: fieldData.locality.name || `Locality ${fieldData.localityId}`
-            });
-          }
-        }
-        
-        setField(fieldData);
       }
       
-      setLocalities(mockLocalities);
-      
-      // Load real data from APIs in parallel
+      // Load all data from REST APIs in parallel
       const [
         vendorsData,
         fieldTypesData,
-        operationalStatusesData
+        operationalStatusesData,
+        statesData
       ] = await Promise.allSettled([
         vendorService.getAll(),
         hydrocarbonFieldTypeService.getAll(),
         operationalStatusService.getAll(),
+        stateService.getAll(),
       ]);
 
       // Handle vendors
@@ -165,12 +158,44 @@ const HydrocarbonFieldEdit = () => {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
       }
 
+      // Handle states
+      if (statesData.status === 'fulfilled') {
+        const states = Array.isArray(statesData.value) 
+          ? statesData.value 
+          : (statesData.value?.data || statesData.value?.content || []);
+        setStates(states);
+      } else {
+        console.error('Failed to load states:', statesData.reason);
+      }
+
+      // Set field data if editing
+      if (fieldData) {
+        setField(fieldData);
+        // Localities will be loaded by useEffect when stateId is set
+      }
+
       setError('');
     } catch (err: any) {
       console.error('Failed to load data:', err);
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLocalitiesByState = async (stateId: number) => {
+    try {
+      setLoadingLocalities(true);
+      const localitiesData = await localityService.getByStateId(stateId);
+      const localities = Array.isArray(localitiesData) 
+        ? localitiesData 
+        : (localitiesData?.data || localitiesData?.content || []);
+      setLocalities(localities);
+    } catch (err: any) {
+      console.error('Failed to load localities:', err);
+      setLocalities([]);
+    } finally {
+      setLoadingLocalities(false);
     }
   };
 
@@ -207,6 +232,10 @@ const HydrocarbonFieldEdit = () => {
 
     if (!field.vendorId) {
       errors.vendorId = 'Vendor is required';
+    }
+
+    if (!field.stateId) {
+      errors.stateId = 'State is required';
     }
 
     if (!field.localityId) {
@@ -251,6 +280,7 @@ const HydrocarbonFieldEdit = () => {
         operationalStatusId: Number(field.operationalStatusId),
         hydrocarbonFieldTypeId: Number(field.hydrocarbonFieldTypeId),
         vendorId: Number(field.vendorId),
+        stateId: Number(field.stateId),
         localityId: Number(field.localityId),
       };
 
@@ -371,18 +401,54 @@ const HydrocarbonFieldEdit = () => {
                   <TextField
                     fullWidth
                     select
+                    label="State"
+                    value={field.stateId || ''}
+                    onChange={handleChange('stateId')}
+                    required
+                    error={!!validationErrors.stateId}
+                    helperText={validationErrors.stateId || 'Select state first to load localities'}
+                  >
+                    {states.length > 0 ? (
+                      states.map((state) => (
+                        <MenuItem key={state.id} value={state.id}>
+                          {state.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>Loading states...</MenuItem>
+                    )}
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    select
                     label="Locality"
                     value={field.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
+                    disabled={!field.stateId || loadingLocalities}
                     error={!!validationErrors.localityId}
-                    helperText={validationErrors.localityId}
+                    helperText={
+                      !field.stateId 
+                        ? 'Please select a state first' 
+                        : loadingLocalities 
+                        ? 'Loading localities...' 
+                        : validationErrors.localityId
+                    }
                   >
-                    {localities.map((locality) => (
-                      <MenuItem key={locality.id} value={locality.id}>
-                        {locality.name}
-                      </MenuItem>
-                    ))}
+                    {loadingLocalities ? (
+                      <MenuItem disabled>Loading localities...</MenuItem>
+                    ) : localities.length > 0 ? (
+                      localities.map((locality) => (
+                        <MenuItem key={locality.id} value={locality.id}>
+                          {locality.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No localities available</MenuItem>
+                    )}
                   </TextField>
                 </Grid>
 
