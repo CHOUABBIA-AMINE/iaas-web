@@ -1,13 +1,14 @@
 /**
- * Login Page Component
- * Professional authentication page with JWT integration and i18n support
+ * Login Page
+ * User authentication form with i18n support
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { useState, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../../shared/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -16,41 +17,27 @@ import {
   TextField,
   Button,
   Typography,
+  Alert,
   InputAdornment,
   IconButton,
-  Alert,
+  Stack,
   Link,
-  Divider,
 } from '@mui/material';
 import {
   Visibility,
   VisibilityOff,
-  Person,
-  Lock,
-  Login as LoginIcon,
+  Person as PersonIcon,
+  Lock as LockIcon,
 } from '@mui/icons-material';
-import { useAuth } from '../../../../shared/context/AuthContext';
 
 const Login = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const { login } = useAuth();
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (error) setError('');
-  };
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,193 +45,152 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData);
-      navigate('/dashboard');
+      await login({ username, password });
+      // Navigation handled by AuthContext
     } catch (err: any) {
       console.error('Login error:', err);
-      const errorMessage =
-        err.response?.data?.message || err.message || t('auth.loginFailed');
-      setError(errorMessage);
+      setError(err.response?.data?.message || err.message || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <Box
       sx={{
-        minHeight: 'calc(100vh - 64px - 40px)',
+        minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 4,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: 2,
       }}
     >
       <Card
-        elevation={3}
         sx={{
+          maxWidth: 450,
           width: '100%',
-          maxWidth: 440,
-          borderRadius: 3,
-          overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         }}
       >
-        <Box
-          sx={{
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            py: 4,
-            px: 3,
-            textAlign: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              mb: 2,
-            }}
-          >
-            <Box
-              component="img"
-              src="/logo.png"
-              alt="IAAS Logo"
-              sx={{
-                height: 64,
-                width: 64,
-              }}
-              onError={(e: any) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          </Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
-            {t('app.name')}
-          </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.9 }}>
-            {t('app.description')}
-          </Typography>
-        </Box>
-
         <CardContent sx={{ p: 4 }}>
-          <Typography
-            variant="h5"
-            fontWeight={600}
-            gutterBottom
-            sx={{ mb: 3, textAlign: 'center' }}
-          >
-            {t('auth.signIn')}
-          </Typography>
+          {/* Logo/Title */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              gutterBottom
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              {t('app.name')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('auth.signIn')}
+            </Typography>
+          </Box>
 
+          {/* Error Alert */}
           {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
               {error}
             </Alert>
           )}
 
+          {/* Login Form */}
           <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label={t('auth.username')}
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              margin="normal"
-              required
-              autoFocus
-              autoComplete="username"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 2 }}
-            />
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label={t('auth.username')}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoFocus
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-            <TextField
-              fullWidth
-              label={t('auth.password')}
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
-              margin="normal"
-              required
-              autoComplete="current-password"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock color="action" />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleTogglePassword} edge="end" size="small">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ mb: 1 }}
-            />
+              <TextField
+                fullWidth
+                type={showPassword ? 'text' : 'password'}
+                label={t('auth.password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockIcon color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        disabled={loading}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                mb: 3,
-              }}
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                size="large"
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8e 100%)',
+                  },
+                }}
+              >
+                {loading ? t('auth.signingIn') : t('auth.signIn')}
+              </Button>
+            </Stack>
+          </form>
+
+          {/* Additional Links */}
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Link
+              href="#"
+              variant="body2"
+              sx={{ color: 'primary.main', textDecoration: 'none' }}
             >
+              {t('auth.forgotPassword')}
+            </Link>
+          </Box>
+
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              {t('auth.noAccount')}{' '}
               <Link
                 href="#"
                 variant="body2"
-                underline="hover"
-                sx={{ color: 'primary.main', fontWeight: 500 }}
+                sx={{ color: 'primary.main', textDecoration: 'none' }}
               >
-                {t('auth.forgotPassword')}
+                {t('auth.contactAdmin')}
               </Link>
-            </Box>
-
-            <Button
-              fullWidth
-              type="submit"
-              variant="contained"
-              size="large"
-              disabled={loading}
-              startIcon={<LoginIcon />}
-              sx={{
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                boxShadow: 2,
-                '&:hover': {
-                  boxShadow: 4,
-                },
-              }}
-            >
-              {loading ? t('auth.signingIn') : t('auth.signIn')}
-            </Button>
-          </form>
-
-          <Divider sx={{ my: 3 }} />
-
-          <Typography variant="body2" color="text.secondary" align="center">
-            {t('auth.noAccount')}{' '}
-            <Link
-              href="#"
-              underline="hover"
-              sx={{ color: 'primary.main', fontWeight: 600 }}
-            >
-              {t('auth.contactAdmin')}
-            </Link>
-          </Typography>
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     </Box>

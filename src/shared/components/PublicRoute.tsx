@@ -5,6 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { Navigate } from 'react-router-dom';
@@ -16,17 +17,17 @@ interface PublicRouteProps {
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // Show loading spinner while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: '400px',
+          minHeight: '100vh',
         }}
       >
         <CircularProgress />
