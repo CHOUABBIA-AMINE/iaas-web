@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -49,8 +50,6 @@ const UserEdit = () => {
   const [user, setUser] = useState<Partial<UserDTO>>({
     username: '',
     email: '',
-    firstName: '',
-    lastName: '',
     enabled: true,
     roles: [],
     groups: [],
@@ -265,24 +264,6 @@ const UserEdit = () => {
                     required
                     error={!!validationErrors.email}
                     helperText={validationErrors.email}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label={t('user.firstName')}
-                    value={user.firstName || ''}
-                    onChange={handleChange('firstName')}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label={t('user.lastName')}
-                    value={user.lastName || ''}
-                    onChange={handleChange('lastName')}
                   />
                 </Grid>
 
