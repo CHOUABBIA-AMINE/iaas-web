@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { StationTypeDTO } from '../dto';
 
 class StationTypeService {
-  private readonly BASE_URL = '/network/type/stationType';
+  private readonly BASE_URL = '/network/type/station';
 
   /**
    * Get all station types
