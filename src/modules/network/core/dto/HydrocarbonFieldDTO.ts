@@ -10,7 +10,7 @@
 import { VendorDTO } from '../../common/dto';
 import { OperationalStatusDTO } from '../../common/dto';
 import { HydrocarbonFieldTypeDTO } from '../../type/dto';
-import { StateDTO, LocalityDTO } from '../../../common/administration/dto';
+import { LocalityDTO } from '../../../common/administration/dto';
 
 export interface HydrocarbonFieldDTO {
   id: number;
@@ -27,21 +27,18 @@ export interface HydrocarbonFieldDTO {
   // IDs for relations
   operationalStatusId: number;
   vendorId: number;
-  stateId: number;
   localityId: number;
   hydrocarbonFieldTypeId: number;
   
   // Nested objects (from backend)
   operationalStatus?: OperationalStatusDTO;
   vendor?: VendorDTO;
-  state?: StateDTO;
   locality?: LocalityDTO;
   hydrocarbonFieldType?: HydrocarbonFieldTypeDTO;
   
   // Legacy string fields (fallback)
   operationalStatusName?: string;
   vendorName?: string;
-  stateName?: string;
   localityName?: string;
   hydrocarbonFieldTypeName?: string;
   
@@ -64,7 +61,6 @@ export interface HydrocarbonFieldCreateDTO {
   decommissioningDate?: string;
   operationalStatusId: number;
   vendorId: number;
-  stateId: number;
   localityId: number;
   hydrocarbonFieldTypeId: number;
 }

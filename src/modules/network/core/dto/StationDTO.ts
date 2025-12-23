@@ -11,7 +11,7 @@ import { VendorDTO } from '../../common/dto';
 import { OperationalStatusDTO } from '../../common/dto';
 import { StationTypeDTO } from '../../type/dto';
 import { PipelineSystemDTO } from './PipelineSystemDTO';
-import { StateDTO, LocalityDTO } from '../../../common/administration/dto';
+import { LocalityDTO } from '../../../common/administration/dto';
 
 export interface StationDTO {
   id: number;
@@ -31,7 +31,6 @@ export interface StationDTO {
   stationTypeId: number;
   pipelineSystemId?: number;
   vendorId: number;
-  stateId: number;
   localityId: number;
   
   // Nested objects (from backend)
@@ -39,7 +38,6 @@ export interface StationDTO {
   stationType?: StationTypeDTO;
   pipelineSystem?: PipelineSystemDTO;
   vendor?: VendorDTO;
-  state?: StateDTO;
   locality?: LocalityDTO;
   
   // Legacy string fields (fallback)
@@ -47,7 +45,6 @@ export interface StationDTO {
   stationTypeName?: string;
   pipelineSystemName?: string;
   vendorName?: string;
-  stateName?: string;
   localityName?: string;
   
   pipelines?: any[];
@@ -71,7 +68,6 @@ export interface StationCreateDTO {
   stationTypeId: number;
   pipelineSystemId?: number;
   vendorId: number;
-  stateId: number;
   localityId: number;
 }
 
