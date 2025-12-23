@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { useEffect, useMemo } from 'react';
@@ -53,7 +54,12 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <Router>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
             <Routes>
               <Route path="/" element={<Layout />}>
                 {/* Public Routes */}

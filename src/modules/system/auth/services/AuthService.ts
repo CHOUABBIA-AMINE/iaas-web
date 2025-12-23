@@ -88,15 +88,28 @@ class AuthService {
    */
   getCurrentUser(): UserDTO | null {
     const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch (error) {
-        console.error('Failed to parse user data:', error);
-        return null;
-      }
+    
+    // Return null if no user data
+    if (!userStr) {
+      return null;
     }
-    return null;
+
+    // Check if it's valid JSON before parsing
+    if (!userStr.trim().startsWith('{') && !userStr.trim().startsWith('[')) {
+      console.error('Invalid user data format in localStorage');
+      // Clear invalid data
+      localStorage.removeItem('user');
+      return null;
+    }
+
+    try {
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('Failed to parse user data:', error);
+      // Clear corrupted data
+      localStorage.removeItem('user');
+      return null;
+    }
   }
 
   /**
