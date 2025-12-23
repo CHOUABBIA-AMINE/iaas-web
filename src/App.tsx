@@ -25,7 +25,7 @@ import { Dashboard } from './shared/components/Dashboard';
 import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
 import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './modules/system/security/pages';
-import { StationList, StationEdit } from './modules/network/core/pages';
+import { StationList, StationEdit, TerminalList, TerminalEdit } from './modules/network/core/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -174,8 +174,9 @@ function App() {
 
                 {/* Network Module - Protected */}
                 <Route path="network">
-                  {/* Core - Stations */}
+                  {/* Core - Stations & Terminals */}
                   <Route path="core">
+                    {/* Stations */}
                     <Route
                       path="stations"
                       element={
@@ -197,6 +198,32 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <StationEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Terminals */}
+                    <Route
+                      path="terminals"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="terminals/create"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="terminals/:terminalId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalEdit />
                         </ProtectedRoute>
                       }
                     />
