@@ -7,7 +7,7 @@
  * @updated 12-23-2025
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -32,12 +32,16 @@ import { stationService, pipelineSystemService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { stationTypeService } from '../../type/services';
 import { StationDTO, StationCreateDTO } from '../dto';
+import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
 const StationEdit = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { stationId } = useParams<{ stationId: string }>();
   const isEditMode = !!stationId;
+
+  // Get current language
+  const currentLanguage = i18n.language || 'en';
 
   // Form state
   const [station, setStation] = useState<Partial<StationDTO>>({
@@ -71,6 +75,17 @@ const StationEdit = () => {
   useEffect(() => {
     loadData();
   }, [stationId]);
+
+  // Sort options by localized name
+  const sortedStationTypes = useMemo(
+    () => sortByLocalizedName(stationTypes, currentLanguage),
+    [stationTypes, currentLanguage]
+  );
+
+  const sortedOperationalStatuses = useMemo(
+    () => sortByLocalizedName(operationalStatuses, currentLanguage),
+    [operationalStatuses, currentLanguage]
+  );
 
   const loadData = async () => {
     try {
@@ -438,10 +453,10 @@ const StationEdit = () => {
                     error={!!validationErrors.stationTypeId}
                     helperText={validationErrors.stationTypeId}
                   >
-                    {stationTypes.length > 0 ? (
-                      stationTypes.map((type) => (
+                    {sortedStationTypes.length > 0 ? (
+                      sortedStationTypes.map((type) => (
                         <MenuItem key={type.id} value={type.id}>
-                          {type.name}
+                          {getLocalizedName(type, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
@@ -461,10 +476,10 @@ const StationEdit = () => {
                     error={!!validationErrors.operationalStatusId}
                     helperText={validationErrors.operationalStatusId}
                   >
-                    {operationalStatuses.length > 0 ? (
-                      operationalStatuses.map((status) => (
+                    {sortedOperationalStatuses.length > 0 ? (
+                      sortedOperationalStatuses.map((status) => (
                         <MenuItem key={status.id} value={status.id}>
-                          {status.name}
+                          {getLocalizedName(status, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
