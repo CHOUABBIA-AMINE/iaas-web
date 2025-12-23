@@ -1,23 +1,32 @@
 /**
- * HydrocarbonFieldType Service
+ * Hydrocarbon Field Type Service
  * API service for managing hydrocarbon field types
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { HydrocarbonFieldTypeDTO } from '../dto';
 
 class HydrocarbonFieldTypeService {
-  private readonly BASE_URL = '/network/type/hydrocarbonField';
+  private readonly BASE_URL = '/network/type/hydrocarbon-field-type';
 
   /**
-   * Get all hydrocarbon field types
+   * Get all hydrocarbon field types (paginated)
    */
   async getAll(): Promise<HydrocarbonFieldTypeDTO[]> {
     const response = await axiosInstance.get<HydrocarbonFieldTypeDTO[]>(this.BASE_URL);
+    return response.data;
+  }
+
+  /**
+   * Get all hydrocarbon field types as list (for select dropdowns)
+   * Returns simple list without pagination
+   */
+  async getList(): Promise<HydrocarbonFieldTypeDTO[]> {
+    const response = await axiosInstance.get<HydrocarbonFieldTypeDTO[]>(`${this.BASE_URL}/list`);
     return response.data;
   }
 

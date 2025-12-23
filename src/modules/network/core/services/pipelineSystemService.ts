@@ -1,22 +1,32 @@
 /**
- * PipelineSystem Service
+ * Pipeline System Service
  * API service for managing pipeline systems
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { PipelineSystemDTO } from '../dto';
 
 class PipelineSystemService {
-  private readonly BASE_URL = '/network/core/pipelineSystem';
+  private readonly BASE_URL = '/network/core/pipeline-system';
 
   /**
-   * Get all pipeline systems
+   * Get all pipeline systems (paginated)
    */
   async getAll(): Promise<PipelineSystemDTO[]> {
     const response = await axiosInstance.get<PipelineSystemDTO[]>(this.BASE_URL);
+    return response.data;
+  }
+
+  /**
+   * Get all pipeline systems as list (for select dropdowns)
+   * Returns simple list without pagination
+   */
+  async getList(): Promise<PipelineSystemDTO[]> {
+    const response = await axiosInstance.get<PipelineSystemDTO[]>(`${this.BASE_URL}/list`);
     return response.data;
   }
 

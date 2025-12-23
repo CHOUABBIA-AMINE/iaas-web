@@ -1,22 +1,32 @@
 /**
- * TerminalType Service
+ * Terminal Type Service
  * API service for managing terminal types
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { TerminalTypeDTO } from '../dto';
 
 class TerminalTypeService {
-  private readonly BASE_URL = '/network/type/terminal';
+  private readonly BASE_URL = '/network/type/terminal-type';
 
   /**
-   * Get all terminal types
+   * Get all terminal types (paginated)
    */
   async getAll(): Promise<TerminalTypeDTO[]> {
     const response = await axiosInstance.get<TerminalTypeDTO[]>(this.BASE_URL);
+    return response.data;
+  }
+
+  /**
+   * Get all terminal types as list (for select dropdowns)
+   * Returns simple list without pagination
+   */
+  async getList(): Promise<TerminalTypeDTO[]> {
+    const response = await axiosInstance.get<TerminalTypeDTO[]>(`${this.BASE_URL}/list`);
     return response.data;
   }
 
