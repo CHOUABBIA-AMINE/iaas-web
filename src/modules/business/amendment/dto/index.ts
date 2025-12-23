@@ -1,9 +1,4 @@
-/**
- * Amendment Module DTOs
- * Data Transfer Objects for Amendment business operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
-
-// Export amendment DTOs here
+export * from './AmendmentDto';
+export * from './AmendmentPhaseDto';
+export * from './AmendmentStepDto';
+export * from './AmendmentTypeDto';

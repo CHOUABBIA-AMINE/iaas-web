@@ -1,9 +1,5 @@
-/**
- * Contract Module DTOs
- * Data Transfer Objects for Contract business operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
-
-// Export contract DTOs here
+export * from './ContractDto';
+export * from './ContractItemDto';
+export * from './ContractPhaseDto';
+export * from './ContractStepDto';
+export * from './ContractTypeDto';
