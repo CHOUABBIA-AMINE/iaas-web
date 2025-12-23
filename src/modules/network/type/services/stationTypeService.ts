@@ -4,7 +4,6 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -14,19 +13,10 @@ class StationTypeService {
   private readonly BASE_URL = '/network/type/station-type';
 
   /**
-   * Get all station types (paginated)
+   * Get all station types
    */
   async getAll(): Promise<StationTypeDTO[]> {
     const response = await axiosInstance.get<StationTypeDTO[]>(this.BASE_URL);
-    return response.data;
-  }
-
-  /**
-   * Get all station types as list (for select dropdowns)
-   * Returns simple list without pagination
-   */
-  async getList(): Promise<StationTypeDTO[]> {
-    const response = await axiosInstance.get<StationTypeDTO[]>(`${this.BASE_URL}/list`);
     return response.data;
   }
 

@@ -4,7 +4,6 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-24-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -14,19 +13,10 @@ class StateService {
   private readonly BASE_URL = '/common/administration/state';
 
   /**
-   * Get all states (paginated)
+   * Get all states
    */
   async getAll(): Promise<StateDTO[]> {
     const response = await axiosInstance.get<StateDTO[]>(this.BASE_URL);
-    return response.data;
-  }
-
-  /**
-   * Get all states as list (for select dropdowns)
-   * Returns simple list without pagination
-   */
-  async getList(): Promise<StateDTO[]> {
-    const response = await axiosInstance.get<StateDTO[]>(`${this.BASE_URL}/list`);
     return response.data;
   }
 
