@@ -23,6 +23,7 @@ import {
   Divider,
   Tooltip,
   Menu,
+  MenuItem,
   ListItemIcon,
   ListItemText,
   alpha,
