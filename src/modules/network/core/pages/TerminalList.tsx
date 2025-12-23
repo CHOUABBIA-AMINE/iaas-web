@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -45,10 +46,12 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { terminalService } from '../services';
 import { TerminalDTO } from '../dto';
 import { exportToCSV, exportToExcel, exportToPDF } from '../utils/exportUtils';
+import { getLocalizedName } from '../utils/localizationUtils';
 
 const TerminalList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const currentLanguage = i18n.language || 'en';
   
   // Data state
   const [terminals, setTerminals] = useState<TerminalDTO[]>([]);
@@ -101,15 +104,31 @@ const TerminalList = () => {
     
     return terminals.filter((terminal) => {
       const searchLower = searchText.toLowerCase();
+      
+      // Get vendor name from nested object or fallback
+      const vendorName = terminal.vendor?.name || terminal.vendorName || '';
+      
+      // Get operational status name from nested object or fallback
+      const statusName = terminal.operationalStatus 
+        ? getLocalizedName(terminal.operationalStatus, currentLanguage)
+        : (terminal.operationalStatusName || '');
+      
+      // Get terminal type name from nested object or fallback
+      const typeName = terminal.terminalType 
+        ? getLocalizedName(terminal.terminalType, currentLanguage)
+        : (terminal.terminalTypeName || '');
+      
       const matchesSearch = !searchText || 
         (terminal.name && terminal.name.toLowerCase().includes(searchLower)) ||
         (terminal.code && terminal.code.toLowerCase().includes(searchLower)) ||
         (terminal.placeName && terminal.placeName.toLowerCase().includes(searchLower)) ||
-        (terminal.terminalTypeName && terminal.terminalTypeName.toLowerCase().includes(searchLower));
+        typeName.toLowerCase().includes(searchLower) ||
+        vendorName.toLowerCase().includes(searchLower) ||
+        statusName.toLowerCase().includes(searchLower);
 
       return matchesSearch;
     });
-  }, [terminals, searchText]);
+  }, [terminals, searchText, currentLanguage]);
 
   // DataGrid columns
   const columns: GridColDef[] = [
@@ -145,12 +164,18 @@ const TerminalList = () => {
       ),
     },
     { 
-      field: 'terminalTypeName', 
+      field: 'terminalType', 
       headerName: 'Type', 
       width: 150,
+      valueGetter: (params) => {
+        const terminal = params.row as TerminalDTO;
+        return terminal.terminalType 
+          ? getLocalizedName(terminal.terminalType, currentLanguage)
+          : (terminal.terminalTypeName || 'N/A');
+      },
       renderCell: (params) => (
         <Chip
-          label={params.value || 'N/A'}
+          label={params.value}
           size="small"
           color="secondary"
           variant="outlined"
@@ -172,22 +197,32 @@ const TerminalList = () => {
       ),
     },
     { 
-      field: 'vendorName', 
+      field: 'vendor', 
       headerName: 'Vendor', 
       width: 150,
+      valueGetter: (params) => {
+        const terminal = params.row as TerminalDTO;
+        return terminal.vendor?.name || terminal.vendorName || '-';
+      },
       renderCell: (params) => (
         <Typography variant="body2" color="text.secondary">
-          {params.value || '-'}
+          {params.value}
         </Typography>
       ),
     },
     { 
-      field: 'operationalStatusName', 
+      field: 'operationalStatus', 
       headerName: 'Status', 
       width: 140,
+      valueGetter: (params) => {
+        const terminal = params.row as TerminalDTO;
+        return terminal.operationalStatus 
+          ? getLocalizedName(terminal.operationalStatus, currentLanguage)
+          : (terminal.operationalStatusName || 'Unknown');
+      },
       renderCell: (params) => (
         <Chip
-          label={params.value || 'Unknown'}
+          label={params.value}
           size="small"
           color="success"
           variant="filled"

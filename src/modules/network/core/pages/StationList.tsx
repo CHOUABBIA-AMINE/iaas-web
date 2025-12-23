@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -45,10 +46,12 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { stationService } from '../services';
 import { StationDTO } from '../dto';
 import { exportToCSV, exportToExcel, exportToPDF } from '../utils/exportUtils';
+import { getLocalizedName } from '../utils/localizationUtils';
 
 const StationList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const currentLanguage = i18n.language || 'en';
   
   // Data state
   const [stations, setStations] = useState<StationDTO[]>([]);
@@ -101,15 +104,31 @@ const StationList = () => {
     
     return stations.filter((station) => {
       const searchLower = searchText.toLowerCase();
+      
+      // Get vendor name from nested object or fallback
+      const vendorName = station.vendor?.name || station.vendorName || '';
+      
+      // Get operational status name from nested object or fallback
+      const statusName = station.operationalStatus 
+        ? getLocalizedName(station.operationalStatus, currentLanguage)
+        : (station.operationalStatusName || '');
+      
+      // Get station type name from nested object or fallback
+      const typeName = station.stationType 
+        ? getLocalizedName(station.stationType, currentLanguage)
+        : (station.stationTypeName || '');
+      
       const matchesSearch = !searchText || 
         (station.name && station.name.toLowerCase().includes(searchLower)) ||
         (station.code && station.code.toLowerCase().includes(searchLower)) ||
         (station.placeName && station.placeName.toLowerCase().includes(searchLower)) ||
-        (station.stationTypeName && station.stationTypeName.toLowerCase().includes(searchLower));
+        typeName.toLowerCase().includes(searchLower) ||
+        vendorName.toLowerCase().includes(searchLower) ||
+        statusName.toLowerCase().includes(searchLower);
 
       return matchesSearch;
     });
-  }, [stations, searchText]);
+  }, [stations, searchText, currentLanguage]);
 
   // DataGrid columns
   const columns: GridColDef[] = [
@@ -145,12 +164,18 @@ const StationList = () => {
       ),
     },
     { 
-      field: 'stationTypeName', 
+      field: 'stationType', 
       headerName: 'Type', 
       width: 150,
+      valueGetter: (params) => {
+        const station = params.row as StationDTO;
+        return station.stationType 
+          ? getLocalizedName(station.stationType, currentLanguage)
+          : (station.stationTypeName || 'N/A');
+      },
       renderCell: (params) => (
         <Chip
-          label={params.value || 'N/A'}
+          label={params.value}
           size="small"
           color="primary"
           variant="outlined"
@@ -172,22 +197,32 @@ const StationList = () => {
       ),
     },
     { 
-      field: 'vendorName', 
+      field: 'vendor', 
       headerName: 'Vendor', 
       width: 150,
+      valueGetter: (params) => {
+        const station = params.row as StationDTO;
+        return station.vendor?.name || station.vendorName || '-';
+      },
       renderCell: (params) => (
         <Typography variant="body2" color="text.secondary">
-          {params.value || '-'}
+          {params.value}
         </Typography>
       ),
     },
     { 
-      field: 'operationalStatusName', 
+      field: 'operationalStatus', 
       headerName: 'Status', 
       width: 140,
+      valueGetter: (params) => {
+        const station = params.row as StationDTO;
+        return station.operationalStatus 
+          ? getLocalizedName(station.operationalStatus, currentLanguage)
+          : (station.operationalStatusName || 'Unknown');
+      },
       renderCell: (params) => (
         <Chip
-          label={params.value || 'Unknown'}
+          label={params.value}
           size="small"
           color="success"
           variant="filled"
