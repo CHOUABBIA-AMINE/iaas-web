@@ -1,9 +1,5 @@
-/**
- * Auth Module DTOs
- * Data Transfer Objects for Authentication operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
-
-// Export auth DTOs here
+export * from './LoginRequest';
+export * from './LoginResponse';
+export * from './RegisterRequest';
+export * from './TokenRefreshRequest';
+export * from './TokenRefreshResponse';
