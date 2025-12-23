@@ -1,7 +1,8 @@
 /**
  * Terminal Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing terminals
- * State extracted from locality.state with multilingual support
+ * State extracted from locality.state instead of direct stateId
+ * Multilingual support for State and Locality
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -33,7 +34,8 @@ import { terminalService } from '../services';
 import { vendorService, operationalStatusService } from '../../common/services';
 import { terminalTypeService } from '../../type/services';
 import { stateService, localityService } from '../../../common/administration/services';
-import { getStateLocalizedName, getLocalityLocalizedName } from '../../../common/administration/dto';
+import { getLocalizedStateName } from '../../../common/administration/dto/StateDTO';
+import { getLocalizedLocalityName } from '../../../common/administration/dto/LocalityDTO';
 import { TerminalDTO, TerminalCreateDTO } from '../dto';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -107,6 +109,24 @@ const TerminalEdit = () => {
     () => sortByLocalizedName(operationalStatuses, currentLanguage),
     [operationalStatuses, currentLanguage]
   );
+
+  // Sort states by localized name
+  const sortedStates = useMemo(() => {
+    return [...states].sort((a, b) => {
+      const nameA = getLocalizedStateName(a, currentLanguage);
+      const nameB = getLocalizedStateName(b, currentLanguage);
+      return nameA.localeCompare(nameB);
+    });
+  }, [states, currentLanguage]);
+
+  // Sort localities by localized name
+  const sortedLocalities = useMemo(() => {
+    return [...localities].sort((a, b) => {
+      const nameA = getLocalizedLocalityName(a, currentLanguage);
+      const nameB = getLocalizedLocalityName(b, currentLanguage);
+      return nameA.localeCompare(nameB);
+    });
+  }, [localities, currentLanguage]);
 
   const loadData = async () => {
     try {
@@ -427,10 +447,10 @@ const TerminalEdit = () => {
                     error={!!validationErrors.stateId}
                     helperText={validationErrors.stateId || 'Select state first to load localities'}
                   >
-                    {states.length > 0 ? (
-                      states.map((state) => (
+                    {sortedStates.length > 0 ? (
+                      sortedStates.map((state) => (
                         <MenuItem key={state.id} value={state.id}>
-                          {getStateLocalizedName(state, currentLanguage)}
+                          {getLocalizedStateName(state, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
@@ -459,10 +479,10 @@ const TerminalEdit = () => {
                   >
                     {loadingLocalities ? (
                       <MenuItem disabled>Loading localities...</MenuItem>
-                    ) : localities.length > 0 ? (
-                      localities.map((locality) => (
+                    ) : sortedLocalities.length > 0 ? (
+                      sortedLocalities.map((locality) => (
                         <MenuItem key={locality.id} value={locality.id}>
-                          {getLocalityLocalizedName(locality, currentLanguage)}
+                          {getLocalizedLocalityName(locality, currentLanguage)}
                         </MenuItem>
                       ))
                     ) : (
