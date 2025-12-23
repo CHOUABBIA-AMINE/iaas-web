@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
 
 export interface StationDTO {
@@ -15,6 +16,9 @@ export interface StationDTO {
   latitude: number;
   longitude: number;
   elevation?: number;
+  installationDate?: string;
+  commissioningDate?: string;
+  decommissioningDate?: string;
   operationalStatusId: number;
   operationalStatusName?: string;
   stationTypeId: number;
@@ -39,6 +43,9 @@ export interface StationCreateDTO {
   latitude: number;
   longitude: number;
   elevation?: number;
+  installationDate?: string;
+  commissioningDate?: string;
+  decommissioningDate?: string;
   operationalStatusId: number;
   stationTypeId: number;
   pipelineSystemId?: number;
