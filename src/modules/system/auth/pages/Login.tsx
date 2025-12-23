@@ -4,7 +4,6 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
  */
 
 import { useState, FormEvent } from 'react';
@@ -46,11 +45,10 @@ const Login = () => {
 
     try {
       await login({ username, password });
-      // Navigation handled by AuthContext
+      // Redirect is handled by AuthContext with window.location.href
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || err.message || t('auth.loginFailed'));
-    } finally {
       setLoading(false);
     }
   };

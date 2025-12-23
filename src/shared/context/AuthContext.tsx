@@ -112,10 +112,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    */
   const login = async (credentials: LoginDTO) => {
     try {
+      // Call login service (stores tokens and user in localStorage)
       const response = await authService.login(credentials);
-      // Set user state - this will trigger PublicRoute to redirect
+      
+      // Update state
       setUser(response.user);
-      // Don't use window.location - let React Router handle navigation via PublicRoute
+      
+      // Small delay to ensure localStorage is written
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Redirect using window.location for full page reload
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
