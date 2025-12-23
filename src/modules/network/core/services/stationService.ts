@@ -10,7 +10,7 @@
 import axios from 'axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/iaas/api';
 const STATION_ENDPOINT = `${API_BASE_URL}/network/core/station`;
 
 export const stationService = {
