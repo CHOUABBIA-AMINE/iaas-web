@@ -17,21 +17,72 @@ class AuthService {
    * Login user with credentials
    */
   async login(credentials: LoginDTO): Promise<AuthResponseDTO> {
+    console.log('🔐 Login attempt:', credentials.username);
+    
     const response = await axios.post<AuthResponseDTO>(
       `${API_BASE_URL}/auth/login`,
       credentials
     );
 
-    const { token, refreshToken, user } = response.data;
+    console.log('✅ Login response:', response.data);
+
+    // Handle different response structures
+    let token = '';
+    let refreshToken = '';
+    let user: UserDTO | null = null;
+
+    // Check if response has nested data property
+    const data = response.data?.data || response.data;
+
+    // Extract token (check multiple possible fields)
+    token = data.token || data.accessToken || data.access_token || '';
+    
+    // Extract refresh token
+    refreshToken = data.refreshToken || data.refresh_token || '';
+    
+    // Extract user
+    user = data.user || data.userInfo || data.userData || null;
+
+    console.log('📦 Extracted data:', { 
+      hasToken: !!token, 
+      hasRefreshToken: !!refreshToken, 
+      hasUser: !!user 
+    });
+
+    if (!token) {
+      console.error('❌ No token in response!');
+      throw new Error('No authentication token received from server');
+    }
+
+    if (!user) {
+      console.error('❌ No user data in response!');
+      throw new Error('No user data received from server');
+    }
 
     // Store tokens and user info
+    console.log('💾 Storing to localStorage...');
     localStorage.setItem('access_token', token);
+    console.log('✓ access_token stored');
+    
     if (refreshToken) {
       localStorage.setItem('refresh_token', refreshToken);
+      console.log('✓ refresh_token stored');
     }
+    
     localStorage.setItem('user', JSON.stringify(user));
+    console.log('✓ user stored:', user);
 
-    return response.data;
+    // Verify storage
+    console.log('🔍 Verifying localStorage:');
+    console.log('- access_token:', localStorage.getItem('access_token')?.substring(0, 20) + '...');
+    console.log('- refresh_token:', localStorage.getItem('refresh_token')?.substring(0, 20) + '...');
+    console.log('- user:', localStorage.getItem('user'));
+
+    return {
+      token,
+      refreshToken,
+      user,
+    };
   }
 
   /**
@@ -70,9 +121,11 @@ class AuthService {
    * Logout user and clear tokens
    */
   logout(): void {
+    console.log('🚪 Logging out...');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    console.log('✓ Tokens cleared');
   }
 
   /**
