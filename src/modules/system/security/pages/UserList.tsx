@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -108,9 +109,7 @@ const UserList = () => {
       const searchLower = searchText.toLowerCase();
       const matchesSearch = !searchText || 
         (user.username && user.username.toLowerCase().includes(searchLower)) ||
-        (user.email && user.email.toLowerCase().includes(searchLower)) ||
-        (user.firstName && user.firstName.toLowerCase().includes(searchLower)) ||
-        (user.lastName && user.lastName.toLowerCase().includes(searchLower));
+        (user.email && user.email.toLowerCase().includes(searchLower));
 
       const matchesStatus = statusFilter === 'all' || 
         (statusFilter === 'enabled' && user.enabled) ||
@@ -147,26 +146,14 @@ const UserList = () => {
     { 
       field: 'username', 
       headerName: t('user.username'), 
-      minWidth: 150,
+      minWidth: 180,
       flex: 1,
     },
     { 
       field: 'email', 
       headerName: t('user.email'), 
-      minWidth: 200,
+      minWidth: 250,
       flex: 1.5,
-    },
-    { 
-      field: 'firstName', 
-      headerName: t('user.firstName'), 
-      minWidth: 130,
-      flex: 0.8,
-    },
-    { 
-      field: 'lastName', 
-      headerName: t('user.lastName'), 
-      minWidth: 130,
-      flex: 0.8,
     },
     {
       field: 'enabled',
@@ -186,8 +173,8 @@ const UserList = () => {
     {
       field: 'roles',
       headerName: t('user.roles'),
-      minWidth: 200,
-      flex: 1,
+      minWidth: 220,
+      flex: 1.2,
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}>
