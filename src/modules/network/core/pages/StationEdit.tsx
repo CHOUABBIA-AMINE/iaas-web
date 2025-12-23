@@ -1,7 +1,7 @@
 /**
  * Station Edit/Create Page - Professional Version
  * Comprehensive form for creating and editing stations
- * State and Locality with REST API integration
+ * State extracted from locality.state instead of direct stateId
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
@@ -61,9 +61,11 @@ const StationEdit = () => {
     stationTypeId: 0,
     pipelineSystemId: undefined,
     vendorId: 0,
-    stateId: 0,
     localityId: 0,
   });
+
+  // UI state for state selection (not in entity)
+  const [selectedStateId, setSelectedStateId] = useState<number>(0);
 
   // Available options
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
@@ -84,10 +86,10 @@ const StationEdit = () => {
     loadData();
   }, [stationId]);
 
-  // Load localities when state changes
+  // Load localities when selected state changes
   useEffect(() => {
-    if (station.stateId && station.stateId > 0) {
-      loadLocalitiesByState(station.stateId);
+    if (selectedStateId && selectedStateId > 0) {
+      loadLocalitiesByState(selectedStateId);
     } else {
       setLocalities([]);
       // Clear locality if state is cleared
@@ -95,7 +97,7 @@ const StationEdit = () => {
         setStation(prev => ({ ...prev, localityId: 0 }));
       }
     }
-  }, [station.stateId]);
+  }, [selectedStateId]);
 
   // Sort options by localized name
   const sortedStationTypes = useMemo(
@@ -186,7 +188,14 @@ const StationEdit = () => {
       // Set station data if editing
       if (stationData) {
         setStation(stationData);
-        // Localities will be loaded by useEffect when stateId is set
+        
+        // Extract state from locality if available
+        if (stationData.locality?.state?.id) {
+          setSelectedStateId(stationData.locality.state.id);
+        } else if (stationData.locality?.stateId) {
+          setSelectedStateId(stationData.locality.stateId);
+        }
+        // Localities will be loaded by useEffect when selectedStateId is set
       }
 
       setError('');
@@ -249,7 +258,7 @@ const StationEdit = () => {
       errors.vendorId = 'Vendor is required';
     }
 
-    if (!station.stateId) {
+    if (!selectedStateId) {
       errors.stateId = 'State is required';
     }
 
@@ -268,6 +277,16 @@ const StationEdit = () => {
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors({ ...validationErrors, [field]: '' });
+    }
+  };
+
+  const handleStateChange = (e: any) => {
+    const value = e.target.value;
+    setSelectedStateId(value);
+    
+    // Clear validation error
+    if (validationErrors.stateId) {
+      setValidationErrors({ ...validationErrors, stateId: '' });
     }
   };
 
@@ -297,7 +316,6 @@ const StationEdit = () => {
         stationTypeId: Number(station.stationTypeId),
         pipelineSystemId: station.pipelineSystemId ? Number(station.pipelineSystemId) : undefined,
         vendorId: Number(station.vendorId),
-        stateId: Number(station.stateId),
         localityId: Number(station.localityId),
       };
 
@@ -431,8 +449,8 @@ const StationEdit = () => {
                     fullWidth
                     select
                     label="State"
-                    value={station.stateId || ''}
-                    onChange={handleChange('stateId')}
+                    value={selectedStateId || ''}
+                    onChange={handleStateChange}
                     required
                     error={!!validationErrors.stateId}
                     helperText={validationErrors.stateId || 'Select state first to load localities'}
@@ -457,10 +475,10 @@ const StationEdit = () => {
                     value={station.localityId || ''}
                     onChange={handleChange('localityId')}
                     required
-                    disabled={!station.stateId || loadingLocalities}
+                    disabled={!selectedStateId || loadingLocalities}
                     error={!!validationErrors.localityId}
                     helperText={
-                      !station.stateId 
+                      !selectedStateId 
                         ? 'Please select a state first' 
                         : loadingLocalities 
                         ? 'Loading localities...' 
