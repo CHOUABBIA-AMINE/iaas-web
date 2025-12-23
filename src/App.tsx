@@ -25,7 +25,14 @@ import { Dashboard } from './shared/components/Dashboard';
 import { Profile } from './shared/pages';
 import { Login } from './modules/system/auth/pages';
 import { UserList, UserEdit, RoleList, RoleEdit, GroupList, GroupEdit } from './modules/system/security/pages';
-import { StationList, StationEdit, TerminalList, TerminalEdit } from './modules/network/core/pages';
+import { 
+  StationList, 
+  StationEdit, 
+  TerminalList, 
+  TerminalEdit,
+  HydrocarbonFieldList,
+  HydrocarbonFieldEdit 
+} from './modules/network/core/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -174,7 +181,7 @@ function App() {
 
                 {/* Network Module - Protected */}
                 <Route path="network">
-                  {/* Core - Stations & Terminals */}
+                  {/* Core - Stations, Terminals & Hydrocarbon Fields */}
                   <Route path="core">
                     {/* Stations */}
                     <Route
@@ -224,6 +231,32 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <TerminalEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Hydrocarbon Fields */}
+                    <Route
+                      path="hydrocarbon-fields"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="hydrocarbon-fields/create"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="hydrocarbon-fields/:fieldId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldEdit />
                         </ProtectedRoute>
                       }
                     />
