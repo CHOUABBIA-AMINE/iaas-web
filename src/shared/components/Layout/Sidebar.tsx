@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-23-2025
  */
 
 import {
@@ -26,7 +27,6 @@ import PeopleIcon from '@mui/icons-material/People';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import GroupIcon from '@mui/icons-material/Group';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LockPersonIcon from '@mui/icons-material/LockPerson';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -85,11 +85,6 @@ const Sidebar = ({ open }: SidebarProps) => {
               titleKey: 'nav.groups',
               icon: <GroupIcon />,
               path: '/security/groups',
-            },
-            {
-              titleKey: 'nav.permissions',
-              icon: <LockPersonIcon />,
-              path: '/security/permissions',
             },
           ],
         },
