@@ -4,7 +4,12 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-23-2025
  */
+
+import { VendorDTO } from '../../common/dto';
+import { OperationalStatusDTO } from '../../common/dto';
+import { TerminalTypeDTO } from '../../type/dto';
 
 export interface TerminalDTO {
   id: number;
@@ -17,14 +22,25 @@ export interface TerminalDTO {
   installationDate?: string;
   commissioningDate?: string;
   decommissioningDate?: string;
+  
+  // IDs for relations
   operationalStatusId: number;
-  operationalStatusName?: string;
   vendorId: number;
-  vendorName?: string;
   localityId: number;
-  localityName?: string;
   terminalTypeId: number;
+  
+  // Nested objects (from backend)
+  operationalStatus?: OperationalStatusDTO;
+  vendor?: VendorDTO;
+  locality?: any;
+  terminalType?: TerminalTypeDTO;
+  
+  // Legacy string fields (fallback)
+  operationalStatusName?: string;
+  vendorName?: string;
+  localityName?: string;
   terminalTypeName?: string;
+  
   pipelineIds?: number[];
   createdAt?: string;
   updatedAt?: string;

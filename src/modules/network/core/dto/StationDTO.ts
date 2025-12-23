@@ -7,6 +7,11 @@
  * @updated 12-23-2025
  */
 
+import { VendorDTO } from '../../common/dto';
+import { OperationalStatusDTO } from '../../common/dto';
+import { StationTypeDTO } from '../../type/dto';
+import { PipelineSystemDTO } from './PipelineSystemDTO';
+
 export interface StationDTO {
   id: number;
   name: string;
@@ -19,16 +24,28 @@ export interface StationDTO {
   installationDate?: string;
   commissioningDate?: string;
   decommissioningDate?: string;
+  
+  // IDs for relations
   operationalStatusId: number;
-  operationalStatusName?: string;
   stationTypeId: number;
-  stationTypeName?: string;
   pipelineSystemId?: number;
-  pipelineSystemName?: string;
   vendorId: number;
-  vendorName?: string;
   localityId: number;
+  
+  // Nested objects (from backend)
+  operationalStatus?: OperationalStatusDTO;
+  stationType?: StationTypeDTO;
+  pipelineSystem?: PipelineSystemDTO;
+  vendor?: VendorDTO;
+  locality?: any;
+  
+  // Legacy string fields (fallback)
+  operationalStatusName?: string;
+  stationTypeName?: string;
+  pipelineSystemName?: string;
+  vendorName?: string;
   localityName?: string;
+  
   pipelines?: any[];
   equipments?: any[];
   createdAt?: string;
