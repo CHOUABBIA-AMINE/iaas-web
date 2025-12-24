@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
 import { useEffect, useMemo } from 'react';
@@ -31,7 +31,9 @@ import {
   TerminalList, 
   TerminalEdit,
   HydrocarbonFieldList,
-  HydrocarbonFieldEdit 
+  HydrocarbonFieldEdit,
+  PipelineList,
+  PipelineEdit
 } from './modules/network/core/pages';
 
 function App() {
@@ -181,7 +183,7 @@ function App() {
 
                 {/* Network Module - Protected */}
                 <Route path="network">
-                  {/* Core - Stations, Terminals & Hydrocarbon Fields */}
+                  {/* Core - Stations, Terminals, Hydrocarbon Fields & Pipelines */}
                   <Route path="core">
                     {/* Stations */}
                     <Route
@@ -257,6 +259,32 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <HydrocarbonFieldEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Pipelines */}
+                    <Route
+                      path="pipelines"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipelines/create"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipelines/:pipelineId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineEdit />
                         </ProtectedRoute>
                       }
                     />
