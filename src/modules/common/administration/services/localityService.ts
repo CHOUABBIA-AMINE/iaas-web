@@ -33,7 +33,7 @@ class LocalityService {
    * Get localities by state ID
    */
   async getByStateId(stateId: number): Promise<LocalityDTO[]> {
-    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/by-state/${stateId}`);
+    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/state/${stateId}`);
     return response.data;
   }
 }
