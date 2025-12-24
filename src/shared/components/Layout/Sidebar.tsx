@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
 import {
@@ -55,13 +55,14 @@ interface MenuItem {
   icon: React.ReactElement;
   path?: string;
   children?: MenuItem[];
+  parent?: string;
 }
 
 const Sidebar = ({ open }: SidebarProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['System', 'Security']);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
 
   // Menu structure with translation keys
@@ -275,12 +276,45 @@ const Sidebar = ({ open }: SidebarProps) => {
   const isExpanded = open || isHovered;
   const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED;
 
+  // Get depth level of an item based on its title
+  const getItemDepth = (itemTitle: string, items: MenuItem[] = menuItems, depth = 0): number => {
+    for (const item of items) {
+      if (t(item.titleKey) === itemTitle) {
+        return depth;
+      }
+      if (item.children) {
+        const childDepth = getItemDepth(itemTitle, item.children, depth + 1);
+        if (childDepth !== -1) return childDepth;
+      }
+    }
+    return -1;
+  };
+
   const handleItemClick = (item: MenuItem) => {
     const title = t(item.titleKey);
+    
     if (item.children) {
-      setExpandedItems((prev) =>
-        prev.includes(title) ? prev.filter((i) => i !== title) : [...prev, title]
-      );
+      // Accordion behavior: close all other items at the same level
+      const clickedDepth = getItemDepth(title);
+      
+      setExpandedItems((prev) => {
+        const isCurrentlyExpanded = prev.includes(title);
+        
+        if (isCurrentlyExpanded) {
+          // Close this item and all its children
+          return prev.filter((expandedTitle) => {
+            const expandedDepth = getItemDepth(expandedTitle);
+            return expandedDepth < clickedDepth || expandedTitle !== title;
+          });
+        } else {
+          // Close all items at the same level or deeper, then open this one
+          const filtered = prev.filter((expandedTitle) => {
+            const expandedDepth = getItemDepth(expandedTitle);
+            return expandedDepth < clickedDepth;
+          });
+          return [...filtered, title];
+        }
+      });
     } else if (item.path) {
       navigate(item.path);
     }
