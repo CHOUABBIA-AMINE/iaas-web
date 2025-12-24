@@ -1,3 +1,3 @@
-export { default as stationTypeService } from './stationTypeService';
-export { default as terminalTypeService } from './terminalTypeService';
-export { default as hydrocarbonFieldTypeService } from './hydrocarbonFieldTypeService';
+export { stationTypeService } from './stationTypeService';
+export { terminalTypeService } from './terminalTypeService';
+export { hydrocarbonFieldTypeService } from './hydrocarbonFieldTypeService';

@@ -30,4 +30,4 @@ class TerminalTypeService {
   }
 }
 
-export default new TerminalTypeService();
+export const terminalTypeService = new TerminalTypeService();

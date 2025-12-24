@@ -1,5 +1,5 @@
 /**
- * Hydrocarbon Field Type Service
+ * HydrocarbonField Type Service
  * API service for managing hydrocarbon field types
  * 
  * @author CHOUABBIA Amine
@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { HydrocarbonFieldTypeDTO } from '../dto';
 
 class HydrocarbonFieldTypeService {
-  private readonly BASE_URL = '/network/type/hydrocarbonField';
+  private readonly BASE_URL = '/network/type/hydrocarbon-field';
 
   /**
    * Get all hydrocarbon field types (non-paginated)
@@ -30,4 +30,4 @@ class HydrocarbonFieldTypeService {
   }
 }
 
-export default new HydrocarbonFieldTypeService();
+export const hydrocarbonFieldTypeService = new HydrocarbonFieldTypeService();

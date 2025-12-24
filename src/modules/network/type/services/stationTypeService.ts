@@ -30,4 +30,4 @@ class StationTypeService {
   }
 }
 
-export default new StationTypeService();
+export const stationTypeService = new StationTypeService();

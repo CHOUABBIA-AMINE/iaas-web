@@ -30,4 +30,4 @@ class StateService {
   }
 }
 
-export default new StateService();
+export const stateService = new StateService();

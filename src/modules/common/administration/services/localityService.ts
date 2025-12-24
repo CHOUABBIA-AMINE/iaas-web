@@ -30,12 +30,12 @@ class LocalityService {
   }
 
   /**
-   * Get localities by state ID (non-paginated)
+   * Get localities by state ID
    */
   async getByStateId(stateId: number): Promise<LocalityDTO[]> {
-    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/state/${stateId}`);
+    const response = await axiosInstance.get<LocalityDTO[]>(`${this.BASE_URL}/by-state/${stateId}`);
     return response.data;
   }
 }
 
-export default new LocalityService();
+export const localityService = new LocalityService();

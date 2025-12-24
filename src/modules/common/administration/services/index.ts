@@ -1,2 +1,2 @@
-export { default as stateService } from './stateService';
-export { default as localityService } from './localityService';
+export { stateService } from './stateService';
+export { localityService } from './localityService';
