@@ -19,7 +19,7 @@ class GeoService {
     const [stations, terminals, fields] = await Promise.all([
       axiosInstance.get<StationDTO[]>('/network/core/station'),
       axiosInstance.get<TerminalDTO[]>('/network/core/terminal'),
-      axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbon-field')
+      axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbonField')
     ]);
 
     return {
