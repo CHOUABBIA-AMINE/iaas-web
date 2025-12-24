@@ -1,4 +1,4 @@
-export * from './vendorService';
-export * from './operationalStatusService';
-export * from './alloyService';
-export * from './productService';
+export { vendorService } from './vendorService';
+export { operationalStatusService } from './operationalStatusService';
+export { alloyService } from './alloyService';
+export { productService } from './productService';
