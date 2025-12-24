@@ -3,3 +3,4 @@ export * from './TerminalDTO';
 export * from './HydrocarbonFieldDTO';
 export * from './PipelineSystemDTO';
 export * from './PipelineDTO';
+export * from './FacilityDTO';

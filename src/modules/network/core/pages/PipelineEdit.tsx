@@ -28,8 +28,8 @@ import {
   Cancel as CancelIcon,
   ArrowBack as BackIcon,
 } from '@mui/icons-material';
-import { pipelineService, pipelineSystemService } from '../services';
-import { vendorService, operationalStatusService } from '../../common/services';
+import { pipelineService, pipelineSystemService, facilityService } from '../services';
+import { vendorService, operationalStatusService, alloyService } from '../../common/services';
 import { PipelineDTO, PipelineCreateDTO } from '../dto/PipelineDTO';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
@@ -59,9 +59,9 @@ const PipelineEdit = () => {
     operationalMinServicePressure: undefined,
     designCapacity: undefined,
     operationalCapacity: undefined,
-    nominalConstructionMaterial: '',
-    nominalExteriorCoating: '',
-    nominalInteriorCoating: '',
+    nominalConstructionMaterialId: undefined,
+    nominalExteriorCoatingId: undefined,
+    nominalInteriorCoatingId: undefined,
     operationalStatusId: 0,
     vendorId: 0,
     pipelineSystemId: undefined,
@@ -73,6 +73,7 @@ const PipelineEdit = () => {
   const [operationalStatuses, setOperationalStatuses] = useState<any[]>([]);
   const [pipelineSystems, setPipelineSystems] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [alloys, setAlloys] = useState<any[]>([]);
   const [facilities, setFacilities] = useState<any[]>([]);
 
   // UI state
@@ -91,6 +92,11 @@ const PipelineEdit = () => {
     [operationalStatuses, currentLanguage]
   );
 
+  const sortedAlloys = useMemo(
+    () => sortByLocalizedName(alloys, currentLanguage),
+    [alloys, currentLanguage]
+  );
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -106,10 +112,14 @@ const PipelineEdit = () => {
         vendorsData,
         pipelineSystemsData,
         operationalStatusesData,
+        alloysData,
+        facilitiesData,
       ] = await Promise.allSettled([
         vendorService.getAll(),
         pipelineSystemService.getAll(),
         operationalStatusService.getAll(),
+        alloyService.getAll(),
+        facilityService.getAll(),
       ]);
 
       // Handle vendors
@@ -142,9 +152,26 @@ const PipelineEdit = () => {
         console.error('Failed to load operational statuses:', operationalStatusesData.reason);
       }
 
-      // TODO: Load facilities when facility service is available
-      // For now, using empty array
-      setFacilities([]);
+      // Handle alloys
+      if (alloysData.status === 'fulfilled') {
+        const alloys = Array.isArray(alloysData.value) 
+          ? alloysData.value 
+          : (alloysData.value?.data || alloysData.value?.content || []);
+        setAlloys(alloys);
+      } else {
+        console.error('Failed to load alloys:', alloysData.reason);
+      }
+
+      // Handle facilities
+      if (facilitiesData.status === 'fulfilled') {
+        const facilities = Array.isArray(facilitiesData.value) 
+          ? facilitiesData.value 
+          : (facilitiesData.value?.data || facilitiesData.value?.content || []);
+        setFacilities(facilities);
+      } else {
+        console.error('Failed to load facilities:', facilitiesData.reason);
+        setFacilities([]);
+      }
 
       // Set pipeline data if editing
       if (pipelineData) {
@@ -220,9 +247,9 @@ const PipelineEdit = () => {
         operationalMinServicePressure: pipeline.operationalMinServicePressure ? Number(pipeline.operationalMinServicePressure) : undefined,
         designCapacity: pipeline.designCapacity ? Number(pipeline.designCapacity) : undefined,
         operationalCapacity: pipeline.operationalCapacity ? Number(pipeline.operationalCapacity) : undefined,
-        nominalConstructionMaterial: pipeline.nominalConstructionMaterial || undefined,
-        nominalExteriorCoating: pipeline.nominalExteriorCoating || undefined,
-        nominalInteriorCoating: pipeline.nominalInteriorCoating || undefined,
+        nominalConstructionMaterialId: pipeline.nominalConstructionMaterialId ? Number(pipeline.nominalConstructionMaterialId) : undefined,
+        nominalExteriorCoatingId: pipeline.nominalExteriorCoatingId ? Number(pipeline.nominalExteriorCoatingId) : undefined,
+        nominalInteriorCoatingId: pipeline.nominalInteriorCoatingId ? Number(pipeline.nominalInteriorCoatingId) : undefined,
         operationalStatusId: Number(pipeline.operationalStatusId),
         vendorId: Number(pipeline.vendorId),
         pipelineSystemId: pipeline.pipelineSystemId ? Number(pipeline.pipelineSystemId) : undefined,
@@ -331,10 +358,10 @@ const PipelineEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
-                    label="Nominal Diameter (inches)"
+                    label="Nominal Diameter (in)"
                     type="number"
                     value={pipeline.nominalDiameter || ''}
                     onChange={handleChange('nominalDiameter')}
@@ -342,7 +369,7 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
                     label="Nominal Thickness (mm)"
@@ -353,7 +380,7 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
                     label="Length (km)"
@@ -364,7 +391,7 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
                     label="Nominal Roughness (mm)"
@@ -372,7 +399,6 @@ const PipelineEdit = () => {
                     value={pipeline.nominalRoughness || ''}
                     onChange={handleChange('nominalRoughness')}
                     inputProps={{ step: 0.0001, min: 0 }}
-                    helperText="Surface roughness for flow calculations"
                   />
                 </Grid>
               </Grid>
@@ -383,20 +409,15 @@ const PipelineEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Pressure Specifications
+                Pressure Specifications (bar)
               </Typography>
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Maximum Service Pressure
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
-                    label="Design Max Service Pressure (bar)"
+                    label="Design Max Service Pressure"
                     type="number"
                     value={pipeline.designMaxServicePressure || ''}
                     onChange={handleChange('designMaxServicePressure')}
@@ -404,10 +425,10 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
-                    label="Operational Max Service Pressure (bar)"
+                    label="Operational Max Service Pressure"
                     type="number"
                     value={pipeline.operationalMaxServicePressure || ''}
                     onChange={handleChange('operationalMaxServicePressure')}
@@ -415,15 +436,10 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ mt: 2 }}>
-                    Minimum Service Pressure
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
-                    label="Design Min Service Pressure (bar)"
+                    label="Design Min Service Pressure"
                     type="number"
                     value={pipeline.designMinServicePressure || ''}
                     onChange={handleChange('designMinServicePressure')}
@@ -431,10 +447,10 @@ const PipelineEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={3}>
                   <TextField
                     fullWidth
-                    label="Operational Min Service Pressure (bar)"
+                    label="Operational Min Service Pressure"
                     type="number"
                     value={pipeline.operationalMinServicePressure || ''}
                     onChange={handleChange('operationalMinServicePressure')}
@@ -493,31 +509,52 @@ const PipelineEdit = () => {
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
+                    select
                     label="Nominal Construction Material"
-                    value={pipeline.nominalConstructionMaterial || ''}
-                    onChange={handleChange('nominalConstructionMaterial')}
-                    placeholder="e.g., API 5L X65, X70"
-                  />
+                    value={pipeline.nominalConstructionMaterialId || ''}
+                    onChange={handleChange('nominalConstructionMaterialId')}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {sortedAlloys.map((alloy) => (
+                      <MenuItem key={alloy.id} value={alloy.id}>
+                        {getLocalizedName(alloy, currentLanguage)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
 
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
+                    select
                     label="Nominal Exterior Coating"
-                    value={pipeline.nominalExteriorCoating || ''}
-                    onChange={handleChange('nominalExteriorCoating')}
-                    placeholder="e.g., 3LPE, FBE, Coal Tar"
-                  />
+                    value={pipeline.nominalExteriorCoatingId || ''}
+                    onChange={handleChange('nominalExteriorCoatingId')}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {sortedAlloys.map((alloy) => (
+                      <MenuItem key={alloy.id} value={alloy.id}>
+                        {getLocalizedName(alloy, currentLanguage)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
 
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
+                    select
                     label="Nominal Interior Coating"
-                    value={pipeline.nominalInteriorCoating || ''}
-                    onChange={handleChange('nominalInteriorCoating')}
-                    placeholder="e.g., Epoxy, None"
-                  />
+                    value={pipeline.nominalInteriorCoatingId || ''}
+                    onChange={handleChange('nominalInteriorCoatingId')}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {sortedAlloys.map((alloy) => (
+                      <MenuItem key={alloy.id} value={alloy.id}>
+                        {getLocalizedName(alloy, currentLanguage)}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 </Grid>
               </Grid>
             </Box>
@@ -598,7 +635,7 @@ const PipelineEdit = () => {
             </Box>
           </Paper>
 
-          {/* Facilities */}
+          {/* Connected Facilities */}
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -618,7 +655,7 @@ const PipelineEdit = () => {
                     <MenuItem value="">None</MenuItem>
                     {facilities.map((facility) => (
                       <MenuItem key={facility.id} value={facility.id}>
-                        {facility.name}
+                        {facility.name} ({facility.code})
                       </MenuItem>
                     ))}
                   </TextField>
@@ -635,7 +672,7 @@ const PipelineEdit = () => {
                     <MenuItem value="">None</MenuItem>
                     {facilities.map((facility) => (
                       <MenuItem key={facility.id} value={facility.id}>
-                        {facility.name}
+                        {facility.name} ({facility.code})
                       </MenuItem>
                     ))}
                   </TextField>
