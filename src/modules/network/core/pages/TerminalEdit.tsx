@@ -46,14 +46,14 @@ const TerminalEdit = () => {
   // Get current language
   const currentLanguage = i18n.language || 'en';
 
-  // Form state
+  // Form state with 0 as default for numeric fields
   const [terminal, setTerminal] = useState<Partial<TerminalDTO>>({
     name: '',
     code: '',
     placeName: '',
     latitude: 0,
     longitude: 0,
-    elevation: undefined,
+    elevation: 0,
     installationDate: undefined,
     commissioningDate: undefined,
     decommissioningDate: undefined,
@@ -293,7 +293,7 @@ const TerminalEdit = () => {
         placeName: terminal.placeName!,
         latitude: Number(terminal.latitude),
         longitude: Number(terminal.longitude),
-        elevation: terminal.elevation ? Number(terminal.elevation) : undefined,
+        elevation: terminal.elevation !== undefined ? Number(terminal.elevation) : undefined,
         installationDate: terminal.installationDate,
         commissioningDate: terminal.commissioningDate,
         decommissioningDate: terminal.decommissioningDate,
@@ -479,7 +479,7 @@ const TerminalEdit = () => {
                     fullWidth
                     label="Latitude"
                     type="number"
-                    value={terminal.latitude || ''}
+                    value={terminal.latitude ?? 0}
                     onChange={handleChange('latitude')}
                     required
                     error={!!validationErrors.latitude}
@@ -493,7 +493,7 @@ const TerminalEdit = () => {
                     fullWidth
                     label="Longitude"
                     type="number"
-                    value={terminal.longitude || ''}
+                    value={terminal.longitude ?? 0}
                     onChange={handleChange('longitude')}
                     required
                     error={!!validationErrors.longitude}
@@ -507,7 +507,7 @@ const TerminalEdit = () => {
                     fullWidth
                     label="Elevation (m)"
                     type="number"
-                    value={terminal.elevation || ''}
+                    value={terminal.elevation ?? 0}
                     onChange={handleChange('elevation')}
                     inputProps={{ step: 0.1 }}
                   />

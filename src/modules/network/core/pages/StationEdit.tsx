@@ -46,7 +46,7 @@ const StationEdit = () => {
   // Get current language
   const currentLanguage = i18n.language || 'en';
 
-  // Form state
+  // Form state with 0 as default for numeric fields
   const [station, setStation] = useState<Partial<StationDTO>>({
     name: '',
     code: '',
@@ -54,7 +54,7 @@ const StationEdit = () => {
     placeName: '',
     latitude: 0,
     longitude: 0,
-    elevation: undefined,
+    elevation: 0,
     installationDate: undefined,
     commissioningDate: undefined,
     decommissioningDate: undefined,
@@ -309,7 +309,7 @@ const StationEdit = () => {
         placeName: station.placeName!,
         latitude: Number(station.latitude),
         longitude: Number(station.longitude),
-        elevation: station.elevation ? Number(station.elevation) : undefined,
+        elevation: station.elevation !== undefined ? Number(station.elevation) : undefined,
         installationDate: station.installationDate,
         commissioningDate: station.commissioningDate,
         decommissioningDate: station.decommissioningDate,
@@ -508,7 +508,7 @@ const StationEdit = () => {
                     fullWidth
                     label="Latitude"
                     type="number"
-                    value={station.latitude || ''}
+                    value={station.latitude ?? 0}
                     onChange={handleChange('latitude')}
                     required
                     error={!!validationErrors.latitude}
@@ -522,7 +522,7 @@ const StationEdit = () => {
                     fullWidth
                     label="Longitude"
                     type="number"
-                    value={station.longitude || ''}
+                    value={station.longitude ?? 0}
                     onChange={handleChange('longitude')}
                     required
                     error={!!validationErrors.longitude}
@@ -536,7 +536,7 @@ const StationEdit = () => {
                     fullWidth
                     label="Elevation (m)"
                     type="number"
-                    value={station.elevation || ''}
+                    value={station.elevation ?? 0}
                     onChange={handleChange('elevation')}
                     inputProps={{ step: 0.1 }}
                   />

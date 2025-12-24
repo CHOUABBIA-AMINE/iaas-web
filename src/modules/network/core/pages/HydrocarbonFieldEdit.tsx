@@ -46,14 +46,14 @@ const HydrocarbonFieldEdit = () => {
   // Get current language
   const currentLanguage = i18n.language || 'en';
 
-  // Form state
+  // Form state with 0 as default for numeric fields
   const [field, setField] = useState<Partial<HydrocarbonFieldDTO>>({
     name: '',
     code: '',
     placeName: '',
     latitude: 0,
     longitude: 0,
-    elevation: undefined,
+    elevation: 0,
     installationDate: undefined,
     commissioningDate: undefined,
     decommissioningDate: undefined,
@@ -293,7 +293,7 @@ const HydrocarbonFieldEdit = () => {
         placeName: field.placeName!,
         latitude: Number(field.latitude),
         longitude: Number(field.longitude),
-        elevation: field.elevation ? Number(field.elevation) : undefined,
+        elevation: field.elevation !== undefined ? Number(field.elevation) : undefined,
         installationDate: field.installationDate,
         commissioningDate: field.commissioningDate,
         decommissioningDate: field.decommissioningDate,
@@ -479,7 +479,7 @@ const HydrocarbonFieldEdit = () => {
                     fullWidth
                     label="Latitude"
                     type="number"
-                    value={field.latitude || ''}
+                    value={field.latitude ?? 0}
                     onChange={handleChange('latitude')}
                     required
                     error={!!validationErrors.latitude}
@@ -493,7 +493,7 @@ const HydrocarbonFieldEdit = () => {
                     fullWidth
                     label="Longitude"
                     type="number"
-                    value={field.longitude || ''}
+                    value={field.longitude ?? 0}
                     onChange={handleChange('longitude')}
                     required
                     error={!!validationErrors.longitude}
@@ -507,7 +507,7 @@ const HydrocarbonFieldEdit = () => {
                     fullWidth
                     label="Elevation (m)"
                     type="number"
-                    value={field.elevation || ''}
+                    value={field.elevation ?? 0}
                     onChange={handleChange('elevation')}
                     inputProps={{ step: 0.1 }}
                   />
