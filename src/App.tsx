@@ -35,7 +35,7 @@ import {
   PipelineList,
   PipelineEdit
 } from './modules/network/core/pages';
-import { NetworkMapPage } from './modules/network/geo/pages';
+import { NetworkMapPage, GeoDebugPage } from './modules/network/geo/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -191,6 +191,16 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <NetworkMapPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  
+                  {/* Geo Debug Page */}
+                  <Route
+                    path="map/debug"
+                    element={
+                      <ProtectedRoute>
+                        <GeoDebugPage />
                       </ProtectedRoute>
                     }
                   />
