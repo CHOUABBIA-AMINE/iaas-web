@@ -11,7 +11,43 @@ import axiosInstance from '../../../../shared/config/axios';
 import { StationDTO, TerminalDTO, HydrocarbonFieldDTO } from '../../core/dto';
 import { InfrastructureData } from '../types/geo.types';
 
+/**
+ * Spring Data Page response structure
+ */
+interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  numberOfElements: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
 class GeoService {
+  /**
+   * Extract array from Spring Data Page response or return direct array
+   */
+  private extractData<T>(response: any): T[] {
+    // Check if response has Spring Data Page structure
+    if (response && typeof response === 'object' && 'content' in response && Array.isArray(response.content)) {
+      console.log('GeoService - Extracting from paginated response, items:', response.content.length);
+      return response.content;
+    }
+    
+    // If it's already an array, return it
+    if (Array.isArray(response)) {
+      console.log('GeoService - Response is already an array, items:', response.length);
+      return response;
+    }
+    
+    // Fallback to empty array
+    console.warn('GeoService - Unexpected response format, returning empty array');
+    return [];
+  }
+
   /**
    * Get all infrastructure with geo data
    */
@@ -22,31 +58,36 @@ class GeoService {
       console.log('GeoService - Fetching hydrocarbon fields from /network/core/hydrocarbonField');
       
       const [stationsResponse, terminalsResponse, fieldsResponse] = await Promise.all([
-        axiosInstance.get<StationDTO[]>('/network/core/station'),
-        axiosInstance.get<TerminalDTO[]>('/network/core/terminal'),
-        axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbonField')
+        axiosInstance.get('/network/core/station'),
+        axiosInstance.get('/network/core/terminal'),
+        axiosInstance.get('/network/core/hydrocarbonField')
       ]);
 
-      console.log('GeoService - Stations API response:', stationsResponse);
-      console.log('GeoService - Stations data:', stationsResponse.data);
-      console.log('GeoService - Stations is array?', Array.isArray(stationsResponse.data));
-      
-      console.log('GeoService - Terminals API response:', terminalsResponse);
-      console.log('GeoService - Terminals data:', terminalsResponse.data);
-      console.log('GeoService - Terminals is array?', Array.isArray(terminalsResponse.data));
-      
-      console.log('GeoService - Fields API response:', fieldsResponse);
-      console.log('GeoService - Fields data:', fieldsResponse.data);
-      console.log('GeoService - Fields is array?', Array.isArray(fieldsResponse.data));
+      console.log('GeoService - Stations raw response:', stationsResponse.data);
+      console.log('GeoService - Terminals raw response:', terminalsResponse.data);
+      console.log('GeoService - Fields raw response:', fieldsResponse.data);
 
-      // Ensure we always return arrays, even if backend returns null/undefined
+      // Extract data from paginated responses
+      const stations = this.extractData<StationDTO>(stationsResponse.data);
+      const terminals = this.extractData<TerminalDTO>(terminalsResponse.data);
+      const hydrocarbonFields = this.extractData<HydrocarbonFieldDTO>(fieldsResponse.data);
+
+      console.log('GeoService - Extracted stations:', stations.length);
+      console.log('GeoService - Extracted terminals:', terminals.length);
+      console.log('GeoService - Extracted fields:', hydrocarbonFields.length);
+
       const result = {
-        stations: Array.isArray(stationsResponse.data) ? stationsResponse.data : [],
-        terminals: Array.isArray(terminalsResponse.data) ? terminalsResponse.data : [],
-        hydrocarbonFields: Array.isArray(fieldsResponse.data) ? fieldsResponse.data : []
+        stations,
+        terminals,
+        hydrocarbonFields
       };
       
-      console.log('GeoService - Returning result:', result);
+      console.log('GeoService - Returning result with totals:', {
+        stations: stations.length,
+        terminals: terminals.length,
+        hydrocarbonFields: hydrocarbonFields.length
+      });
+      
       return result;
     } catch (error) {
       console.error('GeoService - Error fetching infrastructure data:', error);
