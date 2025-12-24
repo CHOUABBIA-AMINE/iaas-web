@@ -223,7 +223,7 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
         )}
 
         {/* Operational Status */}
-        {data.operationalStatus && (
+        {data.operationalStatus && data.operationalStatus.name && (
           <div style={{ marginTop: '8px' }}>
             <StatusBadge status={data.operationalStatus.name} />
           </div>
@@ -256,6 +256,11 @@ const InfoRow: React.FC<{ icon: string; label: string; value: string }> = ({
 );
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  // Safety check for undefined or null status
+  if (!status) {
+    return null;
+  }
+
   const getStatusColor = () => {
     const statusLower = status.toLowerCase();
     if (statusLower.includes('operational') || statusLower.includes('active')) {
