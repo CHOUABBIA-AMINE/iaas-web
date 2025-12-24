@@ -17,20 +17,42 @@ class GeoService {
    */
   async getAllInfrastructure(): Promise<InfrastructureData> {
     try {
+      console.log('GeoService - Fetching stations from /network/core/station');
+      console.log('GeoService - Fetching terminals from /network/core/terminal');
+      console.log('GeoService - Fetching hydrocarbon fields from /network/core/hydrocarbonField');
+      
       const [stationsResponse, terminalsResponse, fieldsResponse] = await Promise.all([
         axiosInstance.get<StationDTO[]>('/network/core/station'),
         axiosInstance.get<TerminalDTO[]>('/network/core/terminal'),
         axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbonField')
       ]);
 
+      console.log('GeoService - Stations API response:', stationsResponse);
+      console.log('GeoService - Stations data:', stationsResponse.data);
+      console.log('GeoService - Stations is array?', Array.isArray(stationsResponse.data));
+      
+      console.log('GeoService - Terminals API response:', terminalsResponse);
+      console.log('GeoService - Terminals data:', terminalsResponse.data);
+      console.log('GeoService - Terminals is array?', Array.isArray(terminalsResponse.data));
+      
+      console.log('GeoService - Fields API response:', fieldsResponse);
+      console.log('GeoService - Fields data:', fieldsResponse.data);
+      console.log('GeoService - Fields is array?', Array.isArray(fieldsResponse.data));
+
       // Ensure we always return arrays, even if backend returns null/undefined
-      return {
+      const result = {
         stations: Array.isArray(stationsResponse.data) ? stationsResponse.data : [],
         terminals: Array.isArray(terminalsResponse.data) ? terminalsResponse.data : [],
         hydrocarbonFields: Array.isArray(fieldsResponse.data) ? fieldsResponse.data : []
       };
+      
+      console.log('GeoService - Returning result:', result);
+      return result;
     } catch (error) {
-      console.error('Error fetching infrastructure data:', error);
+      console.error('GeoService - Error fetching infrastructure data:', error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        console.error('GeoService - Error response:', (error as any).response);
+      }
       // Return empty arrays on error to prevent crashes
       return {
         stations: [],
