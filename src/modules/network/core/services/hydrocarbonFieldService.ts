@@ -10,7 +10,7 @@
 import axios from '../../../../shared/config/axios';
 import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO, HydrocarbonFieldUpdateDTO } from '../dto';
 
-const API_BASE = '/network/core/hydrocarbon-fields';
+const API_BASE = '/network/core/hydrocarbon-field';
 
 class HydrocarbonFieldService {
   async getAll(): Promise<HydrocarbonFieldDTO[]> {

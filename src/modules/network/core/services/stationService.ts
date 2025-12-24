@@ -10,7 +10,7 @@
 import axios from '../../../../shared/config/axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
 
-const API_BASE = '/network/core/stations';
+const API_BASE = '/network/core/station';
 
 class StationService {
   async getAll(): Promise<StationDTO[]> {
