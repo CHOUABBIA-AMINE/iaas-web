@@ -67,7 +67,8 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
     <div style={{ 
       fontFamily: 'Roboto, sans-serif',
       minWidth: '280px',
-      maxWidth: '350px'
+      maxWidth: '350px',
+      cursor: 'pointer'
     }}>
       {/* Header */}
       <div style={{
@@ -228,6 +229,19 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
             <StatusBadge status={data.operationalStatus.name} />
           </div>
         )}
+      </div>
+      
+      {/* Click to edit hint */}
+      <div style={{
+        marginTop: '12px',
+        paddingTop: '8px',
+        borderTop: '1px solid #e0e0e0',
+        fontSize: '11px',
+        color: '#999',
+        textAlign: 'center',
+        fontStyle: 'italic'
+      }}>
+        ✏️ Click marker to edit
       </div>
     </div>
   );

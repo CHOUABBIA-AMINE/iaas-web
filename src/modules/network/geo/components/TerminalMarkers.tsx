@@ -1,6 +1,6 @@
 /**
  * Terminal Markers Component
- * Renders terminal markers on the map with hover popups
+ * Renders terminal markers on the map with hover popups and click-to-edit
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
@@ -8,6 +8,7 @@
  */
 
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Marker, Popup } from 'react-leaflet';
 import { Marker as LeafletMarker } from 'leaflet';
 import { TerminalDTO } from '../../core/dto';
@@ -20,6 +21,8 @@ interface TerminalMarkersProps {
 }
 
 export const TerminalMarkers: React.FC<TerminalMarkersProps> = ({ terminals }) => {
+  const navigate = useNavigate();
+  
   return (
     <>
       {terminals.map((terminal) => {
@@ -38,9 +41,13 @@ export const TerminalMarkers: React.FC<TerminalMarkersProps> = ({ terminals }) =
               mouseout: () => {
                 markerRef.current?.closePopup();
               },
+              click: () => {
+                // Navigate to edit page on click
+                navigate(`/network/core/terminals/${terminal.id}/edit`);
+              },
             }}
           >
-            <Popup>
+            <Popup closeButton={false}>
               <div dangerouslySetInnerHTML={{ 
                 __html: renderToStaticMarkup(
                   <MarkerPopup data={terminal} type="terminal" />

@@ -1,6 +1,6 @@
 /**
  * Station Markers Component
- * Renders station markers on the map with hover popups
+ * Renders station markers on the map with hover popups and click-to-edit
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
@@ -8,6 +8,7 @@
  */
 
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Marker, Popup } from 'react-leaflet';
 import { Marker as LeafletMarker } from 'leaflet';
 import { StationDTO } from '../../core/dto';
@@ -20,6 +21,8 @@ interface StationMarkersProps {
 }
 
 export const StationMarkers: React.FC<StationMarkersProps> = ({ stations }) => {
+  const navigate = useNavigate();
+  
   return (
     <>
       {stations.map((station) => {
@@ -38,9 +41,13 @@ export const StationMarkers: React.FC<StationMarkersProps> = ({ stations }) => {
               mouseout: () => {
                 markerRef.current?.closePopup();
               },
+              click: () => {
+                // Navigate to edit page on click
+                navigate(`/network/core/stations/${station.id}/edit`);
+              },
             }}
           >
-            <Popup>
+            <Popup closeButton={false}>
               <div dangerouslySetInnerHTML={{ 
                 __html: renderToStaticMarkup(
                   <MarkerPopup data={station} type="station" />
