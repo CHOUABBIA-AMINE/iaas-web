@@ -1,66 +1,41 @@
 /**
  * HydrocarbonField Service
- * API service for managing hydrocarbon fields
+ * Handles API calls for HydrocarbonField CRUD operations
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
-import axiosInstance from '../../../../shared/config/axios';
-import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO } from '../dto';
+import axios from '../../../../shared/config/axios';
+import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO, HydrocarbonFieldUpdateDTO } from '../dto';
+
+const API_BASE = '/api/network/core/hydrocarbon-fields';
 
 class HydrocarbonFieldService {
-  private readonly BASE_URL = '/network/core/hydrocarbonField';
-
-  /**
-   * Get all hydrocarbon fields
-   */
   async getAll(): Promise<HydrocarbonFieldDTO[]> {
-    const response = await axiosInstance.get<HydrocarbonFieldDTO[]>(this.BASE_URL);
+    const response = await axios.get(API_BASE);
     return response.data;
   }
 
-  /**
-   * Get hydrocarbon field by ID
-   */
   async getById(id: number): Promise<HydrocarbonFieldDTO> {
-    const response = await axiosInstance.get<HydrocarbonFieldDTO>(`${this.BASE_URL}/${id}`);
+    const response = await axios.get(`${API_BASE}/${id}`);
     return response.data;
   }
 
-  /**
-   * Create a new hydrocarbon field
-   */
-  async create(field: HydrocarbonFieldCreateDTO): Promise<HydrocarbonFieldDTO> {
-    const response = await axiosInstance.post<HydrocarbonFieldDTO>(this.BASE_URL, field);
+  async create(data: HydrocarbonFieldCreateDTO): Promise<HydrocarbonFieldDTO> {
+    const response = await axios.post(API_BASE, data);
     return response.data;
   }
 
-  /**
-   * Update an existing hydrocarbon field
-   */
-  async update(id: number, field: Partial<HydrocarbonFieldDTO>): Promise<HydrocarbonFieldDTO> {
-    const response = await axiosInstance.put<HydrocarbonFieldDTO>(`${this.BASE_URL}/${id}`, field);
+  async update(id: number, data: HydrocarbonFieldUpdateDTO): Promise<HydrocarbonFieldDTO> {
+    const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
 
-  /**
-   * Delete a hydrocarbon field
-   */
   async delete(id: number): Promise<void> {
-    await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  /**
-   * Search hydrocarbon fields
-   */
-  async search(query: string): Promise<HydrocarbonFieldDTO[]> {
-    const response = await axiosInstance.get<HydrocarbonFieldDTO[]>(`${this.BASE_URL}/search`, {
-      params: { q: query }
-    });
-    return response.data;
+    await axios.delete(`${API_BASE}/${id}`);
   }
 }
 
-export default new HydrocarbonFieldService();
+export const hydrocarbonFieldService = new HydrocarbonFieldService();

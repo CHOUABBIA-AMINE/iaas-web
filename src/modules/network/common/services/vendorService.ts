@@ -30,4 +30,4 @@ class VendorService {
   }
 }
 
-export default new VendorService();
+export const vendorService = new VendorService();

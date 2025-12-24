@@ -1,66 +1,41 @@
 /**
  * Station Service
- * API service for managing stations
+ * Handles API calls for Station CRUD operations
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
-import axiosInstance from '../../../../shared/config/axios';
+import axios from '../../../../shared/config/axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
 
+const API_BASE = '/api/network/core/stations';
+
 class StationService {
-  private readonly BASE_URL = '/network/core/station';
-
-  /**
-   * Get all stations
-   */
   async getAll(): Promise<StationDTO[]> {
-    const response = await axiosInstance.get<StationDTO[]>(this.BASE_URL);
+    const response = await axios.get(API_BASE);
     return response.data;
   }
 
-  /**
-   * Get station by ID
-   */
   async getById(id: number): Promise<StationDTO> {
-    const response = await axiosInstance.get<StationDTO>(`${this.BASE_URL}/${id}`);
+    const response = await axios.get(`${API_BASE}/${id}`);
     return response.data;
   }
 
-  /**
-   * Create new station
-   */
   async create(data: StationCreateDTO): Promise<StationDTO> {
-    const response = await axiosInstance.post<StationDTO>(this.BASE_URL, data);
+    const response = await axios.post(API_BASE, data);
     return response.data;
   }
 
-  /**
-   * Update existing station
-   */
   async update(id: number, data: StationUpdateDTO): Promise<StationDTO> {
-    const response = await axiosInstance.put<StationDTO>(`${this.BASE_URL}/${id}`, data);
+    const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
 
-  /**
-   * Delete station
-   */
   async delete(id: number): Promise<void> {
-    await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  /**
-   * Search stations
-   */
-  async search(query: string): Promise<StationDTO[]> {
-    const response = await axiosInstance.get<StationDTO[]>(`${this.BASE_URL}/search`, {
-      params: { q: query }
-    });
-    return response.data;
+    await axios.delete(`${API_BASE}/${id}`);
   }
 }
 
-export default new StationService();
+export const stationService = new StationService();

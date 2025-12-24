@@ -1,5 +1,5 @@
 /**
- * Operational Status Service
+ * OperationalStatus Service
  * API service for managing operational statuses
  * 
  * @author CHOUABBIA Amine
@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { OperationalStatusDTO } from '../dto';
 
 class OperationalStatusService {
-  private readonly BASE_URL = '/network/common/operationalStatus';
+  private readonly BASE_URL = '/network/common/operational-status';
 
   /**
    * Get all operational statuses (non-paginated)
@@ -30,4 +30,4 @@ class OperationalStatusService {
   }
 }
 
-export default new OperationalStatusService();
+export const operationalStatusService = new OperationalStatusService();

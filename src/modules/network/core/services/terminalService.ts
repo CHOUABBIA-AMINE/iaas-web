@@ -1,65 +1,41 @@
 /**
  * Terminal Service
- * API service for managing terminals
+ * Handles API calls for Terminal CRUD operations
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
+ * @updated 12-24-2025
  */
 
-import axiosInstance from '../../../../shared/config/axios';
-import { TerminalDTO, TerminalCreateDTO } from '../dto';
+import axios from '../../../../shared/config/axios';
+import { TerminalDTO, TerminalCreateDTO, TerminalUpdateDTO } from '../dto';
+
+const API_BASE = '/api/network/core/terminals';
 
 class TerminalService {
-  private readonly BASE_URL = '/network/core/terminal';
-
-  /**
-   * Get all terminals
-   */
   async getAll(): Promise<TerminalDTO[]> {
-    const response = await axiosInstance.get<TerminalDTO[]>(this.BASE_URL);
+    const response = await axios.get(API_BASE);
     return response.data;
   }
 
-  /**
-   * Get terminal by ID
-   */
   async getById(id: number): Promise<TerminalDTO> {
-    const response = await axiosInstance.get<TerminalDTO>(`${this.BASE_URL}/${id}`);
+    const response = await axios.get(`${API_BASE}/${id}`);
     return response.data;
   }
 
-  /**
-   * Create a new terminal
-   */
-  async create(terminal: TerminalCreateDTO): Promise<TerminalDTO> {
-    const response = await axiosInstance.post<TerminalDTO>(this.BASE_URL, terminal);
+  async create(data: TerminalCreateDTO): Promise<TerminalDTO> {
+    const response = await axios.post(API_BASE, data);
     return response.data;
   }
 
-  /**
-   * Update an existing terminal
-   */
-  async update(id: number, terminal: Partial<TerminalDTO>): Promise<TerminalDTO> {
-    const response = await axiosInstance.put<TerminalDTO>(`${this.BASE_URL}/${id}`, terminal);
+  async update(id: number, data: TerminalUpdateDTO): Promise<TerminalDTO> {
+    const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
 
-  /**
-   * Delete a terminal
-   */
   async delete(id: number): Promise<void> {
-    await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  /**
-   * Search terminals
-   */
-  async search(query: string): Promise<TerminalDTO[]> {
-    const response = await axiosInstance.get<TerminalDTO[]>(`${this.BASE_URL}/search`, {
-      params: { q: query }
-    });
-    return response.data;
+    await axios.delete(`${API_BASE}/${id}`);
   }
 }
 
-export default new TerminalService();
+export const terminalService = new TerminalService();
