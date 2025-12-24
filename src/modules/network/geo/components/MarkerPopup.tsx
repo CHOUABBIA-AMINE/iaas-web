@@ -63,6 +63,16 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
   const terminalData = type === 'terminal' ? (data as TerminalDTO) : null;
   const fieldData = type === 'hydrocarbonField' ? (data as HydrocarbonFieldDTO) : null;
 
+  // Get the specific type name
+  const getTypeName = () => {
+    if (stationData?.stationType?.name) return stationData.stationType.name;
+    if (terminalData?.terminalType?.name) return terminalData.terminalType.name;
+    if (fieldData?.fieldType?.name) return fieldData.fieldType.name;
+    return null;
+  };
+
+  const typeName = getTypeName();
+
   return (
     <div style={{ 
       fontFamily: 'Roboto, sans-serif',
@@ -92,14 +102,31 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
           fontSize: '18px',
           fontWeight: 700,
           color: '#1a1a1a',
-          marginBottom: '4px'
+          marginBottom: typeName ? '6px' : '4px'
         }}>
           {data.name}
         </div>
+        {/* Display the specific type prominently */}
+        {typeName && (
+          <div style={{
+            fontSize: '13px',
+            color: config.color,
+            fontWeight: 600,
+            marginBottom: '6px',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '3px 10px',
+            borderRadius: '4px',
+            display: 'inline-block',
+            border: `1px solid ${config.color}40`
+          }}>
+            {typeName}
+          </div>
+        )}
         <div style={{
           fontSize: '13px',
           color: '#666',
-          fontFamily: 'monospace'
+          fontFamily: 'monospace',
+          marginTop: typeName ? '0' : '0'
         }}>
           {data.code}
         </div>
@@ -147,13 +174,6 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
       }}>
         {stationData && (
           <>
-            {stationData.stationType && (
-              <InfoRow 
-                icon="🏭" 
-                label="Type" 
-                value={stationData.stationType.name} 
-              />
-            )}
             {stationData.capacity != null && (
               <InfoRow 
                 icon="⚡" 
@@ -173,13 +193,6 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
 
         {terminalData && (
           <>
-            {terminalData.terminalType && (
-              <InfoRow 
-                icon="🚢" 
-                label="Type" 
-                value={terminalData.terminalType.name} 
-              />
-            )}
             {terminalData.storageCapacity != null && (
               <InfoRow 
                 icon="📦" 
@@ -199,13 +212,6 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
 
         {fieldData && (
           <>
-            {fieldData.fieldType && (
-              <InfoRow 
-                icon="🛢️" 
-                label="Type" 
-                value={fieldData.fieldType.name} 
-              />
-            )}
             {fieldData.reserves != null && (
               <InfoRow 
                 icon="💎" 
