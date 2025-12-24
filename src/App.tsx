@@ -66,21 +66,22 @@ function App() {
         <AuthProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Layout />}>
-                {/* Public Routes */}
-                <Route
-                  path="login"
-                  element={
-                    <PublicRoute>
-                      <Login />
-                    </PublicRoute>
-                  }
-                />
+              {/* Public Routes - Outside Layout */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                }
+              />
 
+              {/* Protected Routes - Inside Layout */}
+              <Route path="/" element={<Layout />}>
                 {/* Root redirect */}
                 <Route index element={<Navigate to="/dashboard" replace />} />
 
-                {/* Protected Routes */}
+                {/* Dashboard */}
                 <Route
                   path="dashboard"
                   element={
@@ -182,113 +183,110 @@ function App() {
                 </Route>
 
                 {/* Network Module - Protected */}
-                <Route path="network">
-                  {/* Core - Stations, Terminals, Hydrocarbon Fields & Pipelines */}
-                  <Route path="core">
-                    {/* Stations */}
-                    <Route
-                      path="stations"
-                      element={
-                        <ProtectedRoute>
-                          <StationList />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="stations/create"
-                      element={
-                        <ProtectedRoute>
-                          <StationEdit />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="stations/:stationId/edit"
-                      element={
-                        <ProtectedRoute>
-                          <StationEdit />
-                        </ProtectedRoute>
-                      }
-                    />
+                <Route path="network/core">
+                  {/* Stations */}
+                  <Route
+                    path="stations"
+                    element={
+                      <ProtectedRoute>
+                        <StationList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="stations/create"
+                    element={
+                      <ProtectedRoute>
+                        <StationEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="stations/:stationId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <StationEdit />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                    {/* Terminals */}
-                    <Route
-                      path="terminals"
-                      element={
-                        <ProtectedRoute>
-                          <TerminalList />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="terminals/create"
-                      element={
-                        <ProtectedRoute>
-                          <TerminalEdit />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="terminals/:terminalId/edit"
-                      element={
-                        <ProtectedRoute>
-                          <TerminalEdit />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Terminals */}
+                  <Route
+                    path="terminals"
+                    element={
+                      <ProtectedRoute>
+                        <TerminalList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="terminals/create"
+                    element={
+                      <ProtectedRoute>
+                        <TerminalEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="terminals/:terminalId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <TerminalEdit />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                    {/* Hydrocarbon Fields */}
-                    <Route
-                      path="hydrocarbon-fields"
-                      element={
-                        <ProtectedRoute>
-                          <HydrocarbonFieldList />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="hydrocarbon-fields/create"
-                      element={
-                        <ProtectedRoute>
-                          <HydrocarbonFieldEdit />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="hydrocarbon-fields/:fieldId/edit"
-                      element={
-                        <ProtectedRoute>
-                          <HydrocarbonFieldEdit />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Hydrocarbon Fields */}
+                  <Route
+                    path="hydrocarbon-fields"
+                    element={
+                      <ProtectedRoute>
+                        <HydrocarbonFieldList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="hydrocarbon-fields/create"
+                    element={
+                      <ProtectedRoute>
+                        <HydrocarbonFieldEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="hydrocarbon-fields/:fieldId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <HydrocarbonFieldEdit />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                    {/* Pipelines */}
-                    <Route
-                      path="pipelines"
-                      element={
-                        <ProtectedRoute>
-                          <PipelineList />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="pipelines/create"
-                      element={
-                        <ProtectedRoute>
-                          <PipelineEdit />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="pipelines/:pipelineId/edit"
-                      element={
-                        <ProtectedRoute>
-                          <PipelineEdit />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </Route>
+                  {/* Pipelines */}
+                  <Route
+                    path="pipelines"
+                    element={
+                      <ProtectedRoute>
+                        <PipelineList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="pipelines/create"
+                    element={
+                      <ProtectedRoute>
+                        <PipelineEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="pipelines/:pipelineId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <PipelineEdit />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Route>
 
                 {/* Unauthorized page */}
@@ -302,8 +300,16 @@ function App() {
                   }
                 />
 
-                {/* Catch-all */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                {/* 404 - Not Found */}
+                <Route
+                  path="*"
+                  element={
+                    <div style={{ padding: 24 }}>
+                      <h1>404 - Page Not Found</h1>
+                      <p>The page you're looking for doesn't exist.</p>
+                    </div>
+                  }
+                />
               </Route>
             </Routes>
           </Router>
