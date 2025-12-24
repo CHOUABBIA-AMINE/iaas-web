@@ -39,6 +39,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FactoryIcon from '@mui/icons-material/Factory';
 import OilBarrelIcon from '@mui/icons-material/OilBarrel';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import MapIcon from '@mui/icons-material/Map';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -125,6 +126,11 @@ const Sidebar = ({ open }: SidebarProps) => {
       titleKey: 'nav.network',
       icon: <NetworkCheckIcon />,
       children: [
+        {
+          titleKey: 'nav.map',
+          icon: <MapIcon />,
+          path: '/network/map',
+        },
         {
           titleKey: 'nav.common',
           icon: <PublicIcon />,

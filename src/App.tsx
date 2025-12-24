@@ -35,6 +35,7 @@ import {
   PipelineList,
   PipelineEdit
 } from './modules/network/core/pages';
+import { NetworkMapPage } from './modules/network/geo/pages';
 
 function App() {
   const { i18n } = useTranslation();
@@ -183,110 +184,123 @@ function App() {
                 </Route>
 
                 {/* Network Module - Protected */}
-                <Route path="network/core">
-                  {/* Stations */}
+                <Route path="network">
+                  {/* Geovisualization Map */}
                   <Route
-                    path="stations"
+                    path="map"
                     element={
                       <ProtectedRoute>
-                        <StationList />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="stations/create"
-                    element={
-                      <ProtectedRoute>
-                        <StationEdit />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="stations/:stationId/edit"
-                    element={
-                      <ProtectedRoute>
-                        <StationEdit />
+                        <NetworkMapPage />
                       </ProtectedRoute>
                     }
                   />
 
-                  {/* Terminals */}
-                  <Route
-                    path="terminals"
-                    element={
-                      <ProtectedRoute>
-                        <TerminalList />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="terminals/create"
-                    element={
-                      <ProtectedRoute>
-                        <TerminalEdit />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="terminals/:terminalId/edit"
-                    element={
-                      <ProtectedRoute>
-                        <TerminalEdit />
-                      </ProtectedRoute>
-                    }
-                  />
+                  {/* Core Infrastructure */}
+                  <Route path="core">
+                    {/* Stations */}
+                    <Route
+                      path="stations"
+                      element={
+                        <ProtectedRoute>
+                          <StationList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="stations/create"
+                      element={
+                        <ProtectedRoute>
+                          <StationEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="stations/:stationId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <StationEdit />
+                        </ProtectedRoute>
+                      }
+                    />
 
-                  {/* Hydrocarbon Fields */}
-                  <Route
-                    path="hydrocarbon-fields"
-                    element={
-                      <ProtectedRoute>
-                        <HydrocarbonFieldList />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="hydrocarbon-fields/create"
-                    element={
-                      <ProtectedRoute>
-                        <HydrocarbonFieldEdit />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="hydrocarbon-fields/:fieldId/edit"
-                    element={
-                      <ProtectedRoute>
-                        <HydrocarbonFieldEdit />
-                      </ProtectedRoute>
-                    }
-                  />
+                    {/* Terminals */}
+                    <Route
+                      path="terminals"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="terminals/create"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="terminals/:terminalId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <TerminalEdit />
+                        </ProtectedRoute>
+                      }
+                    />
 
-                  {/* Pipelines */}
-                  <Route
-                    path="pipelines"
-                    element={
-                      <ProtectedRoute>
-                        <PipelineList />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="pipelines/create"
-                    element={
-                      <ProtectedRoute>
-                        <PipelineEdit />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="pipelines/:pipelineId/edit"
-                    element={
-                      <ProtectedRoute>
-                        <PipelineEdit />
-                      </ProtectedRoute>
-                    }
-                  />
+                    {/* Hydrocarbon Fields */}
+                    <Route
+                      path="hydrocarbon-fields"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="hydrocarbon-fields/create"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="hydrocarbon-fields/:fieldId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <HydrocarbonFieldEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Pipelines */}
+                    <Route
+                      path="pipelines"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipelines/create"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipelines/:pipelineId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Route>
                 </Route>
 
                 {/* Unauthorized page */}
