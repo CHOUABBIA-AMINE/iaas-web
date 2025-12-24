@@ -94,7 +94,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
           <Divider sx={{ mb: 1.5 }} />
           
           <Stack spacing={1.5}>
-            {/* Stations */}
+            {/* Stations - Blue #2196F3 */}
             <FormControlLabel
               control={
                 <Switch
@@ -111,7 +111,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                       width: 14,
                       height: 14,
                       borderRadius: '50%',
-                      bgcolor: '#1976d2',
+                      bgcolor: '#2196F3',
                       border: '2px solid white',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}
@@ -124,14 +124,14 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
               sx={{ m: 0 }}
             />
             
-            {/* Terminals */}
+            {/* Terminals - Green #4CAF50 */}
             <FormControlLabel
               control={
                 <Switch
                   checked={filters.showTerminals}
                   onChange={() => onToggleFilter('showTerminals')}
                   size="small"
-                  color="secondary"
+                  color="success"
                 />
               }
               label={
@@ -141,7 +141,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                       width: 14,
                       height: 14,
                       borderRadius: '50%',
-                      bgcolor: '#9c27b0',
+                      bgcolor: '#4CAF50',
                       border: '2px solid white',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}
@@ -154,14 +154,14 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
               sx={{ m: 0 }}
             />
             
-            {/* Hydrocarbon Fields */}
+            {/* Hydrocarbon Fields - Orange #FF9800 */}
             <FormControlLabel
               control={
                 <Switch
                   checked={filters.showHydrocarbonFields}
                   onChange={() => onToggleFilter('showHydrocarbonFields')}
                   size="small"
-                  color="success"
+                  color="warning"
                 />
               }
               label={
@@ -171,7 +171,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                       width: 14,
                       height: 14,
                       borderRadius: '50%',
-                      bgcolor: '#2e7d32',
+                      bgcolor: '#FF9800',
                       border: '2px solid white',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                     }}
@@ -184,14 +184,14 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
               sx={{ m: 0 }}
             />
             
-            {/* Pipelines */}
+            {/* Pipelines - Purple #9C27B0 */}
             <FormControlLabel
               control={
                 <Switch
                   checked={filters.showPipelines}
                   onChange={() => onToggleFilter('showPipelines')}
                   size="small"
-                  color="warning"
+                  color="secondary"
                 />
               }
               label={
@@ -200,7 +200,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                     sx={{
                       width: 16,
                       height: 3,
-                      bgcolor: '#ed6c02',
+                      bgcolor: '#9C27B0',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                       borderRadius: '2px'
                     }}
