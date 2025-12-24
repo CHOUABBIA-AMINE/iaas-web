@@ -46,42 +46,37 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      {/* Layers Icon Button - Always Visible */}
-      <Paper
-        elevation={3}
-        sx={{
-          width: 40,
-          height: 40,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '4px',
-          bgcolor: 'white',
-          transition: 'all 0.3s ease',
-          ...(isExpanded && {
-            borderTopRightRadius: 0,
-            borderBottomRightRadius: 0
-          })
-        }}
-      >
-        <Tooltip title="Map Layers" placement="left">
-          <IconButton size="small" sx={{ color: 'primary.main' }}>
-            <LayersIcon />
-          </IconButton>
-        </Tooltip>
-      </Paper>
+      {/* Layers Icon Button - Visible only when collapsed */}
+      {!isExpanded && (
+        <Paper
+          elevation={3}
+          sx={{
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '4px',
+            bgcolor: 'white'
+          }}
+        >
+          <Tooltip title="Map Layers" placement="left">
+            <IconButton size="small" sx={{ color: 'primary.main' }}>
+              <LayersIcon />
+            </IconButton>
+          </Tooltip>
+        </Paper>
+      )}
 
       {/* Expandable Panel */}
       <Fade in={isExpanded} timeout={300}>
         <Paper
           elevation={3}
           sx={{
-            ml: -0.5,
             p: 2,
             minWidth: 220,
             maxWidth: 300,
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
+            borderRadius: '4px',
             display: isExpanded ? 'block' : 'none'
           }}
         >
