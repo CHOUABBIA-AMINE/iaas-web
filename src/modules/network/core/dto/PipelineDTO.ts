@@ -4,69 +4,96 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
+ * @updated 12-24-2025
  */
 
 import { VendorDTO } from '../../common/dto';
 import { OperationalStatusDTO } from '../../common/dto';
 import { PipelineSystemDTO } from './PipelineSystemDTO';
-import { AlloyDTO } from '../../common/dto';
-import { ProductDTO } from '../../common/dto';
 
 export interface PipelineDTO {
   id: number;
-  name: string;
   code: string;
-  description?: string;
-  length?: number;
-  diameter?: number;
-  maximumOperatingPressure?: number;
-  designPressure?: number;
+  name: string;
   installationDate?: string;
   commissioningDate?: string;
   decommissioningDate?: string;
   
-  // IDs for relations
+  // Technical specifications
+  nominalDiameter?: number;
+  length?: number;
+  nominalThickness?: number;
+  nominalRoughness?: number;
+  
+  // Pressure specifications
+  designMaxServicePressure?: number;
+  operationalMaxServicePressure?: number;
+  designMinServicePressure?: number;
+  operationalMinServicePressure?: number;
+  
+  // Capacity specifications
+  designCapacity?: number;
+  operationalCapacity?: number;
+  
+  // Material and coating
+  nominalConstructionMaterial?: string;
+  nominalExteriorCoating?: string;
+  nominalInteriorCoating?: string;
+  
+  // Relations - IDs
   operationalStatusId: number;
-  pipelineSystemId?: number;
   vendorId: number;
-  alloyId?: number;
-  productId?: number;
+  pipelineSystemId?: number;
+  departureFacilityId?: number;
+  arrivalFacilityId?: number;
   
   // Nested objects (from backend)
   operationalStatus?: OperationalStatusDTO;
-  pipelineSystem?: PipelineSystemDTO;
   vendor?: VendorDTO;
-  alloy?: AlloyDTO;
-  product?: ProductDTO;
+  pipelineSystem?: PipelineSystemDTO;
+  departureFacility?: any;
+  arrivalFacility?: any;
   
   // Legacy string fields (fallback)
   operationalStatusName?: string;
-  pipelineSystemName?: string;
   vendorName?: string;
-  alloyName?: string;
-  productName?: string;
+  pipelineSystemName?: string;
+  departureFacilityName?: string;
+  arrivalFacilityName?: string;
   
-  segments?: any[];
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface PipelineCreateDTO {
-  name: string;
   code: string;
-  description?: string;
-  length?: number;
-  diameter?: number;
-  maximumOperatingPressure?: number;
-  designPressure?: number;
+  name: string;
   installationDate?: string;
   commissioningDate?: string;
   decommissioningDate?: string;
+  
+  nominalDiameter?: number;
+  length?: number;
+  nominalThickness?: number;
+  nominalRoughness?: number;
+  
+  designMaxServicePressure?: number;
+  operationalMaxServicePressure?: number;
+  designMinServicePressure?: number;
+  operationalMinServicePressure?: number;
+  
+  designCapacity?: number;
+  operationalCapacity?: number;
+  
+  nominalConstructionMaterial?: string;
+  nominalExteriorCoating?: string;
+  nominalInteriorCoating?: string;
+  
   operationalStatusId: number;
-  pipelineSystemId?: number;
   vendorId: number;
-  alloyId?: number;
-  productId?: number;
+  pipelineSystemId?: number;
+  departureFacilityId?: number;
+  arrivalFacilityId?: number;
 }
 
 export interface PipelineUpdateDTO extends Partial<PipelineCreateDTO> {
