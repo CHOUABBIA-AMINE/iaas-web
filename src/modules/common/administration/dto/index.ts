@@ -1,6 +1,6 @@
 export * from './CountryDto';
 export * from './StateDto';
-export * from './LocalityDto';
+export * from './LocalityDTO';
 export * from './PersonDto';
 export * from './EmployeeDto';
 export * from './JobDto';
