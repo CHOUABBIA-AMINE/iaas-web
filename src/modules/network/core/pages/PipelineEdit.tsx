@@ -42,23 +42,23 @@ const PipelineEdit = () => {
   // Get current language
   const currentLanguage = i18n.language || 'en';
 
-  // Form state matching backend fields
+  // Form state matching backend fields with 0 as default for numeric fields
   const [pipeline, setPipeline] = useState<Partial<PipelineDTO>>({
     code: '',
     name: '',
     installationDate: undefined,
     commissioningDate: undefined,
     decommissioningDate: undefined,
-    nominalDiameter: undefined,
-    length: undefined,
-    nominalThickness: undefined,
-    nominalRoughness: undefined,
-    designMaxServicePressure: undefined,
-    operationalMaxServicePressure: undefined,
-    designMinServicePressure: undefined,
-    operationalMinServicePressure: undefined,
-    designCapacity: undefined,
-    operationalCapacity: undefined,
+    nominalDiameter: 0,
+    length: 0,
+    nominalThickness: 0,
+    nominalRoughness: 0,
+    designMaxServicePressure: 0,
+    operationalMaxServicePressure: 0,
+    designMinServicePressure: 0,
+    operationalMinServicePressure: 0,
+    designCapacity: 0,
+    operationalCapacity: 0,
     nominalConstructionMaterialId: undefined,
     nominalExteriorCoatingId: undefined,
     nominalInteriorCoatingId: undefined,
@@ -237,16 +237,16 @@ const PipelineEdit = () => {
         installationDate: pipeline.installationDate,
         commissioningDate: pipeline.commissioningDate,
         decommissioningDate: pipeline.decommissioningDate,
-        nominalDiameter: pipeline.nominalDiameter ? Number(pipeline.nominalDiameter) : undefined,
-        length: pipeline.length ? Number(pipeline.length) : undefined,
-        nominalThickness: pipeline.nominalThickness ? Number(pipeline.nominalThickness) : undefined,
-        nominalRoughness: pipeline.nominalRoughness ? Number(pipeline.nominalRoughness) : undefined,
-        designMaxServicePressure: pipeline.designMaxServicePressure ? Number(pipeline.designMaxServicePressure) : undefined,
-        operationalMaxServicePressure: pipeline.operationalMaxServicePressure ? Number(pipeline.operationalMaxServicePressure) : undefined,
-        designMinServicePressure: pipeline.designMinServicePressure ? Number(pipeline.designMinServicePressure) : undefined,
-        operationalMinServicePressure: pipeline.operationalMinServicePressure ? Number(pipeline.operationalMinServicePressure) : undefined,
-        designCapacity: pipeline.designCapacity ? Number(pipeline.designCapacity) : undefined,
-        operationalCapacity: pipeline.operationalCapacity ? Number(pipeline.operationalCapacity) : undefined,
+        nominalDiameter: pipeline.nominalDiameter !== undefined ? Number(pipeline.nominalDiameter) : undefined,
+        length: pipeline.length !== undefined ? Number(pipeline.length) : undefined,
+        nominalThickness: pipeline.nominalThickness !== undefined ? Number(pipeline.nominalThickness) : undefined,
+        nominalRoughness: pipeline.nominalRoughness !== undefined ? Number(pipeline.nominalRoughness) : undefined,
+        designMaxServicePressure: pipeline.designMaxServicePressure !== undefined ? Number(pipeline.designMaxServicePressure) : undefined,
+        operationalMaxServicePressure: pipeline.operationalMaxServicePressure !== undefined ? Number(pipeline.operationalMaxServicePressure) : undefined,
+        designMinServicePressure: pipeline.designMinServicePressure !== undefined ? Number(pipeline.designMinServicePressure) : undefined,
+        operationalMinServicePressure: pipeline.operationalMinServicePressure !== undefined ? Number(pipeline.operationalMinServicePressure) : undefined,
+        designCapacity: pipeline.designCapacity !== undefined ? Number(pipeline.designCapacity) : undefined,
+        operationalCapacity: pipeline.operationalCapacity !== undefined ? Number(pipeline.operationalCapacity) : undefined,
         nominalConstructionMaterialId: pipeline.nominalConstructionMaterialId ? Number(pipeline.nominalConstructionMaterialId) : undefined,
         nominalExteriorCoatingId: pipeline.nominalExteriorCoatingId ? Number(pipeline.nominalExteriorCoatingId) : undefined,
         nominalInteriorCoatingId: pipeline.nominalInteriorCoatingId ? Number(pipeline.nominalInteriorCoatingId) : undefined,
@@ -363,7 +363,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Nominal Diameter (in)"
                     type="number"
-                    value={pipeline.nominalDiameter || ''}
+                    value={pipeline.nominalDiameter ?? 0}
                     onChange={handleChange('nominalDiameter')}
                     inputProps={{ step: 0.01, min: 0 }}
                   />
@@ -374,7 +374,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Nominal Thickness (mm)"
                     type="number"
-                    value={pipeline.nominalThickness || ''}
+                    value={pipeline.nominalThickness ?? 0}
                     onChange={handleChange('nominalThickness')}
                     inputProps={{ step: 0.01, min: 0 }}
                   />
@@ -385,7 +385,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Length (km)"
                     type="number"
-                    value={pipeline.length || ''}
+                    value={pipeline.length ?? 0}
                     onChange={handleChange('length')}
                     inputProps={{ step: 0.01, min: 0 }}
                   />
@@ -396,7 +396,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Nominal Roughness (mm)"
                     type="number"
-                    value={pipeline.nominalRoughness || ''}
+                    value={pipeline.nominalRoughness ?? 0}
                     onChange={handleChange('nominalRoughness')}
                     inputProps={{ step: 0.0001, min: 0 }}
                   />
@@ -419,7 +419,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Design Max Service Pressure"
                     type="number"
-                    value={pipeline.designMaxServicePressure || ''}
+                    value={pipeline.designMaxServicePressure ?? 0}
                     onChange={handleChange('designMaxServicePressure')}
                     inputProps={{ step: 0.1, min: 0 }}
                   />
@@ -430,7 +430,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Operational Max Service Pressure"
                     type="number"
-                    value={pipeline.operationalMaxServicePressure || ''}
+                    value={pipeline.operationalMaxServicePressure ?? 0}
                     onChange={handleChange('operationalMaxServicePressure')}
                     inputProps={{ step: 0.1, min: 0 }}
                   />
@@ -441,7 +441,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Design Min Service Pressure"
                     type="number"
-                    value={pipeline.designMinServicePressure || ''}
+                    value={pipeline.designMinServicePressure ?? 0}
                     onChange={handleChange('designMinServicePressure')}
                     inputProps={{ step: 0.1, min: 0 }}
                   />
@@ -452,7 +452,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Operational Min Service Pressure"
                     type="number"
-                    value={pipeline.operationalMinServicePressure || ''}
+                    value={pipeline.operationalMinServicePressure ?? 0}
                     onChange={handleChange('operationalMinServicePressure')}
                     inputProps={{ step: 0.1, min: 0 }}
                   />
@@ -475,7 +475,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Design Capacity"
                     type="number"
-                    value={pipeline.designCapacity || ''}
+                    value={pipeline.designCapacity ?? 0}
                     onChange={handleChange('designCapacity')}
                     inputProps={{ step: 0.01, min: 0 }}
                     helperText="Maximum designed throughput capacity"
@@ -487,7 +487,7 @@ const PipelineEdit = () => {
                     fullWidth
                     label="Operational Capacity"
                     type="number"
-                    value={pipeline.operationalCapacity || ''}
+                    value={pipeline.operationalCapacity ?? 0}
                     onChange={handleChange('operationalCapacity')}
                     inputProps={{ step: 0.01, min: 0 }}
                     helperText="Current operational throughput capacity"
