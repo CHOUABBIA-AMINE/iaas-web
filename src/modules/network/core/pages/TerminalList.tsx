@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-23-2025
+ * @updated 12-24-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -19,12 +19,15 @@ import {
   Alert,
   TextField,
   InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Stack,
   Paper,
   Divider,
   Tooltip,
   Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
   alpha,
@@ -61,6 +64,9 @@ const TerminalList = () => {
   
   // Filter state
   const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [vendorFilter, setVendorFilter] = useState<string>('all');
   
   // Export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
@@ -98,6 +104,47 @@ const TerminalList = () => {
     }
   };
 
+  // Get unique values for filters
+  const availableStatuses = useMemo(() => {
+    if (!Array.isArray(terminals)) return [];
+    const statuses = new Set<string>();
+    terminals.forEach(terminal => {
+      if (terminal.operationalStatus) {
+        const statusName = getLocalizedName(terminal.operationalStatus, currentLanguage);
+        statuses.add(statusName);
+      } else if (terminal.operationalStatusName) {
+        statuses.add(terminal.operationalStatusName);
+      }
+    });
+    return Array.from(statuses).sort();
+  }, [terminals, currentLanguage]);
+
+  const availableTypes = useMemo(() => {
+    if (!Array.isArray(terminals)) return [];
+    const types = new Set<string>();
+    terminals.forEach(terminal => {
+      if (terminal.terminalType) {
+        const typeName = getLocalizedName(terminal.terminalType, currentLanguage);
+        types.add(typeName);
+      } else if (terminal.terminalTypeName) {
+        types.add(terminal.terminalTypeName);
+      }
+    });
+    return Array.from(types).sort();
+  }, [terminals, currentLanguage]);
+
+  const availableVendors = useMemo(() => {
+    if (!Array.isArray(terminals)) return [];
+    const vendors = new Set<string>();
+    terminals.forEach(terminal => {
+      const vendorName = terminal.vendor?.name || terminal.vendorName;
+      if (vendorName) {
+        vendors.add(vendorName);
+      }
+    });
+    return Array.from(vendors).sort();
+  }, [terminals]);
+
   // Filter terminals
   const filteredTerminals = useMemo(() => {
     if (!Array.isArray(terminals)) return [];
@@ -126,9 +173,13 @@ const TerminalList = () => {
         vendorName.toLowerCase().includes(searchLower) ||
         statusName.toLowerCase().includes(searchLower);
 
-      return matchesSearch;
+      const matchesStatus = statusFilter === 'all' || statusName === statusFilter;
+      const matchesType = typeFilter === 'all' || typeName === typeFilter;
+      const matchesVendor = vendorFilter === 'all' || vendorName === vendorFilter;
+
+      return matchesSearch && matchesStatus && matchesType && matchesVendor;
     });
-  }, [terminals, searchText, currentLanguage]);
+  }, [terminals, searchText, statusFilter, typeFilter, vendorFilter, currentLanguage]);
 
   // DataGrid columns
   const columns: GridColDef[] = [
@@ -285,6 +336,9 @@ const TerminalList = () => {
 
   const handleClearFilters = () => {
     setSearchText('');
+    setStatusFilter('all');
+    setTypeFilter('all');
+    setVendorFilter('all');
   };
 
   const handleRefresh = () => {
@@ -405,7 +459,7 @@ const TerminalList = () => {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center">
               <TextField
                 fullWidth
-                placeholder="Search terminals by name, code, or place..."
+                placeholder="Search terminals by name, code, type, vendor, or place..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 InputProps={{
@@ -417,6 +471,48 @@ const TerminalList = () => {
                 }}
                 sx={{ maxWidth: { md: 400 } }}
               />
+
+              <FormControl sx={{ minWidth: 180 }}>
+                <InputLabel>Filter by Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  label="Filter by Status"
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All Statuses</MenuItem>
+                  {availableStatuses.map((status) => (
+                    <MenuItem key={status} value={status}>{status}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl sx={{ minWidth: 180 }}>
+                <InputLabel>Filter by Type</InputLabel>
+                <Select
+                  value={typeFilter}
+                  label="Filter by Type"
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All Types</MenuItem>
+                  {availableTypes.map((type) => (
+                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl sx={{ minWidth: 180 }}>
+                <InputLabel>Filter by Vendor</InputLabel>
+                <Select
+                  value={vendorFilter}
+                  label="Filter by Vendor"
+                  onChange={(e) => setVendorFilter(e.target.value)}
+                >
+                  <MenuItem value="all">All Vendors</MenuItem>
+                  {availableVendors.map((vendor) => (
+                    <MenuItem key={vendor} value={vendor}>{vendor}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               <Button
                 variant="outlined"
