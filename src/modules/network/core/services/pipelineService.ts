@@ -9,7 +9,7 @@
 import axios from '../../../../shared/config/axios';
 import { PipelineDTO, PipelineCreateDTO, PipelineUpdateDTO } from '../dto/PipelineDTO';
 
-const API_BASE = '/api/network/core/pipelines';
+const API_BASE = '/network/core/pipelines';
 
 export const pipelineService = {
   getAll: async (): Promise<PipelineDTO[]> => {

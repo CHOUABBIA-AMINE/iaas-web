@@ -10,7 +10,7 @@
 import axios from '../../../../shared/config/axios';
 import { TerminalDTO, TerminalCreateDTO, TerminalUpdateDTO } from '../dto';
 
-const API_BASE = '/api/network/core/terminals';
+const API_BASE = '/network/core/terminals';
 
 class TerminalService {
   async getAll(): Promise<TerminalDTO[]> {

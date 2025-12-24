@@ -9,7 +9,7 @@
 import axios from '../../../../shared/config/axios';
 import { AlloyDTO, AlloyCreateDTO, AlloyUpdateDTO } from '../dto/AlloyDTO';
 
-const API_BASE = '/api/network/common/alloys';
+const API_BASE = '/network/common/alloys';
 
 export const alloyService = {
   getAll: async (): Promise<AlloyDTO[]> => {

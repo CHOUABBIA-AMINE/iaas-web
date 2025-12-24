@@ -9,7 +9,7 @@
 import axios from '../../../../shared/config/axios';
 import { ProductDTO, ProductCreateDTO, ProductUpdateDTO } from '../dto/ProductDTO';
 
-const API_BASE = '/api/network/common/products';
+const API_BASE = '/network/common/products';
 
 export const productService = {
   getAll: async (): Promise<ProductDTO[]> => {
