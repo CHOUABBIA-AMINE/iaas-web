@@ -35,6 +35,13 @@ const formatCoordinates = (lat: number, lng: number) => {
 };
 
 export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
+  // Debug logging
+  console.log('MarkerPopup - Type:', type);
+  console.log('MarkerPopup - Data:', data);
+  console.log('MarkerPopup - Has stationType?', 'stationType' in data, (data as any).stationType);
+  console.log('MarkerPopup - Has terminalType?', 'terminalType' in data, (data as any).terminalType);
+  console.log('MarkerPopup - Has fieldType?', 'fieldType' in data, (data as any).fieldType);
+
   const getTypeConfig = () => {
     switch (type) {
       case 'station':
@@ -65,13 +72,39 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
 
   // Get the specific type name
   const getTypeName = () => {
-    if (stationData?.stationType?.name) return stationData.stationType.name;
-    if (terminalData?.terminalType?.name) return terminalData.terminalType.name;
-    if (fieldData?.fieldType?.name) return fieldData.fieldType.name;
+    if (stationData?.stationType?.name) {
+      console.log('Found station type:', stationData.stationType.name);
+      return stationData.stationType.name;
+    }
+    if (terminalData?.terminalType?.name) {
+      console.log('Found terminal type:', terminalData.terminalType.name);
+      return terminalData.terminalType.name;
+    }
+    if (fieldData?.fieldType?.name) {
+      console.log('Found field type:', fieldData.fieldType.name);
+      return fieldData.fieldType.name;
+    }
+    
+    // Fallback to legacy string fields
+    if ((data as any).stationTypeName) {
+      console.log('Using legacy stationTypeName:', (data as any).stationTypeName);
+      return (data as any).stationTypeName;
+    }
+    if ((data as any).terminalTypeName) {
+      console.log('Using legacy terminalTypeName:', (data as any).terminalTypeName);
+      return (data as any).terminalTypeName;
+    }
+    if ((data as any).fieldTypeName) {
+      console.log('Using legacy fieldTypeName:', (data as any).fieldTypeName);
+      return (data as any).fieldTypeName;
+    }
+    
+    console.log('No type name found');
     return null;
   };
 
   const typeName = getTypeName();
+  console.log('Final typeName:', typeName);
 
   return (
     <div style={{ 
@@ -181,11 +214,11 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
                 value={`${stationData.capacity.toLocaleString()} units`} 
               />
             )}
-            {stationData.commissionDate && (
+            {stationData.commissioningDate && (
               <InfoRow 
                 icon="📅" 
                 label="Commissioned" 
-                value={formatDate(stationData.commissionDate)} 
+                value={formatDate(stationData.commissioningDate)} 
               />
             )}
           </>
