@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
+ * @updated 12-24-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -66,7 +67,6 @@ const PipelineList = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [systemFilter, setSystemFilter] = useState<string>('all');
   const [vendorFilter, setVendorFilter] = useState<string>('all');
-  const [productFilter, setProductFilter] = useState<string>('all');
   
   // Export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
@@ -145,20 +145,6 @@ const PipelineList = () => {
     return Array.from(vendors).sort();
   }, [pipelines]);
 
-  const availableProducts = useMemo(() => {
-    if (!Array.isArray(pipelines)) return [];
-    const products = new Set<string>();
-    pipelines.forEach(pipeline => {
-      if (pipeline.product) {
-        const productName = getLocalizedName(pipeline.product, currentLanguage);
-        products.add(productName);
-      } else if (pipeline.productName) {
-        products.add(pipeline.productName);
-      }
-    });
-    return Array.from(products).sort();
-  }, [pipelines, currentLanguage]);
-
   // Filter pipelines
   const filteredPipelines = useMemo(() => {
     if (!Array.isArray(pipelines)) return [];
@@ -173,26 +159,21 @@ const PipelineList = () => {
       const systemName = pipeline.pipelineSystem 
         ? getLocalizedName(pipeline.pipelineSystem, currentLanguage)
         : (pipeline.pipelineSystemName || '');
-      const productName = pipeline.product 
-        ? getLocalizedName(pipeline.product, currentLanguage)
-        : (pipeline.productName || '');
       
       const matchesSearch = !searchText || 
         (pipeline.name && pipeline.name.toLowerCase().includes(searchLower)) ||
         (pipeline.code && pipeline.code.toLowerCase().includes(searchLower)) ||
         systemName.toLowerCase().includes(searchLower) ||
         vendorName.toLowerCase().includes(searchLower) ||
-        statusName.toLowerCase().includes(searchLower) ||
-        productName.toLowerCase().includes(searchLower);
+        statusName.toLowerCase().includes(searchLower);
 
       const matchesStatus = statusFilter === 'all' || statusName === statusFilter;
       const matchesSystem = systemFilter === 'all' || systemName === systemFilter;
       const matchesVendor = vendorFilter === 'all' || vendorName === vendorFilter;
-      const matchesProduct = productFilter === 'all' || productName === productFilter;
 
-      return matchesSearch && matchesStatus && matchesSystem && matchesVendor && matchesProduct;
+      return matchesSearch && matchesStatus && matchesSystem && matchesVendor;
     });
-  }, [pipelines, searchText, statusFilter, systemFilter, vendorFilter, productFilter, currentLanguage]);
+  }, [pipelines, searchText, statusFilter, systemFilter, vendorFilter, currentLanguage]);
 
   // DataGrid columns
   const columns: GridColDef[] = [
@@ -251,11 +232,15 @@ const PipelineList = () => {
       ),
     },
     { 
-      field: 'diameter', 
-      headerName: 'Diameter', 
-      width: 120,
+      field: 'nominalDiameter', 
+      headerName: 'Nominal Diameter', 
+      width: 160,
       align: 'center',
       headerAlign: 'center',
+      valueGetter: (params) => {
+        const pipeline = params.row as PipelineDTO;
+        return (pipeline as any).nominalDiameter || pipeline.diameter;
+      },
       renderCell: (params) => (
         <Typography variant="body2" color="text.secondary">
           {params.value ? `${params.value}"` : '-'}
@@ -271,22 +256,6 @@ const PipelineList = () => {
       renderCell: (params) => (
         <Typography variant="body2" color="text.secondary">
           {params.value ? `${params.value} km` : '-'}
-        </Typography>
-      ),
-    },
-    { 
-      field: 'product', 
-      headerName: 'Product', 
-      width: 140,
-      valueGetter: (params) => {
-        const pipeline = params.row as PipelineDTO;
-        return pipeline.product 
-          ? getLocalizedName(pipeline.product, currentLanguage)
-          : (pipeline.productName || '-');
-      },
-      renderCell: (params) => (
-        <Typography variant="body2" color="text.secondary">
-          {params.value}
         </Typography>
       ),
     },
@@ -382,7 +351,6 @@ const PipelineList = () => {
     setStatusFilter('all');
     setSystemFilter('all');
     setVendorFilter('all');
-    setProductFilter('all');
   };
 
   const handleRefresh = () => {
@@ -503,7 +471,7 @@ const PipelineList = () => {
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="center" flexWrap="wrap">
               <TextField
                 fullWidth
-                placeholder="Search pipelines by name, code, system, vendor, or product..."
+                placeholder="Search pipelines by name, code, system, vendor, or status..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 InputProps={{
@@ -540,20 +508,6 @@ const PipelineList = () => {
                   <MenuItem value="all">All Systems</MenuItem>
                   {availableSystems.map((system) => (
                     <MenuItem key={system} value={system}>{system}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl sx={{ minWidth: 160 }}>
-                <InputLabel>Product</InputLabel>
-                <Select
-                  value={productFilter}
-                  label="Product"
-                  onChange={(e) => setProductFilter(e.target.value)}
-                >
-                  <MenuItem value="all">All Products</MenuItem>
-                  {availableProducts.map((product) => (
-                    <MenuItem key={product} value={product}>{product}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
