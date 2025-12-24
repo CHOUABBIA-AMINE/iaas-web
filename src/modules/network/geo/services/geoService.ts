@@ -16,17 +16,28 @@ class GeoService {
    * Get all infrastructure with geo data
    */
   async getAllInfrastructure(): Promise<InfrastructureData> {
-    const [stations, terminals, fields] = await Promise.all([
-      axiosInstance.get<StationDTO[]>('/network/core/station'),
-      axiosInstance.get<TerminalDTO[]>('/network/core/terminal'),
-      axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbonField')
-    ]);
+    try {
+      const [stationsResponse, terminalsResponse, fieldsResponse] = await Promise.all([
+        axiosInstance.get<StationDTO[]>('/network/core/station'),
+        axiosInstance.get<TerminalDTO[]>('/network/core/terminal'),
+        axiosInstance.get<HydrocarbonFieldDTO[]>('/network/core/hydrocarbonField')
+      ]);
 
-    return {
-      stations: stations.data,
-      terminals: terminals.data,
-      hydrocarbonFields: fields.data
-    };
+      // Ensure we always return arrays, even if backend returns null/undefined
+      return {
+        stations: Array.isArray(stationsResponse.data) ? stationsResponse.data : [],
+        terminals: Array.isArray(terminalsResponse.data) ? terminalsResponse.data : [],
+        hydrocarbonFields: Array.isArray(fieldsResponse.data) ? fieldsResponse.data : []
+      };
+    } catch (error) {
+      console.error('Error fetching infrastructure data:', error);
+      // Return empty arrays on error to prevent crashes
+      return {
+        stations: [],
+        terminals: [],
+        hydrocarbonFields: []
+      };
+    }
   }
 
   /**
