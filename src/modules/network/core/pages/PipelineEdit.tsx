@@ -1,9 +1,10 @@
 /**
  * Pipeline Edit/Create Page - Professional Version
- * Comprehensive form for creating and editing pipelines
+ * Comprehensive form for creating and editing pipelines with all fields
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
+ * @updated 12-24-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -33,6 +34,22 @@ import { alloyService, productService } from '../../common/services';
 import { PipelineDTO, PipelineCreateDTO } from '../dto/PipelineDTO';
 import { getLocalizedName, sortByLocalizedName } from '../utils/localizationUtils';
 
+interface ExtendedPipelineDTO extends PipelineDTO {
+  nominalDiameter?: number;
+  wallThickness?: number;
+  outsideDiameter?: number;
+  minimumYieldStrength?: number;
+  ultimateTensileStrength?: number;
+  elongation?: number;
+  manufacturingStandard?: string;
+  coatingType?: string;
+  cathodicProtection?: string;
+  flowRate?: number;
+  flowVelocity?: number;
+  temperature?: number;
+  viscosity?: number;
+}
+
 const PipelineEdit = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -42,15 +59,28 @@ const PipelineEdit = () => {
   // Get current language
   const currentLanguage = i18n.language || 'en';
 
-  // Form state
-  const [pipeline, setPipeline] = useState<Partial<PipelineDTO>>({
+  // Form state with all fields
+  const [pipeline, setPipeline] = useState<Partial<ExtendedPipelineDTO>>({
     name: '',
     code: '',
     description: '',
     length: undefined,
     diameter: undefined,
+    nominalDiameter: undefined,
+    wallThickness: undefined,
+    outsideDiameter: undefined,
     maximumOperatingPressure: undefined,
     designPressure: undefined,
+    minimumYieldStrength: undefined,
+    ultimateTensileStrength: undefined,
+    elongation: undefined,
+    manufacturingStandard: '',
+    coatingType: '',
+    cathodicProtection: '',
+    flowRate: undefined,
+    flowVelocity: undefined,
+    temperature: undefined,
+    viscosity: undefined,
     installationDate: undefined,
     commissioningDate: undefined,
     decommissioningDate: undefined,
@@ -99,7 +129,7 @@ const PipelineEdit = () => {
       setLoading(true);
       
       // Load pipeline first if editing
-      let pipelineData: PipelineDTO | null = null;
+      let pipelineData: any = null;
       if (isEditMode) {
         pipelineData = await pipelineService.getById(Number(pipelineId));
       }
@@ -206,7 +236,7 @@ const PipelineEdit = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleChange = (field: keyof PipelineDTO) => (e: any) => {
+  const handleChange = (field: keyof ExtendedPipelineDTO) => (e: any) => {
     const value = e.target.value;
     setPipeline({ ...pipeline, [field]: value });
     
@@ -227,14 +257,27 @@ const PipelineEdit = () => {
       setSaving(true);
       setError('');
 
-      const pipelineData: PipelineCreateDTO = {
+      const pipelineData: any = {
         name: pipeline.name!,
         code: pipeline.code!,
         description: pipeline.description,
         length: pipeline.length ? Number(pipeline.length) : undefined,
         diameter: pipeline.diameter ? Number(pipeline.diameter) : undefined,
+        nominalDiameter: pipeline.nominalDiameter ? Number(pipeline.nominalDiameter) : undefined,
+        wallThickness: pipeline.wallThickness ? Number(pipeline.wallThickness) : undefined,
+        outsideDiameter: pipeline.outsideDiameter ? Number(pipeline.outsideDiameter) : undefined,
         maximumOperatingPressure: pipeline.maximumOperatingPressure ? Number(pipeline.maximumOperatingPressure) : undefined,
         designPressure: pipeline.designPressure ? Number(pipeline.designPressure) : undefined,
+        minimumYieldStrength: pipeline.minimumYieldStrength ? Number(pipeline.minimumYieldStrength) : undefined,
+        ultimateTensileStrength: pipeline.ultimateTensileStrength ? Number(pipeline.ultimateTensileStrength) : undefined,
+        elongation: pipeline.elongation ? Number(pipeline.elongation) : undefined,
+        manufacturingStandard: pipeline.manufacturingStandard || undefined,
+        coatingType: pipeline.coatingType || undefined,
+        cathodicProtection: pipeline.cathodicProtection || undefined,
+        flowRate: pipeline.flowRate ? Number(pipeline.flowRate) : undefined,
+        flowVelocity: pipeline.flowVelocity ? Number(pipeline.flowVelocity) : undefined,
+        temperature: pipeline.temperature ? Number(pipeline.temperature) : undefined,
+        viscosity: pipeline.viscosity ? Number(pipeline.viscosity) : undefined,
         installationDate: pipeline.installationDate,
         commissioningDate: pipeline.commissioningDate,
         decommissioningDate: pipeline.decommissioningDate,
@@ -349,19 +392,52 @@ const PipelineEdit = () => {
             </Box>
           </Paper>
 
-          {/* Technical Specifications */}
+          {/* Dimensional Specifications */}
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Technical Specifications
+                Dimensional Specifications
               </Typography>
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Nominal Diameter (inches)"
+                    type="number"
+                    value={pipeline.nominalDiameter || ''}
+                    onChange={handleChange('nominalDiameter')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Outside Diameter (inches)"
+                    type="number"
+                    value={pipeline.outsideDiameter || ''}
+                    onChange={handleChange('outsideDiameter')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Wall Thickness (mm)"
+                    type="number"
+                    value={pipeline.wallThickness || ''}
+                    onChange={handleChange('wallThickness')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Diameter (inches)"
+                    label="Diameter (inches) - Legacy"
                     type="number"
                     value={pipeline.diameter || ''}
                     onChange={handleChange('diameter')}
@@ -379,7 +455,19 @@ const PipelineEdit = () => {
                     inputProps={{ step: 0.01, min: 0 }}
                   />
                 </Grid>
+              </Grid>
+            </Box>
+          </Paper>
 
+          {/* Pressure Specifications */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Pressure Specifications
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
@@ -394,19 +482,31 @@ const PipelineEdit = () => {
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
-                    label="Max Operating Pressure (bar)"
+                    label="Maximum Operating Pressure (bar)"
                     type="number"
                     value={pipeline.maximumOperatingPressure || ''}
                     onChange={handleChange('maximumOperatingPressure')}
                     inputProps={{ step: 0.1, min: 0 }}
                   />
                 </Grid>
+              </Grid>
+            </Box>
+          </Paper>
 
+          {/* Material Properties */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Material Properties
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
                     select
-                    label="Alloy (Optional)"
+                    label="Alloy"
                     value={pipeline.alloyId || ''}
                     onChange={handleChange('alloyId')}
                   >
@@ -422,8 +522,95 @@ const PipelineEdit = () => {
                 <Grid item xs={12} md={6}>
                   <TextField
                     fullWidth
+                    label="Manufacturing Standard"
+                    value={pipeline.manufacturingStandard || ''}
+                    onChange={handleChange('manufacturingStandard')}
+                    placeholder="e.g., API 5L, ASTM A106"
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Minimum Yield Strength (MPa)"
+                    type="number"
+                    value={pipeline.minimumYieldStrength || ''}
+                    onChange={handleChange('minimumYieldStrength')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Ultimate Tensile Strength (MPa)"
+                    type="number"
+                    value={pipeline.ultimateTensileStrength || ''}
+                    onChange={handleChange('ultimateTensileStrength')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Elongation (%)"
+                    type="number"
+                    value={pipeline.elongation || ''}
+                    onChange={handleChange('elongation')}
+                    inputProps={{ step: 0.1, min: 0, max: 100 }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Protection & Coating */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Protection & Coating
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Coating Type"
+                    value={pipeline.coatingType || ''}
+                    onChange={handleChange('coatingType')}
+                    placeholder="e.g., FBE, 3LPE, 3LPP"
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Cathodic Protection"
+                    value={pipeline.cathodicProtection || ''}
+                    onChange={handleChange('cathodicProtection')}
+                    placeholder="e.g., Impressed Current, Sacrificial Anode"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+
+          {/* Flow Characteristics */}
+          <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
+            <Box sx={{ p: 2.5 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                Flow Characteristics
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
                     select
-                    label="Product (Optional)"
+                    label="Product"
                     value={pipeline.productId || ''}
                     onChange={handleChange('productId')}
                   >
@@ -434,6 +621,50 @@ const PipelineEdit = () => {
                       </MenuItem>
                     ))}
                   </TextField>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Temperature (°C)"
+                    type="number"
+                    value={pipeline.temperature || ''}
+                    onChange={handleChange('temperature')}
+                    inputProps={{ step: 0.1 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Flow Rate (m³/h)"
+                    type="number"
+                    value={pipeline.flowRate || ''}
+                    onChange={handleChange('flowRate')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Flow Velocity (m/s)"
+                    type="number"
+                    value={pipeline.flowVelocity || ''}
+                    onChange={handleChange('flowVelocity')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Viscosity (cP)"
+                    type="number"
+                    value={pipeline.viscosity || ''}
+                    onChange={handleChange('viscosity')}
+                    inputProps={{ step: 0.1, min: 0 }}
+                  />
                 </Grid>
               </Grid>
             </Box>
@@ -498,7 +729,7 @@ const PipelineEdit = () => {
                   <TextField
                     fullWidth
                     select
-                    label="Pipeline System (Optional)"
+                    label="Pipeline System"
                     value={pipeline.pipelineSystemId || ''}
                     onChange={handleChange('pipelineSystemId')}
                   >
