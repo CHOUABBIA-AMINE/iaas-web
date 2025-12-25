@@ -1,13 +1,14 @@
 /**
  * Map View Component
  * Main map container with Leaflet integration
- * Now with offline map tile support
+ * Now with manual offline/online tile mode toggle
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
  * @updated 12-25-2025
  */
 
+import { useState } from 'react';
 import { MapContainer } from 'react-leaflet';
 import { Box, CircularProgress, Alert, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ import { HydrocarbonFieldMarkers } from './HydrocarbonFieldMarkers';
 import { MapControls } from './MapControls';
 import { OfflineTileLayer } from './OfflineTileLayer';
 import { OfflineIndicator } from './OfflineIndicator';
+import { TileModeToggle } from './TileModeToggle';
 import { calculateCenter, toLatLng } from '../utils';
 import 'leaflet/dist/leaflet.css';
 
@@ -25,6 +27,25 @@ export const MapView: React.FC = () => {
   const { t } = useTranslation();
   const { data, loading, error } = useMapData();
   const { filters, toggleFilter } = useMapFilters();
+  
+  // State for tile mode control
+  const [useOfflineMode, setUseOfflineMode] = useState(false);
+  const [offlineTilesAvailable, setOfflineTilesAvailable] = useState(false);
+  const [isNetworkOnline, setIsNetworkOnline] = useState(navigator.onLine);
+
+  // Monitor network status
+  useState(() => {
+    const handleOnline = () => setIsNetworkOnline(true);
+    const handleOffline = () => setIsNetworkOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  });
 
   if (loading) {
     return (
@@ -106,14 +127,15 @@ export const MapView: React.FC = () => {
         maxZoom={10}
         minZoom={6}
       >
-        {/* Offline-capable tile layer */}
+        {/* Offline-capable tile layer with manual control */}
         <OfflineTileLayer
           offlineUrl="/tiles/algeria/{z}/{x}/{y}.png"
           onlineUrl="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           maxZoom={10}
           minZoom={6}
-          autoOffline={true}
+          forceOffline={useOfflineMode}
+          onOfflineAvailabilityChange={setOfflineTilesAvailable}
         />
 
         {/* Infrastructure markers */}
@@ -130,6 +152,14 @@ export const MapView: React.FC = () => {
 
       {/* Map controls */}
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
+      
+      {/* Tile mode toggle */}
+      <TileModeToggle
+        useOfflineMode={useOfflineMode}
+        onModeChange={setUseOfflineMode}
+        offlineTilesAvailable={offlineTilesAvailable}
+        isNetworkOnline={isNetworkOnline}
+      />
       
       {/* Offline indicator */}
       <OfflineIndicator />
