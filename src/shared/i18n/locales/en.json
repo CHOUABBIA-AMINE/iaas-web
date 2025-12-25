@@ -138,7 +138,20 @@
     "offlineMode": "Offline Mode",
     "onlineMode": "Online Mode",
     "tilesLoading": "Loading map tiles...",
-    "usingCachedTiles": "Using cached tiles"
+    "usingCachedTiles": "Using cached tiles",
+    "network": {
+      "offline": "Network Offline",
+      "online": "Network Online"
+    },
+    "tiles": {
+      "online": "Online",
+      "offline": "Offline",
+      "notAvailable": "Offline tiles not available",
+      "offlineOnly": "Network is offline - using local tiles",
+      "offlineNotAvailable": "Offline tiles are not available",
+      "switchToOnline": "Switch to online map tiles",
+      "switchToOffline": "Switch to offline map tiles"
+    }
   },
   "user": {
     "title": "Users",
