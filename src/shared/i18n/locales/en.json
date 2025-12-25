@@ -134,7 +134,11 @@
     "description": "Description",
     "units": "units",
     "meters": "m",
-    "cubicMeters": "m³"
+    "cubicMeters": "m³",
+    "offlineMode": "Offline Mode",
+    "onlineMode": "Online Mode",
+    "tilesLoading": "Loading map tiles...",
+    "usingCachedTiles": "Using cached tiles"
   },
   "user": {
     "title": "Users",
