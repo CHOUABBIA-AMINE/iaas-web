@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-24-2025
+ * @updated 12-25-2025
  */
 
 import { useState } from 'react';
@@ -21,8 +21,8 @@ import {
   Fade
 } from '@mui/material';
 import LayersIcon from '@mui/icons-material/Layers';
-import { MapFilters } from '../types';
 import { useTranslation } from 'react-i18next';
+import { MapFilters } from '../types';
 
 interface MapControlsProps {
   filters: MapFilters;
@@ -60,7 +60,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
             bgcolor: 'white'
           }}
         >
-          <Tooltip title="Map Layers" placement="left">
+          <Tooltip title={t('map.layers')} placement="left">
             <IconButton size="small" sx={{ color: 'primary.main' }}>
               <LayersIcon />
             </IconButton>
@@ -89,7 +89,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
               mb: 1.5
             }}
           >
-            Map Layers
+            {t('map.layers')}
           </Typography>
           <Divider sx={{ mb: 1.5 }} />
           
@@ -117,7 +117,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Stations
+                    {t('map.showStations')}
                   </Typography>
                 </Box>
               }
@@ -147,7 +147,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Terminals
+                    {t('map.showTerminals')}
                   </Typography>
                 </Box>
               }
@@ -177,7 +177,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Hydrocarbon Fields
+                    {t('map.showHydrocarbonFields')}
                   </Typography>
                 </Box>
               }
@@ -206,7 +206,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                     }}
                   />
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Pipelines
+                    {t('map.showPipelines')}
                   </Typography>
                 </Box>
               }
@@ -217,7 +217,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
           {/* Legend Footer */}
           <Box sx={{ mt: 2, pt: 1.5, borderTop: '1px solid', borderColor: 'divider' }}>
             <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-              Hover to expand • Click to toggle layers
+              {t('map.hoverToExpand')} • {t('map.clickToToggle')}
             </Typography>
           </Box>
         </Paper>

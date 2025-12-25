@@ -4,12 +4,12 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-24-2025
+ * @updated 12-25-2025
  */
 
 import { Box, Container, Typography, Paper } from '@mui/material';
-import { MapView } from '../components';
 import { useTranslation } from 'react-i18next';
+import { MapView } from '../components';
 
 export const NetworkMapPage: React.FC = () => {
   const { t } = useTranslation();
@@ -19,10 +19,10 @@ export const NetworkMapPage: React.FC = () => {
       <Paper sx={{ p: 3 }}>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h4" gutterBottom>
-            Infrastructure Map
+            {t('map.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Interactive map showing stations, terminals, hydrocarbon fields, and pipelines
+            {t('map.description')}
           </Typography>
         </Box>
 

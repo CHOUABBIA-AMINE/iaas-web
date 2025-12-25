@@ -4,11 +4,12 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-24-2025
+ * @updated 12-25-2025
  */
 
 import { MapContainer, TileLayer } from 'react-leaflet';
-import { Box, CircularProgress, Alert } from '@mui/material';
+import { Box, CircularProgress, Alert, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useMapData, useMapFilters } from '../hooks';
 import { StationMarkers } from './StationMarkers';
 import { TerminalMarkers } from './TerminalMarkers';
@@ -18,27 +19,27 @@ import { calculateCenter, toLatLng } from '../utils';
 import 'leaflet/dist/leaflet.css';
 
 export const MapView: React.FC = () => {
+  const { t } = useTranslation();
   const { data, loading, error } = useMapData();
   const { filters, toggleFilter } = useMapFilters();
-
-  // Debug logging
-  console.log('MapView - Loading:', loading);
-  console.log('MapView - Error:', error);
-  console.log('MapView - Data:', data);
-  console.log('MapView - Filters:', filters);
 
   if (loading) {
     return (
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
           height: '100%',
-          minHeight: '500px'
+          minHeight: '500px',
+          gap: 2
         }}
       >
-        <CircularProgress />
+        <CircularProgress size={60} />
+        <Typography variant="body1" color="text.secondary">
+          {t('map.loading')}
+        </Typography>
       </Box>
     );
   }
@@ -47,7 +48,12 @@ export const MapView: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error">
-          Failed to load map data: {error.message}
+          <Typography variant="h6" gutterBottom>
+            {t('map.error')}
+          </Typography>
+          <Typography variant="body2">
+            {error.message}
+          </Typography>
         </Alert>
       </Box>
     );
@@ -57,7 +63,7 @@ export const MapView: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="warning">
-          No data available
+          {t('map.noData')}
         </Alert>
       </Box>
     );
@@ -67,16 +73,12 @@ export const MapView: React.FC = () => {
   const hasStations = data.stations && data.stations.length > 0;
   const hasTerminals = data.terminals && data.terminals.length > 0;
   const hasFields = data.hydrocarbonFields && data.hydrocarbonFields.length > 0;
-  
-  console.log('Has Stations:', hasStations, 'Count:', data.stations?.length || 0);
-  console.log('Has Terminals:', hasTerminals, 'Count:', data.terminals?.length || 0);
-  console.log('Has Fields:', hasFields, 'Count:', data.hydrocarbonFields?.length || 0);
 
   if (!hasStations && !hasTerminals && !hasFields) {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="info">
-          No infrastructure data found. Please add stations, terminals, or hydrocarbon fields with valid coordinates.
+          {t('map.noData')}
         </Alert>
       </Box>
     );
@@ -89,10 +91,7 @@ export const MapView: React.FC = () => {
     ...(data.hydrocarbonFields || []).filter(f => f.latitude && f.longitude).map(toLatLng)
   ];
   
-  console.log('Total coordinates:', allCoordinates.length);
-  
   const center = calculateCenter(allCoordinates);
-  console.log('Map center:', center);
 
   return (
     <Box sx={{ position: 'relative', height: '100%', minHeight: '600px' }}>
@@ -119,24 +118,6 @@ export const MapView: React.FC = () => {
       </MapContainer>
 
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
-      
-      {/* Debug info */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 10,
-          left: 10,
-          zIndex: 1000,
-          bgcolor: 'rgba(255, 255, 255, 0.9)',
-          p: 1,
-          borderRadius: 1,
-          fontSize: '0.75rem'
-        }}
-      >
-        Stations: {data.stations?.length || 0} | 
-        Terminals: {data.terminals?.length || 0} | 
-        Fields: {data.hydrocarbonFields?.length || 0}
-      </Box>
     </Box>
   );
 };

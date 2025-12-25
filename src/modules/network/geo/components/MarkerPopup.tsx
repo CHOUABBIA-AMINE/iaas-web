@@ -4,10 +4,11 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-24-2025
+ * @updated 12-25-2025
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StationDTO, TerminalDTO, HydrocarbonFieldDTO } from '../../core/dto';
 
 interface MarkerPopupProps {
@@ -35,30 +36,25 @@ const formatCoordinates = (lat: number, lng: number) => {
 };
 
 export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
-  // Debug logging
-  console.log('MarkerPopup - Type:', type);
-  console.log('MarkerPopup - Data:', data);
-  console.log('MarkerPopup - Has stationType?', 'stationType' in data, (data as any).stationType);
-  console.log('MarkerPopup - Has terminalType?', 'terminalType' in data, (data as any).terminalType);
-  console.log('MarkerPopup - Has fieldType?', 'fieldType' in data, (data as any).fieldType);
+  const { t } = useTranslation();
 
   const getTypeConfig = () => {
     switch (type) {
       case 'station':
         return {
-          label: '🏭 Station',
+          label: `🏭 ${t('map.station')}`,
           color: '#1976d2',
           bgColor: '#e3f2fd'
         };
       case 'terminal':
         return {
-          label: '🚢 Terminal',
+          label: `🚢 ${t('map.terminal')}`,
           color: '#9c27b0',
           bgColor: '#f3e5f5'
         };
       case 'hydrocarbonField':
         return {
-          label: '🛢️ Hydrocarbon Field',
+          label: `🛢️ ${t('map.hydrocarbonField')}`,
           color: '#2e7d32',
           bgColor: '#e8f5e9'
         };
@@ -72,39 +68,19 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
 
   // Get the specific type name
   const getTypeName = () => {
-    if (stationData?.stationType?.name) {
-      console.log('Found station type:', stationData.stationType.name);
-      return stationData.stationType.name;
-    }
-    if (terminalData?.terminalType?.name) {
-      console.log('Found terminal type:', terminalData.terminalType.name);
-      return terminalData.terminalType.name;
-    }
-    if (fieldData?.fieldType?.name) {
-      console.log('Found field type:', fieldData.fieldType.name);
-      return fieldData.fieldType.name;
-    }
+    if (stationData?.stationType?.name) return stationData.stationType.name;
+    if (terminalData?.terminalType?.name) return terminalData.terminalType.name;
+    if (fieldData?.fieldType?.name) return fieldData.fieldType.name;
     
     // Fallback to legacy string fields
-    if ((data as any).stationTypeName) {
-      console.log('Using legacy stationTypeName:', (data as any).stationTypeName);
-      return (data as any).stationTypeName;
-    }
-    if ((data as any).terminalTypeName) {
-      console.log('Using legacy terminalTypeName:', (data as any).terminalTypeName);
-      return (data as any).terminalTypeName;
-    }
-    if ((data as any).fieldTypeName) {
-      console.log('Using legacy fieldTypeName:', (data as any).fieldTypeName);
-      return (data as any).fieldTypeName;
-    }
+    if ((data as any).stationTypeName) return (data as any).stationTypeName;
+    if ((data as any).terminalTypeName) return (data as any).terminalTypeName;
+    if ((data as any).fieldTypeName) return (data as any).fieldTypeName;
     
-    console.log('No type name found');
     return null;
   };
 
   const typeName = getTypeName();
-  console.log('Final typeName:', typeName);
 
   return (
     <div style={{ 
@@ -182,19 +158,19 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
       <div style={{ marginBottom: '12px' }}>
         <InfoRow 
           icon="📍" 
-          label="Location" 
+          label={t('map.location')}
           value={data.placeName || 'N/A'} 
         />
         <InfoRow 
           icon="🌐" 
-          label="Coordinates" 
+          label={t('map.coordinates')}
           value={formatCoordinates(data.latitude, data.longitude)} 
         />
         {data.elevation != null && (
           <InfoRow 
             icon="⛰️" 
-            label="Elevation" 
-            value={`${data.elevation} m`} 
+            label={t('map.elevation')}
+            value={`${data.elevation} ${t('map.meters')}`}
           />
         )}
       </div>
@@ -210,14 +186,14 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
             {stationData.capacity != null && (
               <InfoRow 
                 icon="⚡" 
-                label="Capacity" 
-                value={`${stationData.capacity.toLocaleString()} units`} 
+                label={t('map.capacity')}
+                value={`${stationData.capacity.toLocaleString()} ${t('map.units')}`}
               />
             )}
             {stationData.commissioningDate && (
               <InfoRow 
                 icon="📅" 
-                label="Commissioned" 
+                label={t('map.commissioned')}
                 value={formatDate(stationData.commissioningDate)} 
               />
             )}
@@ -229,14 +205,14 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
             {terminalData.storageCapacity != null && (
               <InfoRow 
                 icon="📦" 
-                label="Storage" 
-                value={`${terminalData.storageCapacity.toLocaleString()} m³`} 
+                label={t('map.storage')}
+                value={`${terminalData.storageCapacity.toLocaleString()} ${t('map.cubicMeters')}`}
               />
             )}
             {terminalData.commissioningDate && (
               <InfoRow 
                 icon="📅" 
-                label="Commissioned" 
+                label={t('map.commissioned')}
                 value={formatDate(terminalData.commissioningDate)} 
               />
             )}
@@ -248,14 +224,14 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
             {fieldData.reserves != null && (
               <InfoRow 
                 icon="💎" 
-                label="Reserves" 
-                value={`${fieldData.reserves.toLocaleString()} units`} 
+                label={t('map.reserves')}
+                value={`${fieldData.reserves.toLocaleString()} ${t('map.units')}`}
               />
             )}
             {fieldData.discoveryDate && (
               <InfoRow 
                 icon="🔍" 
-                label="Discovered" 
+                label={t('map.discovered')}
                 value={formatDate(fieldData.discoveryDate)} 
               />
             )}
@@ -280,7 +256,7 @@ export const MarkerPopup: React.FC<MarkerPopupProps> = ({ data, type }) => {
         textAlign: 'center',
         fontStyle: 'italic'
       }}>
-        ✏️ Click marker to edit
+        ✏️ {t('map.clickToEdit')}
       </div>
     </div>
   );
@@ -309,10 +285,7 @@ const InfoRow: React.FC<{ icon: string; label: string; value: string }> = ({
 );
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  // Safety check for undefined or null status
-  if (!status) {
-    return null;
-  }
+  if (!status) return null;
 
   const getStatusColor = () => {
     const statusLower = status.toLowerCase();
