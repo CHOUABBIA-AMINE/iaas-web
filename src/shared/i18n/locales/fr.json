@@ -134,7 +134,20 @@
     "description": "Description",
     "units": "unités",
     "meters": "m",
-    "cubicMeters": "m³"
+    "cubicMeters": "m³",
+    "network": {
+      "offline": "Réseau hors ligne",
+      "online": "Réseau en ligne"
+    },
+    "tiles": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "notAvailable": "Tuiles hors ligne non disponibles",
+      "offlineOnly": "Réseau hors ligne - utilisation des tuiles locales",
+      "offlineNotAvailable": "Les tuiles hors ligne ne sont pas disponibles",
+      "switchToOnline": "Passer aux tuiles de carte en ligne",
+      "switchToOffline": "Passer aux tuiles de carte hors ligne"
+    }
   },
   "user": {
     "title": "Utilisateurs",

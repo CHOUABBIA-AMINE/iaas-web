@@ -134,7 +134,20 @@
     "description": "الوصف",
     "units": "وحدة",
     "meters": "م",
-    "cubicMeters": "م³"
+    "cubicMeters": "م³",
+    "network": {
+      "offline": "الشبكة غير متصلة",
+      "online": "الشبكة متصلة"
+    },
+    "tiles": {
+      "online": "متصل",
+      "offline": "غير متصل",
+      "notAvailable": "الخرائط المحلية غير متوفرة",
+      "offlineOnly": "الشبكة غير متصلة - استخدام الخرائط المحلية",
+      "offlineNotAvailable": "الخرائط المحلية غير متوفرة",
+      "switchToOnline": "التبديل إلى خرائط الإنترنت",
+      "switchToOffline": "التبديل إلى الخرائط المحلية"
+    }
   },
   "user": {
     "title": "المستخدمون",
