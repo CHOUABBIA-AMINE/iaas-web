@@ -14,3 +14,4 @@ export * from './TerminalMarkers';
 export * from './HydrocarbonFieldMarkers';
 export * from './OfflineTileLayer';
 export * from './OfflineIndicator';
+export * from './TileModeToggle';
