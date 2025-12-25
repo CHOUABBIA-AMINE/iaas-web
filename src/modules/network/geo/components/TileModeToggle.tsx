@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-25-2025
+ * @updated 12-25-2025
  */
 
 import { Box, Switch, FormControlLabel, Paper, Tooltip, Chip } from '@mui/material';
@@ -77,10 +78,6 @@ export const TileModeToggle: React.FC<TileModeToggleProps> = ({
     <Paper
       elevation={2}
       sx={{
-        position: 'absolute',
-        top: 80,
-        right: 10,
-        zIndex: 1000,
         p: 1.5,
         backgroundColor: 'background.paper',
         borderRadius: 1,
