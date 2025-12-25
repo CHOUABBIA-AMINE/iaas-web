@@ -1,6 +1,6 @@
 /**
  * Offline Tile Layer Component
- * Provides automatic fallback between online and offline map tiles
+ * Provides automatic and manual control for online/offline map tiles
  * 
  * @author CHOUABBIA Amine
  * @created 12-25-2025
@@ -21,13 +21,15 @@ interface OfflineTileLayerProps {
   maxZoom?: number;
   /** Minimum zoom level */
   minZoom?: number;
-  /** Automatically use offline tiles when available */
-  autoOffline?: boolean;
+  /** Manually force offline mode */
+  forceOffline?: boolean;
+  /** Callback when offline tiles availability changes */
+  onOfflineAvailabilityChange?: (available: boolean) => void;
 }
 
 /**
- * Tile layer that automatically switches between online and offline tiles
- * based on network connectivity and tile availability
+ * Tile layer that switches between online and offline tiles
+ * based on network connectivity, tile availability, and user preference
  */
 export const OfflineTileLayer: React.FC<OfflineTileLayerProps> = ({
   offlineUrl = '/tiles/algeria/{z}/{x}/{y}.png',
@@ -35,7 +37,8 @@ export const OfflineTileLayer: React.FC<OfflineTileLayerProps> = ({
   attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   maxZoom = 12,
   minZoom = 6,
-  autoOffline = true
+  forceOffline = false,
+  onOfflineAvailabilityChange
 }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [offlineTilesAvailable, setOfflineTilesAvailable] = useState(false);
@@ -68,43 +71,48 @@ export const OfflineTileLayer: React.FC<OfflineTileLayerProps> = ({
         if (response.ok) {
           console.log('Offline tiles: Available');
           setOfflineTilesAvailable(true);
+          onOfflineAvailabilityChange?.(true);
         } else {
           console.log('Offline tiles: Not available');
           setOfflineTilesAvailable(false);
+          onOfflineAvailabilityChange?.(false);
         }
       })
       .catch(() => {
         console.log('Offline tiles: Not found');
         setOfflineTilesAvailable(false);
+        onOfflineAvailabilityChange?.(false);
       });
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [offlineUrl]);
+  }, [offlineUrl, onOfflineAvailabilityChange]);
 
   useEffect(() => {
     // Determine which tiles to use
     if (!isOnline) {
       // Must use offline when network is down
       setUseOffline(true);
-    } else if (autoOffline && offlineTilesAvailable) {
-      // Use offline tiles when available (faster, no bandwidth)
+    } else if (forceOffline && offlineTilesAvailable) {
+      // User manually selected offline mode and tiles are available
       setUseOffline(true);
     } else {
       // Use online tiles
       setUseOffline(false);
     }
-  }, [isOnline, offlineTilesAvailable, autoOffline]);
+  }, [isOnline, offlineTilesAvailable, forceOffline]);
 
   const tileUrl = useOffline ? offlineUrl : onlineUrl;
 
   console.log('TileLayer mode:', useOffline ? 'OFFLINE' : 'ONLINE');
+  console.log('Force offline:', forceOffline);
   console.log('Tile URL:', tileUrl);
 
   return (
     <TileLayer
+      key={tileUrl} // Force re-render when URL changes
       attribution={attribution}
       url={tileUrl}
       maxZoom={maxZoom}
