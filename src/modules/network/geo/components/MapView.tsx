@@ -19,33 +19,23 @@ import { HydrocarbonFieldMarkers } from './HydrocarbonFieldMarkers';
 import { MapControls } from './MapControls';
 import { OfflineTileLayer } from './OfflineTileLayer';
 import { OfflineIndicator } from './OfflineIndicator';
-import { TileModeToggle } from './TileModeToggle';
 import { calculateCenter, toLatLng } from '../utils';
 import 'leaflet/dist/leaflet.css';
 
-export const MapView: React.FC = () => {
+interface MapViewProps {
+  /** Force offline tile mode */
+  forceOffline?: boolean;
+  /** Callback when offline tiles availability changes */
+  onOfflineAvailabilityChange?: (available: boolean) => void;
+}
+
+export const MapView: React.FC<MapViewProps> = ({ 
+  forceOffline = false,
+  onOfflineAvailabilityChange 
+}) => {
   const { t } = useTranslation();
   const { data, loading, error } = useMapData();
   const { filters, toggleFilter } = useMapFilters();
-  
-  // State for tile mode control
-  const [useOfflineMode, setUseOfflineMode] = useState(false);
-  const [offlineTilesAvailable, setOfflineTilesAvailable] = useState(false);
-  const [isNetworkOnline, setIsNetworkOnline] = useState(navigator.onLine);
-
-  // Monitor network status
-  useState(() => {
-    const handleOnline = () => setIsNetworkOnline(true);
-    const handleOffline = () => setIsNetworkOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  });
 
   if (loading) {
     return (
@@ -134,8 +124,8 @@ export const MapView: React.FC = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           maxZoom={10}
           minZoom={6}
-          forceOffline={useOfflineMode}
-          onOfflineAvailabilityChange={setOfflineTilesAvailable}
+          forceOffline={forceOffline}
+          onOfflineAvailabilityChange={onOfflineAvailabilityChange}
         />
 
         {/* Infrastructure markers */}
@@ -152,14 +142,6 @@ export const MapView: React.FC = () => {
 
       {/* Map controls */}
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
-      
-      {/* Tile mode toggle */}
-      <TileModeToggle
-        useOfflineMode={useOfflineMode}
-        onModeChange={setUseOfflineMode}
-        offlineTilesAvailable={offlineTilesAvailable}
-        isNetworkOnline={isNetworkOnline}
-      />
       
       {/* Offline indicator */}
       <OfflineIndicator />
