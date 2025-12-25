@@ -1,13 +1,14 @@
 /**
  * Map View Component
  * Main map container with Leaflet integration
+ * Now with offline map tile support
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
  * @updated 12-25-2025
  */
 
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer } from 'react-leaflet';
 import { Box, CircularProgress, Alert, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useMapData, useMapFilters } from '../hooks';
@@ -15,6 +16,8 @@ import { StationMarkers } from './StationMarkers';
 import { TerminalMarkers } from './TerminalMarkers';
 import { HydrocarbonFieldMarkers } from './HydrocarbonFieldMarkers';
 import { MapControls } from './MapControls';
+import { OfflineTileLayer } from './OfflineTileLayer';
+import { OfflineIndicator } from './OfflineIndicator';
 import { calculateCenter, toLatLng } from '../utils';
 import 'leaflet/dist/leaflet.css';
 
@@ -100,12 +103,20 @@ export const MapView: React.FC = () => {
         zoom={6}
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={true}
+        maxZoom={10}
+        minZoom={6}
       >
-        <TileLayer
+        {/* Offline-capable tile layer */}
+        <OfflineTileLayer
+          offlineUrl="/tiles/algeria/{z}/{x}/{y}.png"
+          onlineUrl="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={10}
+          minZoom={6}
+          autoOffline={true}
         />
 
+        {/* Infrastructure markers */}
         {filters.showStations && hasStations && (
           <StationMarkers stations={data.stations} />
         )}
@@ -117,7 +128,11 @@ export const MapView: React.FC = () => {
         )}
       </MapContainer>
 
+      {/* Map controls */}
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
+      
+      {/* Offline indicator */}
+      <OfflineIndicator />
     </Box>
   );
 };
