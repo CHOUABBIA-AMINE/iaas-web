@@ -11,7 +11,7 @@ import axiosInstance from '../../../../shared/config/axios';
 import { HydrocarbonFieldTypeDTO } from '../dto';
 
 class HydrocarbonFieldTypeService {
-  private readonly BASE_URL = '/network/type/hydrocarbon-field';
+  private readonly BASE_URL = '/network/type/hydrocarbonField';
 
   /**
    * Get all hydrocarbon field types (non-paginated)
