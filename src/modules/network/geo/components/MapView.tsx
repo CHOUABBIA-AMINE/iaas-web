@@ -1,11 +1,11 @@
 /**
  * Map View Component
  * Main map container with Leaflet integration
- * Now with manual offline/online tile mode toggle
+ * Now with custom SVG markers and legend
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-25-2025
+ * @updated 12-26-2025
  */
 
 import { useState } from 'react';
@@ -17,6 +17,7 @@ import { StationMarkers } from './StationMarkers';
 import { TerminalMarkers } from './TerminalMarkers';
 import { HydrocarbonFieldMarkers } from './HydrocarbonFieldMarkers';
 import { MapControls } from './MapControls';
+import { MapLegend } from './MapLegend';
 import { OfflineTileLayer } from './OfflineTileLayer';
 import { OfflineIndicator } from './OfflineIndicator';
 import { calculateCenter, toLatLng } from '../utils';
@@ -128,7 +129,7 @@ export const MapView: React.FC<MapViewProps> = ({
           onOfflineAvailabilityChange={onOfflineAvailabilityChange}
         />
 
-        {/* Infrastructure markers */}
+        {/* Infrastructure markers with custom SVG icons */}
         {filters.showStations && hasStations && (
           <StationMarkers stations={data.stations} />
         )}
@@ -142,6 +143,9 @@ export const MapView: React.FC<MapViewProps> = ({
 
       {/* Map controls */}
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
+      
+      {/* Map legend */}
+      <MapLegend />
       
       {/* Offline indicator */}
       <OfflineIndicator />
