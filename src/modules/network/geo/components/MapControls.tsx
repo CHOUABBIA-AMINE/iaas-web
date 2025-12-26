@@ -255,7 +255,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
               cursor: 'pointer'
             }}
           >
-            <Tooltip title="Legend" placement="left">
+            <Tooltip title={t('map.legend')} placement="left">
               <IconButton size="small" sx={{ color: 'info.main' }}>
                 <InfoIcon />
               </IconButton>
@@ -284,7 +284,7 @@ export const MapControls: React.FC<MapControlsProps> = ({ filters, onToggleFilte
                   color: 'info.main'
                 }}
               >
-                Legend
+                {t('map.legend')}
               </Typography>
             </Box>
             <Divider sx={{ mb: 1.5 }} />
