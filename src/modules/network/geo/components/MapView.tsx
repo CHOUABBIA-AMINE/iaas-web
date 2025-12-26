@@ -1,7 +1,7 @@
 /**
  * Map View Component
  * Main map container with Leaflet integration
- * Now with custom SVG markers and legend
+ * Legend now integrated in MapControls hover panel
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
@@ -17,7 +17,6 @@ import { StationMarkers } from './StationMarkers';
 import { TerminalMarkers } from './TerminalMarkers';
 import { HydrocarbonFieldMarkers } from './HydrocarbonFieldMarkers';
 import { MapControls } from './MapControls';
-import { MapLegend } from './MapLegend';
 import { OfflineTileLayer } from './OfflineTileLayer';
 import { OfflineIndicator } from './OfflineIndicator';
 import { calculateCenter, toLatLng } from '../utils';
@@ -141,11 +140,8 @@ export const MapView: React.FC<MapViewProps> = ({
         )}
       </MapContainer>
 
-      {/* Map controls */}
+      {/* Map controls with integrated legend */}
       <MapControls filters={filters} onToggleFilter={toggleFilter} />
-      
-      {/* Map legend */}
-      <MapLegend />
       
       {/* Offline indicator */}
       <OfflineIndicator />
