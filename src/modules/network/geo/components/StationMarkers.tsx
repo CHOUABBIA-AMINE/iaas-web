@@ -1,10 +1,11 @@
 /**
  * Station Markers Component
- * Renders station markers on the map with hover popups and click-to-edit
+ * Renders station markers on the map with custom SVG icons
+ * Icons change color based on operational status
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
- * @updated 12-24-2025
+ * @updated 12-26-2025
  */
 
 import { useRef } from 'react';
@@ -12,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { Marker, Popup } from 'react-leaflet';
 import { Marker as LeafletMarker } from 'leaflet';
 import { StationDTO } from '../../core/dto';
-import { icons, toLatLng } from '../utils';
+import { getIconByStatus, toLatLng } from '../utils';
 import { MarkerPopup } from './MarkerPopup';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -28,11 +29,14 @@ export const StationMarkers: React.FC<StationMarkersProps> = ({ stations }) => {
       {stations.map((station) => {
         const markerRef = useRef<LeafletMarker>(null);
         
+        // Get icon based on operational status
+        const icon = getIconByStatus('station', station.operationalStatus?.code);
+        
         return (
           <Marker
             key={`station-${station.id}`}
             position={toLatLng(station)}
-            icon={icons.station}
+            icon={icon}
             ref={markerRef}
             eventHandlers={{
               mouseover: () => {
