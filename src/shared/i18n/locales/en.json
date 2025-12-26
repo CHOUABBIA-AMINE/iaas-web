@@ -135,10 +135,6 @@
     "units": "units",
     "meters": "m",
     "cubicMeters": "m³",
-    "offlineMode": "Offline Mode",
-    "onlineMode": "Online Mode",
-    "tilesLoading": "Loading map tiles...",
-    "usingCachedTiles": "Using cached tiles",
     "network": {
       "offline": "Network Offline",
       "online": "Network Online"
@@ -151,6 +147,20 @@
       "offlineNotAvailable": "Offline tiles are not available",
       "switchToOnline": "Switch to online map tiles",
       "switchToOffline": "Switch to offline map tiles"
+    },
+    "legend": {
+      "title": "Map Legend",
+      "infrastructureTypes": "Infrastructure Types",
+      "station": "Stations",
+      "terminal": "Terminals",
+      "hydrocarbonField": "Hydrocarbon Fields",
+      "pipeline": "Pipelines",
+      "status": "Operational Status",
+      "statusOperational": "Operational",
+      "statusMaintenance": "Maintenance",
+      "statusOffline": "Offline",
+      "statusUnknown": "Unknown",
+      "hint": "Hover to view details, click to edit"
     }
   },
   "user": {
