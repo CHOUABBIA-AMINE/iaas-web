@@ -36,7 +36,38 @@ export const infrastructureColors = {
 };
 
 /**
- * Create custom colored marker icon
+ * Create custom colored marker icon with emoji
+ */
+export const createCustomIcon = (color: string, emoji: string): L.DivIcon => {
+  return L.divIcon({
+    className: 'custom-marker-icon',
+    html: `
+      <div style="
+        background-color: ${color};
+        width: 30px;
+        height: 30px;
+        border-radius: 50% 50% 50% 0;
+        border: 3px solid white;
+        transform: rotate(-45deg);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <div style="
+          transform: rotate(45deg);
+          font-size: 16px;
+        ">${emoji}</div>
+      </div>
+    `,
+    iconSize: [30, 41],
+    iconAnchor: [15, 41],
+    popupAnchor: [1, -34]
+  });
+};
+
+/**
+ * Create custom colored marker icon (simple version without emoji)
  */
 export const createColoredIcon = (color: string): L.DivIcon => {
   return L.divIcon({
@@ -70,11 +101,54 @@ export const createColoredIcon = (color: string): L.DivIcon => {
 };
 
 /**
- * Predefined icons for different infrastructure types
+ * Get infrastructure type emoji
+ */
+const getInfrastructureEmoji = (type: string): string => {
+  const emojis: Record<string, string> = {
+    station: '🏭',
+    terminal: '🏢',
+    hydrocarbonField: '⛽',
+    field: '⛽'
+  };
+  return emojis[type] || '📍';
+};
+
+/**
+ * Get icon color based on operational status
+ */
+const getStatusColor = (statusCode?: string): string => {
+  if (!statusCode) return infrastructureColors.unknown;
+  
+  const code = statusCode.toLowerCase();
+  
+  if (code.includes('operational') || code.includes('active')) {
+    return infrastructureColors.operational;
+  }
+  if (code.includes('maintenance') || code.includes('under_maintenance')) {
+    return infrastructureColors.maintenance;
+  }
+  if (code.includes('offline') || code.includes('inactive') || code.includes('decommissioned')) {
+    return infrastructureColors.offline;
+  }
+  
+  return infrastructureColors.unknown;
+};
+
+/**
+ * Get icon by infrastructure type and operational status
+ */
+export const getIconByStatus = (type: string, statusCode?: string): L.DivIcon => {
+  const emoji = getInfrastructureEmoji(type);
+  const color = getStatusColor(statusCode);
+  return createCustomIcon(color, emoji);
+};
+
+/**
+ * Predefined icons for different infrastructure types (using base colors)
  */
 export const icons = {
-  station: createColoredIcon(infrastructureColors.station),
-  terminal: createColoredIcon(infrastructureColors.terminal),
-  hydrocarbonField: createColoredIcon(infrastructureColors.hydrocarbonField),
+  station: createCustomIcon(infrastructureColors.station, '🏭'),
+  terminal: createCustomIcon(infrastructureColors.terminal, '🏢'),
+  hydrocarbonField: createCustomIcon(infrastructureColors.hydrocarbonField, '⛽'),
   pipeline: infrastructureColors.pipeline // Color for polylines
 };
