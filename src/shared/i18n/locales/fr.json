@@ -28,7 +28,8 @@
     "exportPDF": "Exporter en PDF",
     "filters": "Filtres",
     "clearFilters": "Effacer les filtres",
-    "results": "résultats"
+    "results": "résultats",
+    "legend": "Légende"
   },
   "auth": {
     "login": "Connexion",
@@ -105,6 +106,7 @@
     "title": "Carte des infrastructures",
     "description": "Carte interactive affichant les stations, terminaux, champs d'hydrocarbures et pipelines",
     "layers": "Couches de la carte",
+    "legend": "Légende",
     "hoverToExpand": "Survoler pour développer",
     "clickToToggle": "Cliquer pour activer/désactiver les couches",
     "showStations": "Stations",

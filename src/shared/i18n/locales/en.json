@@ -28,7 +28,8 @@
     "exportPDF": "Export as PDF",
     "filters": "Filters",
     "clearFilters": "Clear Filters",
-    "results": "results"
+    "results": "results",
+    "legend": "Legend"
   },
   "auth": {
     "login": "Login",
@@ -105,6 +106,7 @@
     "title": "Infrastructure Map",
     "description": "Interactive map showing stations, terminals, hydrocarbon fields, and pipelines",
     "layers": "Map Layers",
+    "legend": "Legend",
     "hoverToExpand": "Hover to expand",
     "clickToToggle": "Click to toggle layers",
     "showStations": "Stations",
@@ -147,20 +149,6 @@
       "offlineNotAvailable": "Offline tiles are not available",
       "switchToOnline": "Switch to online map tiles",
       "switchToOffline": "Switch to offline map tiles"
-    },
-    "legend": {
-      "title": "Map Legend",
-      "infrastructureTypes": "Infrastructure Types",
-      "station": "Stations",
-      "terminal": "Terminals",
-      "hydrocarbonField": "Hydrocarbon Fields",
-      "pipeline": "Pipelines",
-      "status": "Operational Status",
-      "statusOperational": "Operational",
-      "statusMaintenance": "Maintenance",
-      "statusOffline": "Offline",
-      "statusUnknown": "Unknown",
-      "hint": "Hover to view details, click to edit"
     }
   },
   "user": {
