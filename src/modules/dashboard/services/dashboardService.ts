@@ -1,52 +1,76 @@
 /**
  * Dashboard Service
+ * API service for dashboard data operations
  * 
- * API service for dashboard data fetching
+ * @author CHOUABBIA Amine
+ * @created 12-27-2025
  */
 
-import axiosInstance from '../../../config/axios';
-import { DashboardSummary, PipelineStatus, DailyTrend } from '../types/dashboard.types';
+import axiosInstance from '../../../shared/config/axios';
+import type { DashboardSummary, PipelineStatus, DailyTrend } from '../types/dashboard.types';
 
-const BASE_URL = '/network/flow/dashboard';
+/**
+ * Get dashboard summary data
+ */
+export const getSummary = async (date?: string): Promise<DashboardSummary> => {
+  const params = date ? { date } : {};
+  const response = await axiosInstance.get<DashboardSummary>(
+    '/network/flow/dashboard/summary',
+    { params }
+  );
+  return response.data;
+};
 
-class DashboardService {
-  /**
-   * Get dashboard summary
-   */
-  async getSummary(): Promise<DashboardSummary> {
-    const response = await axiosInstance.get<DashboardSummary>(`${BASE_URL}/summary`);
-    return response.data;
-  }
+/**
+ * Get all pipeline statuses
+ */
+export const getPipelineStatuses = async (date?: string): Promise<PipelineStatus[]> => {
+  const params = date ? { date } : {};
+  const response = await axiosInstance.get<PipelineStatus[]>(
+    '/network/flow/dashboard/pipelines',
+    { params }
+  );
+  return response.data;
+};
 
-  /**
-   * Get all pipeline statuses
-   */
-  async getPipelineStatuses(date?: string): Promise<PipelineStatus[]> {
-    const response = await axiosInstance.get<PipelineStatus[]>(`${BASE_URL}/pipelines`, {
-      params: { date },
-    });
-    return response.data;
-  }
+/**
+ * Get specific pipeline status by ID
+ */
+export const getPipelineStatus = async (
+  id: number,
+  date?: string
+): Promise<PipelineStatus> => {
+  const params = date ? { date } : {};
+  const response = await axiosInstance.get<PipelineStatus>(
+    `/network/flow/dashboard/pipeline/${id}`,
+    { params }
+  );
+  return response.data;
+};
 
-  /**
-   * Get specific pipeline status
-   */
-  async getPipelineStatus(id: number, date?: string): Promise<PipelineStatus> {
-    const response = await axiosInstance.get<PipelineStatus>(`${BASE_URL}/pipeline/${id}`, {
-      params: { date },
-    });
-    return response.data;
-  }
+/**
+ * Get daily trend data
+ */
+export const getTrends = async (
+  startDate?: string,
+  endDate?: string,
+  days: number = 7
+): Promise<DailyTrend[]> => {
+  const params: Record<string, string | number> = { days };
+  
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  
+  const response = await axiosInstance.get<DailyTrend[]>(
+    '/network/flow/dashboard/trends',
+    { params }
+  );
+  return response.data;
+};
 
-  /**
-   * Get daily trends
-   */
-  async getTrends(startDate?: string, endDate?: string): Promise<DailyTrend[]> {
-    const response = await axiosInstance.get<DailyTrend[]>(`${BASE_URL}/trends`, {
-      params: { startDate, endDate },
-    });
-    return response.data;
-  }
-}
-
-export default new DashboardService();
+export default {
+  getSummary,
+  getPipelineStatuses,
+  getPipelineStatus,
+  getTrends,
+};
