@@ -34,7 +34,6 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import CategoryIcon from '@mui/icons-material/Category';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FactoryIcon from '@mui/icons-material/Factory';
 import OilBarrelIcon from '@mui/icons-material/OilBarrel';
@@ -71,7 +70,7 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.dashboard',
       icon: <DashboardIcon />,
-      path: '/network/flow/dashboard', // Updated to Flow Dashboard
+      path: '/network/flow/dashboard',
     },
     {
       titleKey: 'nav.system',
@@ -137,7 +136,7 @@ const Sidebar = ({ open }: SidebarProps) => {
           children: [
             {
               titleKey: 'nav.alloys',
-              icon: <CategoryIcon />,
+              icon: <AccountTreeIcon />,
               path: '/network/common/alloys',
             },
             {
@@ -220,47 +219,6 @@ const Sidebar = ({ open }: SidebarProps) => {
               titleKey: 'nav.terminals',
               icon: <FactoryIcon />,
               path: '/network/core/terminals',
-            },
-          ],
-        },
-        {
-          titleKey: 'nav.types',
-          icon: <CategoryIcon />,
-          children: [
-            {
-              titleKey: 'nav.equipmentTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/equipment-types',
-            },
-            {
-              titleKey: 'nav.facilityTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/facility-types',
-            },
-            {
-              titleKey: 'nav.fieldTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/field-types',
-            },
-            {
-              titleKey: 'nav.stationTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/station-types',
-            },
-            {
-              titleKey: 'nav.terminalTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/terminal-types',
-            },
-            {
-              titleKey: 'nav.companyTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/company-types',
-            },
-            {
-              titleKey: 'nav.vendorTypes',
-              icon: <CategoryIcon />,
-              path: '/network/types/vendor-types',
             },
           ],
         },
