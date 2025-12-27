@@ -70,7 +70,18 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.dashboard',
       icon: <DashboardIcon />,
-      path: '/network/flow/dashboard',
+      children: [
+        {
+          titleKey: 'nav.dashboard',
+          icon: <DashboardIcon />,
+          path: '/network/flow/dashboard',
+        },
+        {
+          titleKey: 'nav.map',
+          icon: <MapIcon />,
+          path: '/network/map',
+        },
+      ],
     },
     {
       titleKey: 'nav.system',
@@ -125,11 +136,6 @@ const Sidebar = ({ open }: SidebarProps) => {
       titleKey: 'nav.network',
       icon: <NetworkCheckIcon />,
       children: [
-        {
-          titleKey: 'nav.map',
-          icon: <MapIcon />,
-          path: '/network/map',
-        },
         {
           titleKey: 'nav.common',
           icon: <PublicIcon />,
