@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-27-2025
  */
 
 import { AppBar, Toolbar, Typography, Button, Box, IconButton, Avatar, Menu, MenuItem, ListItemIcon, ListItemText, CircularProgress } from '@mui/material';
@@ -15,6 +16,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import BusinessIcon from '@mui/icons-material/Business';
 import { useAuth } from '../../context/AuthContext';
 import LanguageSwitcher from '../LanguageSwitcher';
 
@@ -29,6 +31,7 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const handleLogin = () => {
     navigate('/login');
@@ -98,19 +101,37 @@ const Navbar = ({ onMenuClick, isAuthenticated = false }: NavbarProps) => {
 
         {/* Logo and App Name */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            component="img"
-            src="/logo.png"
-            alt="IAAS Logo"
-            sx={{
-              height: 32,
-              width: 32,
-              display: 'block',
-            }}
-            onError={(e: any) => {
-              e.target.style.display = 'none';
-            }}
-          />
+          {!logoError ? (
+            <Box
+              component="img"
+              src="/logo.svg"
+              alt="IAAS Logo"
+              sx={{
+                height: 40,
+                width: 'auto',
+                maxWidth: 150,
+                display: 'block',
+                objectFit: 'contain',
+              }}
+              onError={(e: any) => {
+                // Try PNG fallback
+                if (e.target.src.endsWith('.svg')) {
+                  e.target.src = '/logo.png';
+                } else {
+                  // Both failed, show icon fallback
+                  setLogoError(true);
+                }
+              }}
+            />
+          ) : (
+            // Fallback icon if no logo image is available
+            <BusinessIcon 
+              sx={{ 
+                fontSize: 32, 
+                color: 'primary.main' 
+              }} 
+            />
+          )}
           <Typography
             variant="h6"
             component="div"
