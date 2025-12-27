@@ -70,18 +70,12 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.dashboard',
       icon: <DashboardIcon />,
-      children: [
-        {
-          titleKey: 'nav.dashboard',
-          icon: <DashboardIcon />,
-          path: '/network/flow/dashboard',
-        },
-        {
-          titleKey: 'nav.map',
-          icon: <MapIcon />,
-          path: '/network/map',
-        },
-      ],
+      path: '/network/flow/dashboard',
+    },
+    {
+      titleKey: 'nav.map',
+      icon: <MapIcon />,
+      path: '/network/map',
     },
     {
       titleKey: 'nav.system',
