@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-24-2025
+ * @updated 12-27-2025
  */
 
 import { useEffect, useMemo } from 'react';
@@ -36,6 +36,9 @@ import {
   PipelineEdit
 } from './modules/network/core/pages';
 import { NetworkMapPage, GeoDebugPage } from './modules/network/geo/pages';
+
+// Flow Dashboard Module
+import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
 
 function App() {
   const { i18n } = useTranslation();
@@ -201,6 +204,16 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <GeoDebugPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Flow Monitoring Dashboard */}
+                  <Route
+                    path="flow/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <FlowDashboardPage />
                       </ProtectedRoute>
                     }
                   />
