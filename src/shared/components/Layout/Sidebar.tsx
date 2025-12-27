@@ -284,7 +284,7 @@ const Sidebar = ({ open }: SidebarProps) => {
     }
   };
 
-  const renderMenuItem = (item: MenuItem, depth = 0) => {
+  const renderMenuItem = (item: MenuItem, depth = 0, index = 0) => {
     const title = t(item.titleKey);
     const isExpandedItem = expandedItems.includes(title);
     const isActive = item.path === location.pathname;
@@ -331,7 +331,7 @@ const Sidebar = ({ open }: SidebarProps) => {
     );
 
     return (
-      <Box key={item.titleKey}>
+      <Box key={`${item.titleKey}-${depth}-${index}`}>
         <ListItem disablePadding>
           {!isExpanded ? (
             <Tooltip title={title} placement="right">
@@ -344,7 +344,7 @@ const Sidebar = ({ open }: SidebarProps) => {
         {hasChildren && (
           <Collapse in={isExpandedItem && isExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {item.children!.map((child) => renderMenuItem(child, depth + 1))}
+              {item.children!.map((child, childIndex) => renderMenuItem(child, depth + 1, childIndex))}
             </List>
           </Collapse>
         )}
@@ -386,7 +386,7 @@ const Sidebar = ({ open }: SidebarProps) => {
       }}
     >
       <List sx={{ pt: 2, px: 1 }}>
-        {menuItems.map((item) => renderMenuItem(item))}
+        {menuItems.map((item, index) => renderMenuItem(item, 0, index))}
       </List>
     </Drawer>
   );
