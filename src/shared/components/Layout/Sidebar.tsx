@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-24-2025
+ * @updated 12-27-2025
  */
 
 import {
@@ -71,7 +71,7 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.dashboard',
       icon: <DashboardIcon />,
-      path: '/dashboard',
+      path: '/network/flow/dashboard', // Updated to Flow Dashboard
     },
     {
       titleKey: 'nav.system',
