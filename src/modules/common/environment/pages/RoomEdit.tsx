@@ -252,6 +252,9 @@ const RoomEdit = () => {
                   />
                 </Grid>
 
+                {/* Empty space to force break - takes remaining 67% */}
+                <Grid item xs={false} md={8} />
+
                 {/* Designations - Second Row, 33% each */}
                 <Grid item xs={12} md={4}>
                   <TextField
