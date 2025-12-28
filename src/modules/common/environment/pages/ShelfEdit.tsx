@@ -70,14 +70,24 @@ const ShelfEdit = () => {
   // Filter rooms when bloc changes
   useEffect(() => {
     if (selectedBloc) {
-      const filtered = allRooms.filter(room => room.blocId === selectedBloc.id || room.bloc?.id === selectedBloc.id);
+      console.log('🔍 Filtering rooms for bloc:', selectedBloc);
+      const filtered = allRooms.filter(room => {
+        const matches = room.blocId === selectedBloc.id || room.bloc?.id === selectedBloc.id;
+        if (matches) {
+          console.log('✅ Room matches:', room);
+        }
+        return matches;
+      });
+      console.log(`📋 Filtered ${filtered.length} rooms from ${allRooms.length} total rooms`);
       setFilteredRooms(filtered);
       
       // Clear room selection if current room doesn't belong to selected bloc
       if (selectedRoom && selectedRoom.blocId !== selectedBloc.id && selectedRoom.bloc?.id !== selectedBloc.id) {
+        console.log('⚠️ Clearing room selection - does not belong to selected bloc');
         setSelectedRoom(null);
       }
     } else {
+      console.log('❌ No bloc selected - clearing filtered rooms');
       setFilteredRooms([]);
       setSelectedRoom(null);
     }
@@ -85,16 +95,28 @@ const ShelfEdit = () => {
 
   const loadRelatedData = async () => {
     try {
+      console.log('🔄 Loading blocs and rooms...');
       const [blocsData, roomsData] = await Promise.all([
         blocService.getAll(),
         roomService.getAll(),
       ]);
       
-      setBlocs(Array.isArray(blocsData) ? blocsData : []);
-      setAllRooms(Array.isArray(roomsData) ? roomsData : []);
+      console.log('📦 Blocs response:', blocsData);
+      console.log('📦 Blocs count:', Array.isArray(blocsData) ? blocsData.length : 'Not an array');
+      console.log('🏠 Rooms response:', roomsData);
+      console.log('🏠 Rooms count:', Array.isArray(roomsData) ? roomsData.length : 'Not an array');
+      
+      const blocsArray = Array.isArray(blocsData) ? blocsData : [];
+      const roomsArray = Array.isArray(roomsData) ? roomsData : [];
+      
+      setBlocs(blocsArray);
+      setAllRooms(roomsArray);
+      
+      console.log('✅ Loaded:', blocsArray.length, 'blocs and', roomsArray.length, 'rooms');
     } catch (err: any) {
-      console.error('Failed to load related data:', err);
-      setError(err.message || 'Failed to load blocs and rooms');
+      console.error('❌ Failed to load related data:', err);
+      console.error('Error details:', err.response?.data);
+      setError(err.response?.data?.message || err.message || 'Failed to load blocs and rooms');
     }
   };
 
@@ -102,6 +124,7 @@ const ShelfEdit = () => {
     try {
       setLoading(true);
       const shelfData = await shelfService.getById(Number(shelfId));
+      console.log('📋 Loaded shelf data:', shelfData);
       setShelf(shelfData);
       
       if (shelfData.room) {
@@ -109,13 +132,14 @@ const ShelfEdit = () => {
         
         // Set bloc from room's bloc
         if (shelfData.room.bloc) {
+          console.log('🏢 Setting bloc from room:', shelfData.room.bloc);
           setSelectedBloc(shelfData.room.bloc);
         }
       }
       
       setError('');
     } catch (err: any) {
-      console.error('Failed to load shelf:', err);
+      console.error('❌ Failed to load shelf:', err);
       setError(err.message || 'Failed to load shelf');
     } finally {
       setLoading(false);
@@ -160,6 +184,7 @@ const ShelfEdit = () => {
   };
 
   const handleBlocChange = (event: any, newValue: BlocDTO | null) => {
+    console.log('🏢 Bloc changed to:', newValue);
     setSelectedBloc(newValue);
     if (validationErrors.bloc) {
       setValidationErrors({ ...validationErrors, bloc: '' });
@@ -167,6 +192,7 @@ const ShelfEdit = () => {
   };
 
   const handleRoomChange = (event: any, newValue: RoomDTO | null) => {
+    console.log('🏠 Room changed to:', newValue);
     setSelectedRoom(newValue);
     if (validationErrors.room) {
       setValidationErrors({ ...validationErrors, room: '' });
@@ -242,6 +268,13 @@ const ShelfEdit = () => {
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
           {error}
+        </Alert>
+      )}
+
+      {/* Debug Info - Remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Debug: Loaded {blocs.length} blocs, {allRooms.length} rooms, {filteredRooms.length} filtered rooms
         </Alert>
       )}
 
@@ -338,6 +371,8 @@ const ShelfEdit = () => {
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
+                    loading={blocs.length === 0}
+                    noOptionsText={blocs.length === 0 ? 'Loading blocs...' : 'No blocs available'}
                   />
                 </Grid>
 
