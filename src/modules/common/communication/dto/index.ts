@@ -1,9 +1,10 @@
 /**
  * Communication Module DTOs
- * Data Transfer Objects for Communication operations
  * 
  * @author CHOUABBIA Amine
- * @created 12-23-2025
+ * @created 12-28-2025
  */
 
-// Export communication DTOs here
+export * from './MailDTO';
+export * from './MailNatureDTO';
+export * from './MailTypeDTO';
