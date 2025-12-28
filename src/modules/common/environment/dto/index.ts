@@ -7,5 +7,7 @@
 
 export * from './ArchiveBoxDTO';
 export * from './BlocDTO';
+export * from './FloorDTO';
+export * from './RoomDTO';
 export * from './ShelfDTO';
 export * from './ShelfFloorDTO';

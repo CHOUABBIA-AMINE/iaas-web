@@ -7,7 +7,16 @@
 
 import archiveBoxService from './ArchiveBoxService';
 import blocService from './BlocService';
+import floorService from './FloorService';
+import roomService from './RoomService';
 import shelfService from './ShelfService';
 import shelfFloorService from './ShelfFloorService';
 
-export { archiveBoxService, blocService, shelfService, shelfFloorService };
+export { 
+  archiveBoxService, 
+  blocService, 
+  floorService,
+  roomService,
+  shelfService, 
+  shelfFloorService 
+};
