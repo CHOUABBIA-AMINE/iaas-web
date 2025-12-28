@@ -41,6 +41,8 @@ import {
   ArchiveBoxEdit, 
   BlocList, 
   BlocEdit,
+  FolderList,
+  FolderEdit,
   RoomList,
   RoomEdit,
   ShelfList,
@@ -246,6 +248,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <BlocEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Folders */}
+                  <Route
+                    path="folders"
+                    element={
+                      <ProtectedRoute>
+                        <FolderList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="folders/create"
+                    element={
+                      <ProtectedRoute>
+                        <FolderEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="folders/:folderId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <FolderEdit />
                       </ProtectedRoute>
                     }
                   />
