@@ -193,6 +193,34 @@ const RoomEdit = () => {
     navigate('/environment/rooms');
   };
 
+  // Helper function to get bloc label with fallback
+  const getBlocLabel = (bloc: BlocDTO): string => {
+    if (bloc.designationFr && bloc.designationFr.trim()) {
+      return bloc.designationFr;
+    }
+    if (bloc.designationEn && bloc.designationEn.trim()) {
+      return bloc.designationEn;
+    }
+    if (bloc.designationAr && bloc.designationAr.trim()) {
+      return bloc.designationAr;
+    }
+    return `Bloc #${bloc.id || 'Unknown'}`;
+  };
+
+  // Helper function to get floor label with fallback
+  const getFloorLabel = (floor: FloorDTO): string => {
+    if (floor.designationFr && floor.designationFr.trim()) {
+      return floor.designationFr;
+    }
+    if (floor.designationEn && floor.designationEn.trim()) {
+      return floor.designationEn;
+    }
+    if (floor.designationAr && floor.designationAr.trim()) {
+      return floor.designationAr;
+    }
+    return `Floor #${floor.id || 'Unknown'}`;
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
@@ -309,7 +337,7 @@ const RoomEdit = () => {
                     value={selectedBloc}
                     onChange={handleBlocChange}
                     options={blocs}
-                    getOptionLabel={(option) => option.designationFr || ''}
+                    getOptionLabel={getBlocLabel}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -328,7 +356,7 @@ const RoomEdit = () => {
                     value={selectedFloor}
                     onChange={handleFloorChange}
                     options={floors}
-                    getOptionLabel={(option) => option.designationFr || ''}
+                    getOptionLabel={getFloorLabel}
                     renderInput={(params) => (
                       <TextField
                         {...params}
