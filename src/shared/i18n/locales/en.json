@@ -83,6 +83,7 @@
     "network": "Network",
     "map": "Infrastructure Map",
     "common": "Common",
+    "networkCommon": "Network Common",
     "alloys": "Alloys",
     "locations": "Locations",
     "partners": "Partners",
