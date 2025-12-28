@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-27-2025
+ * @updated 12-28-2025
  */
 
 import {
@@ -39,6 +39,11 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import OilBarrelIcon from '@mui/icons-material/OilBarrel';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import MapIcon from '@mui/icons-material/Map';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import FolderIcon from '@mui/icons-material/Folder';
+import RoomIcon from '@mui/icons-material/Room';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import NatureIcon from '@mui/icons-material/Nature';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -123,6 +128,32 @@ const Sidebar = ({ open }: SidebarProps) => {
               path: '/audit/logs',
             },
           ],
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.environment',
+      icon: <NatureIcon />,
+      children: [
+        {
+          titleKey: 'nav.archiveBoxes',
+          icon: <InventoryIcon />,
+          path: '/environment/archive-boxes',
+        },
+        {
+          titleKey: 'nav.shelves',
+          icon: <FolderIcon />,
+          path: '/environment/shelves',
+        },
+        {
+          titleKey: 'nav.rooms',
+          icon: <RoomIcon />,
+          path: '/environment/rooms',
+        },
+        {
+          titleKey: 'nav.blocs',
+          icon: <ApartmentIcon />,
+          path: '/environment/blocs',
         },
       ],
     },
