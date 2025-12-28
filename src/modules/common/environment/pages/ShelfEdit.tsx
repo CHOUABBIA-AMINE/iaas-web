@@ -87,7 +87,6 @@ const ShelfEdit = () => {
         setSelectedRoom(null);
       }
     } else {
-      console.log('❌ No bloc selected - clearing filtered rooms');
       setFilteredRooms([]);
       setSelectedRoom(null);
     }
@@ -237,6 +236,20 @@ const ShelfEdit = () => {
     navigate('/environment/shelves');
   };
 
+  // Helper function to get bloc label with fallback
+  const getBlocLabel = (bloc: BlocDTO): string => {
+    if (bloc.designationFr && bloc.designationFr.trim()) {
+      return bloc.designationFr;
+    }
+    if (bloc.designationEn && bloc.designationEn.trim()) {
+      return bloc.designationEn;
+    }
+    if (bloc.designationAr && bloc.designationAr.trim()) {
+      return bloc.designationAr;
+    }
+    return `Bloc #${bloc.id || 'Unknown'}`;
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
@@ -360,7 +373,7 @@ const ShelfEdit = () => {
                     value={selectedBloc}
                     onChange={handleBlocChange}
                     options={blocs}
-                    getOptionLabel={(option) => option.designationFr || ''}
+                    getOptionLabel={getBlocLabel}
                     renderInput={(params) => (
                       <TextField
                         {...params}
