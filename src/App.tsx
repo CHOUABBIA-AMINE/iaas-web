@@ -42,7 +42,9 @@ import {
   BlocList, 
   BlocEdit,
   RoomList,
-  RoomEdit
+  RoomEdit,
+  ShelfList,
+  ShelfEdit
 } from './modules/common/environment/pages';
 
 // Flow Dashboard Module
@@ -270,6 +272,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <RoomEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Shelves */}
+                  <Route
+                    path="shelves"
+                    element={
+                      <ProtectedRoute>
+                        <ShelfList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="shelves/create"
+                    element={
+                      <ProtectedRoute>
+                        <ShelfEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="shelves/:shelfId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <ShelfEdit />
                       </ProtectedRoute>
                     }
                   />
