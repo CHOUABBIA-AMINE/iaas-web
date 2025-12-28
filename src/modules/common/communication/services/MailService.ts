@@ -43,12 +43,12 @@ class MailService {
   }
 
   async getByMailNature(mailNatureId: number): Promise<MailDTO[]> {
-    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/mail-nature/${mailNatureId}`);
+    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/mailNature/${mailNatureId}`);
     return response.data;
   }
 
   async getByMailType(mailTypeId: number): Promise<MailDTO[]> {
-    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/mail-type/${mailTypeId}`);
+    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/mailType/${mailTypeId}`);
     return response.data;
   }
 }
