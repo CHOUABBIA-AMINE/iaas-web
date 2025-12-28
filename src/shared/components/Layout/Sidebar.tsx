@@ -47,6 +47,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment';
 import NatureIcon from '@mui/icons-material/Nature';
 import MailIcon from '@mui/icons-material/Mail';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
+import LayersIcon from '@mui/icons-material/Layers';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -135,44 +136,50 @@ const Sidebar = ({ open }: SidebarProps) => {
       ],
     },
     {
-      titleKey: 'nav.communication',
-      icon: <ContactMailIcon />,
+      titleKey: 'nav.common',
+      icon: <LayersIcon />,
       children: [
         {
-          titleKey: 'nav.mails',
-          icon: <MailIcon />,
-          path: '/communication/mails',
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.environment',
-      icon: <NatureIcon />,
-      children: [
-        {
-          titleKey: 'nav.archiveBoxes',
-          icon: <InventoryIcon />,
-          path: '/environment/archive-boxes',
+          titleKey: 'nav.communication',
+          icon: <ContactMailIcon />,
+          children: [
+            {
+              titleKey: 'nav.mails',
+              icon: <MailIcon />,
+              path: '/communication/mails',
+            },
+          ],
         },
         {
-          titleKey: 'nav.folders',
-          icon: <CreateNewFolderIcon />,
-          path: '/environment/folders',
-        },
-        {
-          titleKey: 'nav.shelves',
-          icon: <ViewListIcon />,
-          path: '/environment/shelves',
-        },
-        {
-          titleKey: 'nav.rooms',
-          icon: <MeetingRoomIcon />,
-          path: '/environment/rooms',
-        },
-        {
-          titleKey: 'nav.blocs',
-          icon: <ApartmentIcon />,
-          path: '/environment/blocs',
+          titleKey: 'nav.environment',
+          icon: <NatureIcon />,
+          children: [
+            {
+              titleKey: 'nav.archiveBoxes',
+              icon: <InventoryIcon />,
+              path: '/environment/archive-boxes',
+            },
+            {
+              titleKey: 'nav.folders',
+              icon: <CreateNewFolderIcon />,
+              path: '/environment/folders',
+            },
+            {
+              titleKey: 'nav.shelves',
+              icon: <ViewListIcon />,
+              path: '/environment/shelves',
+            },
+            {
+              titleKey: 'nav.rooms',
+              icon: <MeetingRoomIcon />,
+              path: '/environment/rooms',
+            },
+            {
+              titleKey: 'nav.blocs',
+              icon: <ApartmentIcon />,
+              path: '/environment/blocs',
+            },
+          ],
         },
       ],
     },
@@ -181,7 +188,7 @@ const Sidebar = ({ open }: SidebarProps) => {
       icon: <NetworkCheckIcon />,
       children: [
         {
-          titleKey: 'nav.common',
+          titleKey: 'nav.networkCommon',
           icon: <PublicIcon />,
           children: [
             {
