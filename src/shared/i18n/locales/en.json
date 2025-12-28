@@ -244,6 +244,20 @@
     "filterByFloor": "Filter by Floor",
     "searchPlaceholder": "Search by code or designation..."
   },
+  "shelf": {
+    "title": "Shelves",
+    "create": "Create Shelf",
+    "edit": "Edit Shelf",
+    "delete": "Delete Shelf",
+    "deleteConfirm": "Are you sure you want to delete this shelf?",
+    "code": "Code",
+    "designationFr": "French Designation",
+    "designationEn": "English Designation",
+    "designationAr": "Arabic Designation",
+    "room": "Room",
+    "filterByRoom": "Filter by Room",
+    "searchPlaceholder": "Search by code or designation..."
+  },
   "footer": {
     "copyright": "© {{year}} IAAS Platform. All rights reserved."
   },
