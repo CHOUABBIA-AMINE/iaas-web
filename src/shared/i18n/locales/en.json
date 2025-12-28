@@ -75,6 +75,7 @@
     "shelves": "Shelves",
     "rooms": "Rooms",
     "blocs": "Blocs",
+    "folders": "Folders",
     "business": "Business",
     "network": "Network",
     "map": "Infrastructure Map",
@@ -227,6 +228,18 @@
     "designationEn": "English Designation",
     "designationAr": "Arabic Designation",
     "searchPlaceholder": "Search by designation..."
+  },
+  "folder": {
+    "title": "Folders",
+    "create": "Create Folder",
+    "edit": "Edit Folder",
+    "delete": "Delete Folder",
+    "deleteConfirm": "Are you sure you want to delete this folder?",
+    "code": "Code",
+    "description": "Description",
+    "archiveBox": "Archive Box",
+    "filterByArchiveBox": "Filter by Archive Box",
+    "searchPlaceholder": "Search by code or description..."
   },
   "room": {
     "title": "Rooms",
