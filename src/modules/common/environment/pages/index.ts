@@ -11,3 +11,5 @@ export { default as BlocList } from './BlocList';
 export { default as BlocEdit } from './BlocEdit';
 export { default as RoomList } from './RoomList';
 export { default as RoomEdit } from './RoomEdit';
+export { default as ShelfList } from './ShelfList';
+export { default as ShelfEdit } from './ShelfEdit';
