@@ -1,6 +1,6 @@
 /**
  * Shelf Edit/Create Page - Professional Version
- * Comprehensive form with Room selector
+ * Comprehensive form with cascading Bloc/Room selectors
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
@@ -30,7 +30,8 @@ import {
 } from '@mui/icons-material';
 import shelfService from '../services/ShelfService';
 import roomService from '../services/RoomService';
-import { ShelfDTO, RoomDTO } from '../dto';
+import blocService from '../services/BlocService';
+import { ShelfDTO, RoomDTO, BlocDTO } from '../dto';
 
 const ShelfEdit = () => {
   const { t } = useTranslation();
@@ -47,7 +48,10 @@ const ShelfEdit = () => {
   });
 
   // Related entities
-  const [rooms, setRooms] = useState<RoomDTO[]>([]);
+  const [blocs, setBlocs] = useState<BlocDTO[]>([]);
+  const [allRooms, setAllRooms] = useState<RoomDTO[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState<RoomDTO[]>([]);
+  const [selectedBloc, setSelectedBloc] = useState<BlocDTO | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<RoomDTO | null>(null);
 
   // UI state
@@ -63,13 +67,34 @@ const ShelfEdit = () => {
     }
   }, [shelfId]);
 
+  // Filter rooms when bloc changes
+  useEffect(() => {
+    if (selectedBloc) {
+      const filtered = allRooms.filter(room => room.blocId === selectedBloc.id || room.bloc?.id === selectedBloc.id);
+      setFilteredRooms(filtered);
+      
+      // Clear room selection if current room doesn't belong to selected bloc
+      if (selectedRoom && selectedRoom.blocId !== selectedBloc.id && selectedRoom.bloc?.id !== selectedBloc.id) {
+        setSelectedRoom(null);
+      }
+    } else {
+      setFilteredRooms([]);
+      setSelectedRoom(null);
+    }
+  }, [selectedBloc, allRooms]);
+
   const loadRelatedData = async () => {
     try {
-      const roomsData = await roomService.getAll();
-      setRooms(Array.isArray(roomsData) ? roomsData : []);
+      const [blocsData, roomsData] = await Promise.all([
+        blocService.getAll(),
+        roomService.getAll(),
+      ]);
+      
+      setBlocs(Array.isArray(blocsData) ? blocsData : []);
+      setAllRooms(Array.isArray(roomsData) ? roomsData : []);
     } catch (err: any) {
-      console.error('Failed to load rooms:', err);
-      setError(err.message || 'Failed to load rooms');
+      console.error('Failed to load related data:', err);
+      setError(err.message || 'Failed to load blocs and rooms');
     }
   };
 
@@ -81,6 +106,11 @@ const ShelfEdit = () => {
       
       if (shelfData.room) {
         setSelectedRoom(shelfData.room);
+        
+        // Set bloc from room's bloc
+        if (shelfData.room.bloc) {
+          setSelectedBloc(shelfData.room.bloc);
+        }
       }
       
       setError('');
@@ -105,6 +135,11 @@ const ShelfEdit = () => {
       errors.designationFr = 'French designation must be at least 2 characters';
     }
 
+    // Bloc validation
+    if (!selectedBloc) {
+      errors.bloc = 'Bloc is required';
+    }
+
     // Room validation
     if (!selectedRoom) {
       errors.room = 'Room is required';
@@ -121,6 +156,13 @@ const ShelfEdit = () => {
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors({ ...validationErrors, [field]: '' });
+    }
+  };
+
+  const handleBlocChange = (event: any, newValue: BlocDTO | null) => {
+    setSelectedBloc(newValue);
+    if (validationErrors.bloc) {
+      setValidationErrors({ ...validationErrors, bloc: '' });
     }
   };
 
@@ -280,11 +322,30 @@ const ShelfEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid item xs={12} md={6}>
+                  <Autocomplete
+                    value={selectedBloc}
+                    onChange={handleBlocChange}
+                    options={blocs}
+                    getOptionLabel={(option) => option.designationFr || ''}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('shelf.bloc') || 'Bloc'}
+                        required
+                        error={!!validationErrors.bloc}
+                        helperText={validationErrors.bloc || 'Required - Select the building bloc first'}
+                      />
+                    )}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
                   <Autocomplete
                     value={selectedRoom}
                     onChange={handleRoomChange}
-                    options={rooms}
+                    options={filteredRooms}
                     getOptionLabel={(option) => `${option.code} - ${option.designationFr}`}
                     renderInput={(params) => (
                       <TextField
@@ -292,10 +353,12 @@ const ShelfEdit = () => {
                         label={t('shelf.room') || 'Room'}
                         required
                         error={!!validationErrors.room}
-                        helperText={validationErrors.room || 'Required - Select the room where this shelf is located'}
+                        helperText={validationErrors.room || (selectedBloc ? 'Required - Select room in this bloc' : 'Select a bloc first')}
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
+                    disabled={!selectedBloc}
+                    noOptionsText={selectedBloc ? 'No rooms available in this bloc' : 'Please select a bloc first'}
                   />
                 </Grid>
               </Grid>
