@@ -44,7 +44,7 @@ import {
   MeetingRoom as RoomIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import roomService from '../services/RoomService';
 import blocService from '../services/BlocService';
 import floorService from '../services/FloorService';
@@ -62,7 +62,7 @@ const RoomList = () => {
   const [success, setSuccess] = useState('');
   const [searchText, setSearchText] = useState('');
   const [selectedBlocId, setSelectedBlocId] = useState<number | ''>('');
-  const [selectedFloorId, setSelectedFloorId] = useState<number | ''>('');
+  const [selectedFloorId, setSelectedFloorId] = useState<number | ''>('');  
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
@@ -77,6 +77,10 @@ const RoomList = () => {
         blocService.getAll(),
         floorService.getAll(),
       ]);
+      
+      console.log('Rooms loaded:', roomsData);
+      console.log('Blocs loaded:', blocsData);
+      console.log('Floors loaded:', floorsData);
       
       setRooms(Array.isArray(roomsData) ? roomsData : []);
       setBlocs(Array.isArray(blocsData) ? blocsData : []);
@@ -123,28 +127,56 @@ const RoomList = () => {
         </Box>
       ),
     },
-    { field: 'designationFr', headerName: t('room.designationFr') || 'French Designation', minWidth: 200, flex: 1.5 },
-    { field: 'designationEn', headerName: t('room.designationEn') || 'English Designation', minWidth: 200, flex: 1.5 },
     { 
-      field: 'bloc', 
+      field: 'designationFr', 
+      headerName: t('room.designationFr') || 'French Designation', 
+      minWidth: 200, 
+      flex: 1.5 
+    },
+    { 
+      field: 'designationEn', 
+      headerName: t('room.designationEn') || 'English Designation', 
+      minWidth: 200, 
+      flex: 1.5 
+    },
+    { 
+      field: 'blocName', 
       headerName: t('room.bloc') || 'Bloc', 
       minWidth: 150,
       flex: 1,
+      valueGetter: (params: GridValueGetterParams) => {
+        const room = params.row as RoomDTO;
+        if (room.bloc) {
+          return room.bloc.designationFr || room.bloc.designationEn || room.bloc.designationAr || '-';
+        }
+        return '-';
+      },
       renderCell: (params) => (
-        params.row.bloc ? (
-          <Chip label={params.row.bloc.designationFr || params.row.bloc.designationEn} size="small" color="primary" variant="outlined" />
-        ) : null
+        params.value && params.value !== '-' ? (
+          <Chip label={params.value} size="small" color="primary" variant="outlined" />
+        ) : (
+          <Typography variant="body2" color="text.disabled">-</Typography>
+        )
       ),
     },
     { 
-      field: 'floor', 
+      field: 'floorName', 
       headerName: t('room.floor') || 'Floor', 
       minWidth: 120,
       flex: 0.8,
+      valueGetter: (params: GridValueGetterParams) => {
+        const room = params.row as RoomDTO;
+        if (room.floor) {
+          return room.floor.designationLt || room.floor.code || '-';
+        }
+        return '-';
+      },
       renderCell: (params) => (
-        params.row.floor ? (
-          <Chip label={params.row.floor.designationLt} size="small" variant="outlined" />
-        ) : null
+        params.value && params.value !== '-' ? (
+          <Chip label={params.value} size="small" variant="outlined" />
+        ) : (
+          <Typography variant="body2" color="text.disabled">-</Typography>
+        )
       ),
     },
     {
@@ -235,7 +267,7 @@ const RoomList = () => {
               <InputLabel>{t('room.filterByBloc') || 'Filter by Bloc'}</InputLabel>
               <Select value={selectedBlocId} label={t('room.filterByBloc') || 'Filter by Bloc'} onChange={(e) => setSelectedBlocId(e.target.value as number | '')}>
                 <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
-                {blocs.map((bloc) => <MenuItem key={bloc.id} value={bloc.id}>{bloc.designationFr || bloc.designationEn}</MenuItem>)}
+                {blocs.map((bloc) => <MenuItem key={bloc.id} value={bloc.id}>{bloc.designationFr || bloc.designationEn || bloc.designationAr}</MenuItem>)}
               </Select>
             </FormControl>
 
@@ -243,7 +275,7 @@ const RoomList = () => {
               <InputLabel>{t('room.filterByFloor') || 'Filter by Floor'}</InputLabel>
               <Select value={selectedFloorId} label={t('room.filterByFloor') || 'Filter by Floor'} onChange={(e) => setSelectedFloorId(e.target.value as number | '')}>
                 <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
-                {floors.map((floor) => <MenuItem key={floor.id} value={floor.id}>{floor.designationLt}</MenuItem>)}
+                {floors.map((floor) => <MenuItem key={floor.id} value={floor.id}>{floor.designationLt || floor.code}</MenuItem>)}
               </Select>
             </FormControl>
 
