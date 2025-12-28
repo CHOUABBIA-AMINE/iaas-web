@@ -41,7 +41,9 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 import MapIcon from '@mui/icons-material/Map';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import FolderIcon from '@mui/icons-material/Folder';
-import RoomIcon from '@mui/icons-material/Room';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import NatureIcon from '@mui/icons-material/Nature';
 import ExpandLess from '@mui/icons-material/ExpandLess';
@@ -141,13 +143,18 @@ const Sidebar = ({ open }: SidebarProps) => {
           path: '/environment/archive-boxes',
         },
         {
+          titleKey: 'nav.folders',
+          icon: <CreateNewFolderIcon />,
+          path: '/environment/folders',
+        },
+        {
           titleKey: 'nav.shelves',
-          icon: <FolderIcon />,
+          icon: <ViewListIcon />,
           path: '/environment/shelves',
         },
         {
           titleKey: 'nav.rooms',
-          icon: <RoomIcon />,
+          icon: <MeetingRoomIcon />,
           path: '/environment/rooms',
         },
         {
