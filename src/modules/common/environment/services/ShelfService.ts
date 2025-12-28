@@ -13,7 +13,7 @@ class ShelfService {
   private readonly BASE_URL = '/common/environment/shelf';
 
   async getAll(): Promise<ShelfDTO[]> {
-    const response = await axiosInstance.get<ShelfDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<ShelfDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

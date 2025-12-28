@@ -14,7 +14,7 @@ class FloorService {
   private readonly BASE_URL = '/common/environment/floor';
 
   async getAll(): Promise<FloorDTO[]> {
-    const response = await axiosInstance.get<FloorDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<FloorDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

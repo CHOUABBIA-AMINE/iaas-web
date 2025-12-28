@@ -14,7 +14,7 @@ class FolderService {
   private readonly BASE_URL = '/common/environment/folder';
 
   async getAll(): Promise<FolderDTO[]> {
-    const response = await axiosInstance.get<FolderDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<FolderDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

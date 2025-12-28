@@ -15,7 +15,7 @@ class ArchiveBoxService {
   private readonly BASE_URL = '/common/environment/archiveBox';
 
   async getAll(): Promise<ArchiveBoxDTO[]> {
-    const response = await axiosInstance.get<ArchiveBoxDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<ArchiveBoxDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

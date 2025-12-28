@@ -14,7 +14,7 @@ class BlocService {
   private readonly BASE_URL = '/common/environment/bloc';
 
   async getAll(): Promise<BlocDTO[]> {
-    const response = await axiosInstance.get<BlocDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<BlocDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 

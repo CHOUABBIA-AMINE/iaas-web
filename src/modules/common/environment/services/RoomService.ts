@@ -14,7 +14,7 @@ class RoomService {
   private readonly BASE_URL = '/common/environment/room';
 
   async getAll(): Promise<RoomDTO[]> {
-    const response = await axiosInstance.get<RoomDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<RoomDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 
