@@ -5,13 +5,14 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { ArchiveBoxDTO } from '../dto';
 
 class ArchiveBoxService {
-  private readonly BASE_URL = '/common/environment/archive-box';
+  private readonly BASE_URL = '/common/environment/archiveBox';
 
   async getAll(): Promise<ArchiveBoxDTO[]> {
     const response = await axiosInstance.get<ArchiveBoxDTO[]>(this.BASE_URL);
@@ -48,7 +49,7 @@ class ArchiveBoxService {
   }
 
   async getByShelfFloor(shelfFloorId: number): Promise<ArchiveBoxDTO[]> {
-    const response = await axiosInstance.get<ArchiveBoxDTO[]>(`${this.BASE_URL}/shelf-floor/${shelfFloorId}`);
+    const response = await axiosInstance.get<ArchiveBoxDTO[]>(`${this.BASE_URL}/shelfFloor/${shelfFloorId}`);
     return response.data;
   }
 }

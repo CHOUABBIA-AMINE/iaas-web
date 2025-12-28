@@ -4,13 +4,14 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { ShelfFloorDTO } from '../dto';
 
 class ShelfFloorService {
-  private readonly BASE_URL = '/common/environment/shelf-floor';
+  private readonly BASE_URL = '/common/environment/shelfFloor';
 
   async getAll(): Promise<ShelfFloorDTO[]> {
     const response = await axiosInstance.get<ShelfFloorDTO[]>(this.BASE_URL);
