@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -40,7 +41,7 @@ import {
   TableChart as CsvIcon,
   Description as ExcelIcon,
   PictureAsPdf as PdfIcon,
-  Room as RoomIcon,
+  MeetingRoom as RoomIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -53,20 +54,15 @@ const RoomList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
-  // Data state
   const [rooms, setRooms] = useState<RoomDTO[]>([]);
   const [blocs, setBlocs] = useState<BlocDTO[]>([]);
   const [floors, setFloors] = useState<FloorDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
-  // Filter state
   const [searchText, setSearchText] = useState('');
   const [selectedBlocId, setSelectedBlocId] = useState<number | ''>('');
   const [selectedFloorId, setSelectedFloorId] = useState<number | ''>('');
-  
-  // Export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
@@ -95,7 +91,6 @@ const RoomList = () => {
     }
   };
 
-  // Filter rooms
   const filteredRooms = useMemo(() => {
     if (!Array.isArray(rooms)) return [];
     
@@ -114,15 +109,8 @@ const RoomList = () => {
     });
   }, [rooms, searchText, selectedBlocId, selectedFloorId]);
 
-  // DataGrid columns
   const columns: GridColDef[] = [
-    { 
-      field: 'id', 
-      headerName: 'ID', 
-      width: 80,
-      align: 'center',
-      headerAlign: 'center',
-    },
+    { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     { 
       field: 'code', 
       headerName: t('room.code') || 'Code', 
@@ -131,18 +119,12 @@ const RoomList = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <RoomIcon fontSize="small" color="action" />
-          <Typography variant="body2" fontWeight={600}>
-            {params.value}
-          </Typography>
+          <Typography variant="body2" fontWeight={600}>{params.value}</Typography>
         </Box>
       ),
     },
-    { 
-      field: 'designationFr', 
-      headerName: t('room.designationFr') || 'Designation (FR)', 
-      minWidth: 200,
-      flex: 1.5,
-    },
+    { field: 'designationFr', headerName: t('room.designationFr') || 'French Designation', minWidth: 200, flex: 1.5 },
+    { field: 'designationEn', headerName: t('room.designationEn') || 'English Designation', minWidth: 200, flex: 1.5 },
     { 
       field: 'bloc', 
       headerName: t('room.bloc') || 'Bloc', 
@@ -150,28 +132,18 @@ const RoomList = () => {
       flex: 1,
       renderCell: (params) => (
         params.row.bloc ? (
-          <Chip 
-            label={params.row.bloc.designationFr} 
-            size="small" 
-            color="primary"
-            variant="outlined"
-          />
+          <Chip label={params.row.bloc.designationFr || params.row.bloc.designationEn} size="small" color="primary" variant="outlined" />
         ) : null
       ),
     },
     { 
       field: 'floor', 
       headerName: t('room.floor') || 'Floor', 
-      minWidth: 150,
-      flex: 1,
+      minWidth: 120,
+      flex: 0.8,
       renderCell: (params) => (
         params.row.floor ? (
-          <Chip 
-            label={params.row.floor.designationFr} 
-            size="small" 
-            color="secondary"
-            variant="outlined"
-          />
+          <Chip label={params.row.floor.designationLt} size="small" variant="outlined" />
         ) : null
       ),
     },
@@ -186,26 +158,12 @@ const RoomList = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title={t('common.edit')}>
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(params.row.id)}
-              sx={{
-                color: 'primary.main',
-                '&:hover': { bgcolor: alpha('#2563eb', 0.1) }
-              }}
-            >
+            <IconButton size="small" onClick={() => handleEdit(params.row.id)} sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title={t('common.delete')}>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(params.row.id)}
-              sx={{
-                color: 'error.main',
-                '&:hover': { bgcolor: alpha('#dc2626', 0.1) }
-              }}
-            >
+            <IconButton size="small" onClick={() => handleDelete(params.row.id)} sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -229,232 +187,93 @@ const RoomList = () => {
     }
   };
 
-  const handleRefresh = () => {
-    loadData();
-    setSuccess('Data refreshed');
-  };
-
-  const handleClearFilters = () => {
-    setSearchText('');
-    setSelectedBlocId('');
-    setSelectedFloorId('');
-  };
-
-  // Export handlers
-  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setExportAnchorEl(event.currentTarget);
-  };
-
-  const handleExportMenuClose = () => {
-    setExportAnchorEl(null);
-  };
-
-  const handleExportCSV = () => {
-    setSuccess('Exported to CSV');
-    handleExportMenuClose();
-  };
-
-  const handleExportExcel = () => {
-    setSuccess('Exported to Excel');
-    handleExportMenuClose();
-  };
-
-  const handleExportPDF = () => {
-    setSuccess('Exported to PDF');
-    handleExportMenuClose();
-  };
+  const handleRefresh = () => { loadData(); setSuccess('Data refreshed'); };
+  const handleClearFilters = () => { setSearchText(''); setSelectedBlocId(''); setSelectedFloorId(''); };
+  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
+  const handleExportMenuClose = () => setExportAnchorEl(null);
+  const handleExportCSV = () => { setSuccess('Exported to CSV'); handleExportMenuClose(); };
+  const handleExportExcel = () => { setSuccess('Exported to Excel'); handleExportMenuClose(); };
+  const handleExportPDF = () => { setSuccess('Exported to PDF'); handleExportMenuClose(); };
 
   return (
     <Box>
-      {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h4" fontWeight={700} color="text.primary">
-            {t('room.title') || 'Rooms'}
-          </Typography>
+          <Typography variant="h4" fontWeight={700} color="text.primary">{t('room.title') || 'Rooms'}</Typography>
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title="Refresh">
-              <IconButton onClick={handleRefresh} size="medium" color="primary">
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-            <Button
-              variant="outlined"
-              startIcon={<ExportIcon />}
-              onClick={handleExportMenuOpen}
-              sx={{ borderRadius: 2 }}
-            >
-              {t('common.export')}
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleCreate}
-              sx={{ borderRadius: 2, boxShadow: 2 }}
-            >
-              {t('room.create') || 'Create Room'}
-            </Button>
+            <Tooltip title="Refresh"><IconButton onClick={handleRefresh} size="medium" color="primary"><RefreshIcon /></IconButton></Tooltip>
+            <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>{t('common.export')}</Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate} sx={{ borderRadius: 2, boxShadow: 2 }}>{t('room.create') || 'Create Room'}</Button>
           </Stack>
         </Box>
-        <Typography variant="body2" color="text.secondary">
-          Manage rooms in blocs and floors
-        </Typography>
+        <Typography variant="body2" color="text.secondary">Manage rooms in blocs and floors</Typography>
       </Box>
 
-      {/* Export Menu */}
-      <Menu
-        anchorEl={exportAnchorEl}
-        open={Boolean(exportAnchorEl)}
-        onClose={handleExportMenuClose}
-        PaperProps={{
-          elevation: 3,
-          sx: { minWidth: 200 }
-        }}
-      >
-        <MenuItem onClick={handleExportCSV}>
-          <ListItemIcon>
-            <CsvIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportCSV')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportExcel}>
-          <ListItemIcon>
-            <ExcelIcon fontSize="small" color="success" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportExcel')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportPDF}>
-          <ListItemIcon>
-            <PdfIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportPDF')}</ListItemText>
-        </MenuItem>
+      <Menu anchorEl={exportAnchorEl} open={Boolean(exportAnchorEl)} onClose={handleExportMenuClose} PaperProps={{ elevation: 3, sx: { minWidth: 200 } }}>
+        <MenuItem onClick={handleExportCSV}><ListItemIcon><CsvIcon fontSize="small" /></ListItemIcon><ListItemText>{t('common.exportCSV')}</ListItemText></MenuItem>
+        <MenuItem onClick={handleExportExcel}><ListItemIcon><ExcelIcon fontSize="small" color="success" /></ListItemIcon><ListItemText>{t('common.exportExcel')}</ListItemText></MenuItem>
+        <MenuItem onClick={handleExportPDF}><ListItemIcon><PdfIcon fontSize="small" color="error" /></ListItemIcon><ListItemText>{t('common.exportPDF')}</ListItemText></MenuItem>
       </Menu>
 
-      {/* Alerts */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
-          {success}
-        </Alert>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
 
-      {/* Filters */}
+      {/* Single-Row Filter Layout */}
       <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2.5 }}>
-          <Stack spacing={2.5}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="stretch">
             <TextField
               fullWidth
               placeholder={t('room.searchPlaceholder') || 'Search by code or designation...'}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ maxWidth: { md: 500 } }}
+              InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment> }}
+              sx={{ flex: 2 }}
             />
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <FormControl sx={{ minWidth: 200 }} size="medium">
-                <InputLabel>{t('room.filterByBloc') || 'Filter by Bloc'}</InputLabel>
-                <Select
-                  value={selectedBlocId}
-                  label={t('room.filterByBloc') || 'Filter by Bloc'}
-                  onChange={(e) => setSelectedBlocId(e.target.value as number | '')}
-                >
-                  <MenuItem value="">
-                    <em>{t('common.all') || 'All'}</em>
-                  </MenuItem>
-                  {blocs.map((bloc) => (
-                    <MenuItem key={bloc.id} value={bloc.id}>
-                      {bloc.designationFr}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <FormControl sx={{ minWidth: 180, flex: 1 }}>
+              <InputLabel>{t('room.filterByBloc') || 'Filter by Bloc'}</InputLabel>
+              <Select value={selectedBlocId} label={t('room.filterByBloc') || 'Filter by Bloc'} onChange={(e) => setSelectedBlocId(e.target.value as number | '')}>
+                <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
+                {blocs.map((bloc) => <MenuItem key={bloc.id} value={bloc.id}>{bloc.designationFr || bloc.designationEn}</MenuItem>)}
+              </Select>
+            </FormControl>
 
-              <FormControl sx={{ minWidth: 200 }} size="medium">
-                <InputLabel>{t('room.filterByFloor') || 'Filter by Floor'}</InputLabel>
-                <Select
-                  value={selectedFloorId}
-                  label={t('room.filterByFloor') || 'Filter by Floor'}
-                  onChange={(e) => setSelectedFloorId(e.target.value as number | '')}
-                >
-                  <MenuItem value="">
-                    <em>{t('common.all') || 'All'}</em>
-                  </MenuItem>
-                  {floors.map((floor) => (
-                    <MenuItem key={floor.id} value={floor.id}>
-                      {floor.designationFr}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <FormControl sx={{ minWidth: 180, flex: 1 }}>
+              <InputLabel>{t('room.filterByFloor') || 'Filter by Floor'}</InputLabel>
+              <Select value={selectedFloorId} label={t('room.filterByFloor') || 'Filter by Floor'} onChange={(e) => setSelectedFloorId(e.target.value as number | '')}>
+                <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
+                {floors.map((floor) => <MenuItem key={floor.id} value={floor.id}>{floor.designationLt}</MenuItem>)}
+              </Select>
+            </FormControl>
 
-              {(searchText || selectedBlocId || selectedFloorId) && (
-                <Button
-                  variant="outlined"
-                  startIcon={<ClearIcon />}
-                  onClick={handleClearFilters}
-                  sx={{ height: 56 }}
-                >
-                  {t('common.clearFilters')}
-                </Button>
-              )}
-            </Stack>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {filteredRooms.length} {t('common.results')}
-                {rooms.length !== filteredRooms.length && (
-                  <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>
-                    (filtered from {rooms.length})
-                  </Typography>
-                )}
-              </Typography>
-            </Box>
+            {(searchText || selectedBlocId || selectedFloorId) && (
+              <Button variant="outlined" startIcon={<ClearIcon />} onClick={handleClearFilters} sx={{ minWidth: 140 }}>{t('common.clearFilters')}</Button>
+            )}
           </Stack>
+
+          <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mt: 2 }}>
+            {filteredRooms.length} {t('common.results')}
+            {rooms.length !== filteredRooms.length && <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>(filtered from {rooms.length})</Typography>}
+          </Typography>
         </Box>
       </Paper>
 
-      {/* DataGrid */}
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
           rows={filteredRooms}
           columns={columns}
           loading={loading}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 25 },
-            },
-          }}
+          initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
           disableRowSelectionOnClick
           autoHeight
           sx={{
             border: 0,
-            '& .MuiDataGrid-cell:focus': {
-              outline: 'none',
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: alpha('#2563eb', 0.04),
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: alpha('#2563eb', 0.05),
-              borderBottom: 2,
-              borderColor: 'divider',
-            },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
-            },
+            '& .MuiDataGrid-cell:focus': { outline: 'none' },
+            '& .MuiDataGrid-row:hover': { backgroundColor: alpha('#2563eb', 0.04) },
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: alpha('#2563eb', 0.05), borderBottom: 2, borderColor: 'divider' },
+            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 },
           }}
         />
       </Paper>
