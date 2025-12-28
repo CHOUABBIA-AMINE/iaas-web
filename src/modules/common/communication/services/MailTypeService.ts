@@ -12,7 +12,7 @@ class MailTypeService {
   private readonly BASE_URL = '/common/communication/mailType';
 
   async getAll(): Promise<MailTypeDTO[]> {
-    const response = await axiosInstance.get<MailTypeDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<MailTypeDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
   }
 
