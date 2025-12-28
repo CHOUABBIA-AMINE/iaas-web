@@ -6,5 +6,6 @@
  */
 
 export * from './ArchiveBoxDTO';
+export * from './BlocDTO';
 export * from './ShelfDTO';
 export * from './ShelfFloorDTO';
