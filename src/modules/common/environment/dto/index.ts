@@ -1,0 +1,10 @@
+/**
+ * Environment Module DTOs
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-28-2025
+ */
+
+export * from './ArchiveBoxDTO';
+export * from './ShelfDTO';
+export * from './ShelfFloorDTO';
