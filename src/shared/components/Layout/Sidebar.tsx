@@ -48,6 +48,7 @@ import NatureIcon from '@mui/icons-material/Nature';
 import MailIcon from '@mui/icons-material/Mail';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LayersIcon from '@mui/icons-material/Layers';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -139,6 +140,17 @@ const Sidebar = ({ open }: SidebarProps) => {
       titleKey: 'nav.common',
       icon: <LayersIcon />,
       children: [
+        {
+          titleKey: 'nav.administration',
+          icon: <AdminPanelSettingsIcon />,
+          children: [
+            {
+              titleKey: 'nav.structures',
+              icon: <CorporateFareIcon />,
+              path: '/administration/structures',
+            },
+          ],
+        },
         {
           titleKey: 'nav.communication',
           icon: <ContactMailIcon />,
