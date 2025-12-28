@@ -46,7 +46,20 @@ import {
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
-import { format } from 'date-fns';
+
+// Helper function to format date as DD/MM/YYYY
+const formatDate = (dateString: string | undefined): string => {
+  if (!dateString) return '-';
+  try {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch {
+    return '-';
+  }
+};
 
 const MailList = () => {
   const { t } = useTranslation();
@@ -131,7 +144,7 @@ const MailList = () => {
       headerName: t('mail.mailDate') || 'Mail Date', 
       minWidth: 120,
       flex: 0.8,
-      renderCell: (params) => params.value ? format(new Date(params.value), 'dd/MM/yyyy') : '-',
+      renderCell: (params) => formatDate(params.value),
     },
     { 
       field: 'mailNatureName', 

@@ -28,7 +28,30 @@ import {
 import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
-import { format } from 'date-fns';
+
+// Helper function to format date as YYYY-MM-DD for input
+const formatDateForInput = (dateString: string | undefined): string => {
+  if (!dateString) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+};
 
 const MailEdit = () => {
   const { t } = useTranslation();
@@ -45,8 +68,8 @@ const MailEdit = () => {
     reference: '',
     recordNumber: '',
     subject: '',
-    mailDate: format(new Date(), 'yyyy-MM-dd'),
-    recordDate: format(new Date(), 'yyyy-MM-dd'),
+    mailDate: formatDateForInput(undefined),
+    recordDate: formatDateForInput(undefined),
     mailNatureId: undefined,
     mailTypeId: undefined,
     structureId: 1,
@@ -80,8 +103,8 @@ const MailEdit = () => {
       const data = await mailService.getById(Number(id));
       setFormData({
         ...data,
-        mailDate: data.mailDate ? format(new Date(data.mailDate), 'yyyy-MM-dd') : '',
-        recordDate: data.recordDate ? format(new Date(data.recordDate), 'yyyy-MM-dd') : '',
+        mailDate: formatDateForInput(data.mailDate),
+        recordDate: formatDateForInput(data.recordDate),
       });
       setError('');
     } catch (err: any) {
