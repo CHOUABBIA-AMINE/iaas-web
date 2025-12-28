@@ -1,10 +1,9 @@
-/**
- * Administration Module
- * Exports for Administration sub-module
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- */
+// Pages
+export { default as StructureList } from './pages/StructureList';
+export { default as StructureEdit } from './pages/StructureEdit';
 
-export * from './dto';
+// Services
 export * from './services';
+
+// DTOs
+export * from './dto';
