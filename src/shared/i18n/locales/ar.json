@@ -217,6 +217,17 @@
     "filterByShelf": "تصفية حسب الرف",
     "searchPlaceholder": "البحث بالرمز أو الوصف..."
   },
+  "bloc": {
+    "title": "الكتل",
+    "create": "إنشاء كتلة",
+    "edit": "تعديل الكتلة",
+    "delete": "حذف الكتلة",
+    "deleteConfirm": "هل أنت متأكد من حذف هذه الكتلة؟",
+    "designationFr": "التسمية بالفرنسية",
+    "designationEn": "التسمية بالإنجليزية",
+    "designationAr": "التسمية بالعربية",
+    "searchPlaceholder": "البحث بالتسمية..."
+  },
   "footer": {
     "copyright": "© {{year}} منصة IAAS. جميع الحقوق محفوظة."
   },

@@ -217,6 +217,17 @@
     "filterByShelf": "Filter by Shelf",
     "searchPlaceholder": "Search by code or description..."
   },
+  "bloc": {
+    "title": "Blocs",
+    "create": "Create Bloc",
+    "edit": "Edit Bloc",
+    "delete": "Delete Bloc",
+    "deleteConfirm": "Are you sure you want to delete this bloc?",
+    "designationFr": "French Designation",
+    "designationEn": "English Designation",
+    "designationAr": "Arabic Designation",
+    "searchPlaceholder": "Search by designation..."
+  },
   "footer": {
     "copyright": "© {{year}} IAAS Platform. All rights reserved."
   },

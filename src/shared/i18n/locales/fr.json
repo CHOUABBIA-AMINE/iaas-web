@@ -217,6 +217,17 @@
     "filterByShelf": "Filtrer par étagère",
     "searchPlaceholder": "Rechercher par code ou description..."
   },
+  "bloc": {
+    "title": "Blocs",
+    "create": "Créer un bloc",
+    "edit": "Modifier le bloc",
+    "delete": "Supprimer le bloc",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce bloc?",
+    "designationFr": "Désignation française",
+    "designationEn": "Désignation anglaise",
+    "designationAr": "Désignation arabe",
+    "searchPlaceholder": "Rechercher par désignation..."
+  },
   "footer": {
     "copyright": "© {{year}} Plateforme IAAS. Tous droits réservés."
   },
