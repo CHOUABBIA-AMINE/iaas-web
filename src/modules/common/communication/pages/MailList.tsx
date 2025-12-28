@@ -29,6 +29,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -72,8 +73,8 @@ const MailList = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [searchText, setSearchText] = useState('');
-  const [selectedMailNatureId, setSelectedMailNatureId] = useState<number | ''>('');
-  const [selectedMailTypeId, setSelectedMailTypeId] = useState<number | ''>('');
+  const [selectedMailNatureId, setSelectedMailNatureId] = useState<string>('');
+  const [selectedMailTypeId, setSelectedMailTypeId] = useState<string>('');
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
@@ -116,8 +117,15 @@ const MailList = () => {
         (mail.subject && mail.subject.toLowerCase().includes(searchLower)) ||
         (mail.recordNumber && mail.recordNumber.toLowerCase().includes(searchLower));
 
-      const matchesNature = !selectedMailNatureId || mail.mailNatureId === selectedMailNatureId;
-      const matchesType = !selectedMailTypeId || mail.mailTypeId === selectedMailTypeId;
+      // Check mailNatureId - handle both direct ID and nested object
+      const mailNatureIdToCheck = mail.mailNatureId || mail.mailNature?.id;
+      const matchesNature = !selectedMailNatureId || 
+        (mailNatureIdToCheck && mailNatureIdToCheck.toString() === selectedMailNatureId);
+
+      // Check mailTypeId - handle both direct ID and nested object
+      const mailTypeIdToCheck = mail.mailTypeId || mail.mailType?.id;
+      const matchesType = !selectedMailTypeId || 
+        (mailTypeIdToCheck && mailTypeIdToCheck.toString() === selectedMailTypeId);
 
       return matchesSearch && matchesNature && matchesType;
     });
@@ -228,6 +236,14 @@ const MailList = () => {
   const handleExportExcel = () => { setSuccess('Exported to Excel'); handleExportMenuClose(); };
   const handleExportPDF = () => { setSuccess('Exported to PDF'); handleExportMenuClose(); };
 
+  const handleNatureChange = (event: SelectChangeEvent<string>) => {
+    setSelectedMailNatureId(event.target.value);
+  };
+
+  const handleTypeChange = (event: SelectChangeEvent<string>) => {
+    setSelectedMailTypeId(event.target.value);
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 3 }}>
@@ -266,17 +282,33 @@ const MailList = () => {
 
             <FormControl sx={{ minWidth: 180, flex: 1 }}>
               <InputLabel>{t('mail.filterByNature') || 'Filter by Nature'}</InputLabel>
-              <Select value={selectedMailNatureId} label={t('mail.filterByNature') || 'Filter by Nature'} onChange={(e) => setSelectedMailNatureId(e.target.value as number | '')}>
+              <Select 
+                value={selectedMailNatureId} 
+                label={t('mail.filterByNature') || 'Filter by Nature'} 
+                onChange={handleNatureChange}
+              >
                 <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
-                {mailNatures.map((nature) => <MenuItem key={nature.id} value={nature.id}>{nature.designationFr || nature.designationEn}</MenuItem>)}
+                {mailNatures.map((nature) => (
+                  <MenuItem key={nature.id} value={nature.id?.toString() || ''}>
+                    {nature.designationFr || nature.designationEn || `Nature ${nature.id}`}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 160, flex: 1 }}>
               <InputLabel>{t('mail.filterByType') || 'Filter by Type'}</InputLabel>
-              <Select value={selectedMailTypeId} label={t('mail.filterByType') || 'Filter by Type'} onChange={(e) => setSelectedMailTypeId(e.target.value as number | '')}>
+              <Select 
+                value={selectedMailTypeId} 
+                label={t('mail.filterByType') || 'Filter by Type'} 
+                onChange={handleTypeChange}
+              >
                 <MenuItem value=""><em>{t('common.all') || 'All'}</em></MenuItem>
-                {mailTypes.map((type) => <MenuItem key={type.id} value={type.id}>{type.designationFr || type.designationEn}</MenuItem>)}
+                {mailTypes.map((type) => (
+                  <MenuItem key={type.id} value={type.id?.toString() || ''}>
+                    {type.designationFr || type.designationEn || `Type ${type.id}`}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
