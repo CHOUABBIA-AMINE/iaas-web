@@ -48,6 +48,7 @@ import {
   ShelfList,
   ShelfEdit
 } from './modules/common/environment/pages';
+import { MailList, MailEdit } from './modules/common/communication/pages';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -193,6 +194,35 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <GroupEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Route>
+
+                {/* Communication Module - Protected */}
+                <Route path="communication">
+                  {/* Mails */}
+                  <Route
+                    path="mails"
+                    element={
+                      <ProtectedRoute>
+                        <MailList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="mails/create"
+                    element={
+                      <ProtectedRoute>
+                        <MailEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="mails/:id/edit"
+                    element={
+                      <ProtectedRoute>
+                        <MailEdit />
                       </ProtectedRoute>
                     }
                   />

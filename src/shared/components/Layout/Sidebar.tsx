@@ -40,12 +40,13 @@ import OilBarrelIcon from '@mui/icons-material/OilBarrel';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import MapIcon from '@mui/icons-material/Map';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import FolderIcon from '@mui/icons-material/Folder';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import NatureIcon from '@mui/icons-material/Nature';
+import MailIcon from '@mui/icons-material/Mail';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -130,6 +131,17 @@ const Sidebar = ({ open }: SidebarProps) => {
               path: '/audit/logs',
             },
           ],
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.communication',
+      icon: <ContactMailIcon />,
+      children: [
+        {
+          titleKey: 'nav.mails',
+          icon: <MailIcon />,
+          path: '/communication/mails',
         },
       ],
     },
