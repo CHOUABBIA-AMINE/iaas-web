@@ -6,6 +6,7 @@ This module implements archive box management functionality following the same p
 
 **Author:** CHOUABBIA Amine  
 **Created:** December 28, 2025  
+**Updated:** December 28, 2025  
 **Backend Model:** `dz.mdn.iaas.common.environment.model.ArchiveBox`
 
 ---
@@ -89,43 +90,43 @@ src/modules/common/environment/
 
 ### ArchiveBoxService
 
-**Base URL:** `/common/environment/archive-box`
+**Base URL:** `/common/environment/archiveBox` *(camelCase)*
 
 #### Endpoints:
 
 ```typescript
 // List all archive boxes
-GET /common/environment/archive-box
+GET /common/environment/archiveBox
 → ArchiveBoxDTO[]
 
 // Get by ID
-GET /common/environment/archive-box/{id}
+GET /common/environment/archiveBox/{id}
 → ArchiveBoxDTO
 
 // Get by code
-GET /common/environment/archive-box/code/{code}
+GET /common/environment/archiveBox/code/{code}
 → ArchiveBoxDTO
 
 // Create new
-POST /common/environment/archive-box
+POST /common/environment/archiveBox
 Body: ArchiveBoxDTO
 → ArchiveBoxDTO
 
 // Update existing
-PUT /common/environment/archive-box/{id}
+PUT /common/environment/archiveBox/{id}
 Body: ArchiveBoxDTO
 → ArchiveBoxDTO
 
 // Delete
-DELETE /common/environment/archive-box/{id}
+DELETE /common/environment/archiveBox/{id}
 → void
 
 // Get by shelf
-GET /common/environment/archive-box/shelf/{shelfId}
+GET /common/environment/archiveBox/shelf/{shelfId}
 → ArchiveBoxDTO[]
 
-// Get by shelf floor
-GET /common/environment/archive-box/shelf-floor/{shelfFloorId}
+// Get by shelf floor (camelCase)
+GET /common/environment/archiveBox/shelfFloor/{shelfFloorId}
 → ArchiveBoxDTO[]
 ```
 
@@ -140,12 +141,12 @@ GET /common/environment/shelf/{id}     → ShelfDTO
 
 ### ShelfFloorService
 
-**Base URL:** `/common/environment/shelf-floor`
+**Base URL:** `/common/environment/shelfFloor` *(camelCase)*
 
 ```typescript
-GET /common/environment/shelf-floor                  → ShelfFloorDTO[]
-GET /common/environment/shelf-floor/{id}             → ShelfFloorDTO
-GET /common/environment/shelf-floor/shelf/{shelfId}  → ShelfFloorDTO[]
+GET /common/environment/shelfFloor                  → ShelfFloorDTO[]
+GET /common/environment/shelfFloor/{id}             → ShelfFloorDTO
+GET /common/environment/shelfFloor/shelf/{shelfId}  → ShelfFloorDTO[]
 ```
 
 ---
@@ -363,6 +364,18 @@ For questions or issues, contact: **CHOUABBIA Amine**
 - [Backend ArchiveBox Model](https://github.com/CHOUABBIA-AMINE/iaas/blob/main/src/main/java/dz/mdn/iaas/common/environment/model/ArchiveBox.java)
 - [User Management Implementation](../../system/security/pages/UserList.tsx)
 - [Material-UI DataGrid Docs](https://mui.com/x/react-data-grid/)
+
+---
+
+## 🔗 API Naming Convention
+
+**Important:** This module uses **camelCase** for multi-word endpoints:
+- ✅ `/common/environment/archiveBox` (camelCase)
+- ✅ `/common/environment/shelfFloor` (camelCase)
+- ❌ NOT `/common/environment/archive-box` (kebab-case)
+- ❌ NOT `/common/environment/shelf-floor` (kebab-case)
+
+This follows the Java Spring Boot controller mapping convention where `@RequestMapping` paths use camelCase for entity names.
 
 ---
 
