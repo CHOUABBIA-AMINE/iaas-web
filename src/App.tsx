@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-27-2025
+ * @updated 12-28-2025
  */
 
 import { useEffect, useMemo } from 'react';
@@ -36,6 +36,7 @@ import {
   PipelineEdit
 } from './modules/network/core/pages';
 import { NetworkMapPage, GeoDebugPage } from './modules/network/geo/pages';
+import { ArchiveBoxList, ArchiveBoxEdit } from './modules/common/environment/pages';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -181,6 +182,35 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <GroupEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Route>
+
+                {/* Environment Module - Protected */}
+                <Route path="environment">
+                  {/* Archive Boxes */}
+                  <Route
+                    path="archive-boxes"
+                    element={
+                      <ProtectedRoute>
+                        <ArchiveBoxList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="archive-boxes/create"
+                    element={
+                      <ProtectedRoute>
+                        <ArchiveBoxEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="archive-boxes/:boxId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <ArchiveBoxEdit />
                       </ProtectedRoute>
                     }
                   />
