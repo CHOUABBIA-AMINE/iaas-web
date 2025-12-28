@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -250,7 +251,7 @@ const RoomEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('room.designationFr') || 'French Designation'}
@@ -258,27 +259,27 @@ const RoomEdit = () => {
                     onChange={handleChange('designationFr')}
                     required
                     error={!!validationErrors.designationFr}
-                    helperText={validationErrors.designationFr || 'Required - Primary designation in French'}
+                    helperText={validationErrors.designationFr || 'Required'}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('room.designationEn') || 'English Designation'}
                     value={room.designationEn || ''}
                     onChange={handleChange('designationEn')}
-                    helperText="Optional - Designation in English"
+                    helperText="Optional"
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('room.designationAr') || 'Arabic Designation'}
                     value={room.designationAr || ''}
                     onChange={handleChange('designationAr')}
-                    helperText="Optional - Designation in Arabic"
+                    helperText="Optional"
                     inputProps={{
                       dir: 'rtl',
                       style: { textAlign: 'right' }

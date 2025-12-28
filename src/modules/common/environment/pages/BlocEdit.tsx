@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -172,7 +173,7 @@ const BlocEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('bloc.designationFr') || 'French Designation'}
@@ -180,27 +181,27 @@ const BlocEdit = () => {
                     onChange={handleChange('designationFr')}
                     required
                     error={!!validationErrors.designationFr}
-                    helperText={validationErrors.designationFr || 'Required - Primary designation in French'}
+                    helperText={validationErrors.designationFr || 'Required'}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('bloc.designationEn') || 'English Designation'}
                     value={bloc.designationEn || ''}
                     onChange={handleChange('designationEn')}
-                    helperText="Optional - Designation in English"
+                    helperText="Optional"
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('bloc.designationAr') || 'Arabic Designation'}
                     value={bloc.designationAr || ''}
                     onChange={handleChange('designationAr')}
-                    helperText="Optional - Designation in Arabic"
+                    helperText="Optional"
                     inputProps={{
                       dir: 'rtl',
                       style: { textAlign: 'right' }

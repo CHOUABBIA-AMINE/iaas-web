@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -226,7 +227,7 @@ const ShelfEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('shelf.designationFr') || 'French Designation'}
@@ -234,27 +235,27 @@ const ShelfEdit = () => {
                     onChange={handleChange('designationFr')}
                     required
                     error={!!validationErrors.designationFr}
-                    helperText={validationErrors.designationFr || 'Required - Primary designation in French'}
+                    helperText={validationErrors.designationFr || 'Required'}
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('shelf.designationEn') || 'English Designation'}
                     value={shelf.designationEn || ''}
                     onChange={handleChange('designationEn')}
-                    helperText="Optional - Designation in English"
+                    helperText="Optional"
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('shelf.designationAr') || 'Arabic Designation'}
                     value={shelf.designationAr || ''}
                     onChange={handleChange('designationAr')}
-                    helperText="Optional - Designation in Arabic"
+                    helperText="Optional"
                     inputProps={{
                       dir: 'rtl',
                       style: { textAlign: 'right' }
