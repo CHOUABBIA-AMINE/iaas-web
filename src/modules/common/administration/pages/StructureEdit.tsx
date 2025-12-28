@@ -340,7 +340,7 @@ const StructureEdit = () => {
                   </FormControl>
                 </Grid>
 
-                {/* Designations */}
+                {/* Designations - Single Row */}
                 <Grid item xs={12}>
                   <Typography variant="h6" fontWeight={600} gutterBottom sx={{ mt: 2 }}>
                     Designations
@@ -348,7 +348,7 @@ const StructureEdit = () => {
                   <Divider sx={{ mb: 2 }} />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     required
@@ -361,7 +361,7 @@ const StructureEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label="Designation (English)"
@@ -371,7 +371,7 @@ const StructureEdit = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label="Designation (Arabic)"

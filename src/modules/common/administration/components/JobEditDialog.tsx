@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-28-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -177,7 +178,7 @@ const JobEditDialog = ({ open, onClose, onSave, structureId, job }: JobEditDialo
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               required
@@ -190,7 +191,7 @@ const JobEditDialog = ({ open, onClose, onSave, structureId, job }: JobEditDialo
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Designation (English)"
@@ -200,7 +201,7 @@ const JobEditDialog = ({ open, onClose, onSave, structureId, job }: JobEditDialo
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <TextField
               fullWidth
               label="Designation (Arabic)"
