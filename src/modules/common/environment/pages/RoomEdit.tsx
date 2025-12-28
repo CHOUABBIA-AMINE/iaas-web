@@ -239,7 +239,8 @@ const RoomEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                {/* Code - First Row, 33% width */}
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('room.code') || 'Code'}
@@ -251,6 +252,7 @@ const RoomEdit = () => {
                   />
                 </Grid>
 
+                {/* Designations - Second Row, 33% each */}
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth

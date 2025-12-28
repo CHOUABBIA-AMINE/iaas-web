@@ -215,7 +215,8 @@ const ShelfEdit = () => {
               <Divider sx={{ mb: 3 }} />
               
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                {/* Code - First Row, 33% width */}
+                <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
                     label={t('shelf.code') || 'Code'}
@@ -227,6 +228,7 @@ const ShelfEdit = () => {
                   />
                 </Grid>
 
+                {/* Designations - Second Row, 33% each */}
                 <Grid item xs={12} md={4}>
                   <TextField
                     fullWidth
