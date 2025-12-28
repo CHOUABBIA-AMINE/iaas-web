@@ -36,7 +36,14 @@ import {
   PipelineEdit
 } from './modules/network/core/pages';
 import { NetworkMapPage, GeoDebugPage } from './modules/network/geo/pages';
-import { ArchiveBoxList, ArchiveBoxEdit, BlocList, BlocEdit } from './modules/common/environment/pages';
+import { 
+  ArchiveBoxList, 
+  ArchiveBoxEdit, 
+  BlocList, 
+  BlocEdit,
+  RoomList,
+  RoomEdit
+} from './modules/common/environment/pages';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -237,6 +244,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <BlocEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Rooms */}
+                  <Route
+                    path="rooms"
+                    element={
+                      <ProtectedRoute>
+                        <RoomList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="rooms/create"
+                    element={
+                      <ProtectedRoute>
+                        <RoomEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="rooms/:roomId/edit"
+                    element={
+                      <ProtectedRoute>
+                        <RoomEdit />
                       </ProtectedRoute>
                     }
                   />
