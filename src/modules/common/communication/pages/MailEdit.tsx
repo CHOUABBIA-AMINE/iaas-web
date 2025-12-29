@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025 - Added Structure select field
+ * @updated 12-29-2025 - Added Structure select field and PDF upload
  */
 
 import { useState, useEffect } from 'react';
@@ -25,12 +25,24 @@ import {
   Select,
   MenuItem,
   Grid,
+  Paper,
+  IconButton,
+  Chip,
+  LinearProgress,
 } from '@mui/material';
-import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
+import {
+  Save as SaveIcon,
+  ArrowBack as BackIcon,
+  CloudUpload as UploadIcon,
+  Close as CloseIcon,
+  PictureAsPdf as PdfIcon,
+  InsertDriveFile as FileIcon,
+} from '@mui/icons-material';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
 import { structureService } from '../../administration/services';
 import { StructureDTO } from '../../administration/dto';
+import axiosInstance from '../../../../shared/config/axios';
 
 // Helper function to format date as YYYY-MM-DD for input
 const formatDateForInput = (dateString: string | undefined): string => {
@@ -56,6 +68,15 @@ const formatDateForInput = (dateString: string | undefined): string => {
   }
 };
 
+// Helper to format file size
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+};
+
 const MailEdit = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -67,6 +88,9 @@ const MailEdit = () => {
   const [mailNatures, setMailNatures] = useState<MailNatureDTO[]>([]);
   const [mailTypes, setMailTypes] = useState<MailTypeDTO[]>([]);
   const [structures, setStructures] = useState<StructureDTO[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState<MailDTO>({
     reference: '',
@@ -77,7 +101,7 @@ const MailEdit = () => {
     mailNatureId: undefined,
     mailTypeId: undefined,
     structureId: undefined,
-    fileId: 1,
+    fileId: undefined,
   });
 
   useEffect(() => {
@@ -120,6 +144,62 @@ const MailEdit = () => {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are allowed');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setError('File size must be less than 10MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setError('');
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setUploadProgress(0);
+  };
+
+  const uploadFile = async (): Promise<number | undefined> => {
+    if (!selectedFile) return undefined;
+
+    try {
+      setUploading(true);
+      setUploadProgress(0);
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const response = await axiosInstance.post('/common/environment/file/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          const progress = progressEvent.total
+            ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            : 0;
+          setUploadProgress(progress);
+        },
+      });
+
+      setUploading(false);
+      return response.data.id; // Assuming backend returns { id: number }
+    } catch (err: any) {
+      setUploading(false);
+      throw new Error(err.response?.data?.message || 'Failed to upload file');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -130,10 +210,24 @@ const MailEdit = () => {
 
     try {
       setLoading(true);
+
+      // Upload file first if selected
+      let fileId = formData.fileId;
+      if (selectedFile) {
+        fileId = await uploadFile();
+        if (!fileId) {
+          setError('File upload failed');
+          setLoading(false);
+          return;
+        }
+      }
+
+      const mailData = { ...formData, fileId };
+
       if (isEditMode) {
-        await mailService.update(Number(id), formData);
+        await mailService.update(Number(id), mailData);
       } else {
-        await mailService.create(formData);
+        await mailService.create(mailData);
       }
       navigate('/communication/mails');
     } catch (err: any) {
@@ -285,14 +379,93 @@ const MailEdit = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+
+                {/* PDF Upload Section */}
+                <Grid item xs={12}>
+                  <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                    {t('mail.attachment') || 'Mail Document (PDF)'}
+                  </Typography>
+                  
+                  {!selectedFile ? (
+                    <Paper
+                      sx={{
+                        p: 3,
+                        border: '2px dashed',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          bgcolor: 'action.hover',
+                        },
+                      }}
+                      onClick={() => document.getElementById('pdf-upload')?.click()}
+                    >
+                      <input
+                        id="pdf-upload"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileSelect}
+                        style={{ display: 'none' }}
+                        disabled={loading || uploading}
+                      />
+                      <UploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                      <Typography variant="body1" fontWeight={500}>
+                        Click to upload PDF file
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Maximum file size: 10MB
+                      </Typography>
+                    </Paper>
+                  ) : (
+                    <Paper
+                      sx={{
+                        p: 2,
+                        border: 1,
+                        borderColor: 'success.main',
+                        borderRadius: 2,
+                        bgcolor: 'success.lighter',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <PdfIcon sx={{ fontSize: 40, color: 'error.main' }} />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="body1" fontWeight={500}>
+                            {selectedFile.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatFileSize(selectedFile.size)}
+                          </Typography>
+                          {uploading && (
+                            <Box sx={{ mt: 1 }}>
+                              <LinearProgress variant="determinate" value={uploadProgress} />
+                              <Typography variant="caption" color="text.secondary">
+                                Uploading: {uploadProgress}%
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                        <IconButton
+                          onClick={handleRemoveFile}
+                          disabled={loading || uploading}
+                          color="error"
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                    </Paper>
+                  )}
+                </Grid>
               </Grid>
 
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
-                <Button variant="outlined" onClick={() => navigate('/communication/mails')} disabled={loading}>
+                <Button variant="outlined" onClick={() => navigate('/communication/mails')} disabled={loading || uploading}>
                   {t('common.cancel')}
                 </Button>
-                <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={loading}>
-                  {loading ? <CircularProgress size={20} /> : (isEditMode ? t('common.update') : t('common.create'))}
+                <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={loading || uploading}>
+                  {loading || uploading ? <CircularProgress size={20} /> : (isEditMode ? t('common.update') : t('common.create'))}
                 </Button>
               </Box>
             </Stack>
