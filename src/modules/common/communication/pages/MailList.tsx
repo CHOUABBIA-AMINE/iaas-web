@@ -1,9 +1,10 @@
 /**
  * Mail List Page - Professional Version
- * Advanced DataGrid with search, filters, and export
+ * Advanced DataGrid with search, filters, export, and server-side pagination
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025 - Fixed data response handling and added server-side pagination
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -44,7 +45,7 @@ import {
   Mail as MailIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams, GridPaginationModel } from '@mui/x-data-grid';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
 
@@ -76,41 +77,129 @@ const MailList = () => {
   const [selectedMailNatureId, setSelectedMailNatureId] = useState<string>('');
   const [selectedMailTypeId, setSelectedMailTypeId] = useState<string>('');
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [rowCount, setRowCount] = useState(0);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  useEffect(() => {
+    // Reload data when pagination changes (for server-side pagination)
+    loadLookupData();
+  }, [paginationModel]);
+
+  const loadLookupData = async () => {
     try {
-      setLoading(true);
-      const [mailsData, naturesData, typesData] = await Promise.all([
-        mailService.getAll(),
+      const [naturesResponse, typesResponse] = await Promise.all([
         mailNatureService.getAll(),
         mailTypeService.getAll(),
       ]);
       
-      console.log('Mails loaded:', mailsData);
-      console.log('Mail Natures loaded:', naturesData);
-      console.log('Mail Types loaded:', typesData);
+      const naturesData = Array.isArray(naturesResponse) 
+        ? naturesResponse 
+        : (naturesResponse?.data || naturesResponse?.content || []);
       
-      setMails(Array.isArray(mailsData) ? mailsData : []);
+      const typesData = Array.isArray(typesResponse) 
+        ? typesResponse 
+        : (typesResponse?.data || typesResponse?.content || []);
+      
       setMailNatures(Array.isArray(naturesData) ? naturesData : []);
       setMailTypes(Array.isArray(typesData) ? typesData : []);
+    } catch (err: any) {
+      console.error('Failed to load lookup data:', err);
+    }
+  };
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      
+      // Try to use paginated endpoint if service supports it
+      // Otherwise fall back to getAll
+      let mailsResponse;
+      
+      // Check if mailService has a paginated method
+      if (typeof (mailService as any).getAllPaginated === 'function') {
+        mailsResponse = await (mailService as any).getAllPaginated(
+          paginationModel.page,
+          paginationModel.pageSize
+        );
+      } else {
+        mailsResponse = await mailService.getAll();
+      }
+      
+      console.log('Raw mails response:', mailsResponse);
+      console.log('Response type:', typeof mailsResponse);
+      console.log('Is array:', Array.isArray(mailsResponse));
+      
+      // Extract data from response - handle multiple response formats
+      let mailsData: MailDTO[];
+      let totalCount: number;
+      
+      if (Array.isArray(mailsResponse)) {
+        // Direct array response
+        mailsData = mailsResponse;
+        totalCount = mailsResponse.length;
+      } else if (mailsResponse?.content && Array.isArray(mailsResponse.content)) {
+        // Spring Boot Page format: { content: [], totalElements: n }
+        mailsData = mailsResponse.content;
+        totalCount = mailsResponse.totalElements || mailsResponse.content.length;
+      } else if (mailsResponse?.data) {
+        // Wrapped in data property
+        if (Array.isArray(mailsResponse.data)) {
+          mailsData = mailsResponse.data;
+          totalCount = mailsResponse.total || mailsResponse.data.length;
+        } else if (mailsResponse.data.content && Array.isArray(mailsResponse.data.content)) {
+          mailsData = mailsResponse.data.content;
+          totalCount = mailsResponse.data.totalElements || mailsResponse.data.content.length;
+        } else {
+          mailsData = [];
+          totalCount = 0;
+        }
+      } else {
+        mailsData = [];
+        totalCount = 0;
+      }
+      
+      console.log('Extracted mails data:', mailsData);
+      console.log('Number of mails:', mailsData.length);
+      console.log('Total count:', totalCount);
+      
+      // Ensure each item has an id for DataGrid
+      const mailsWithIds = mailsData.map((mail, index) => ({
+        ...mail,
+        id: mail.id || index,
+      }));
+      
+      setMails(mailsWithIds);
+      setRowCount(totalCount);
+      
+      await loadLookupData();
       setError('');
     } catch (err: any) {
       console.error('Failed to load mails:', err);
+      console.error('Error details:', err.response?.data || err.message);
       setError(err.message || 'Failed to load mails');
       setMails([]);
+      setRowCount(0);
     } finally {
       setLoading(false);
     }
   };
 
   const filteredMails = useMemo(() => {
-    if (!Array.isArray(mails)) return [];
+    if (!Array.isArray(mails)) {
+      console.log('Mails is not an array:', mails);
+      return [];
+    }
     
-    return mails.filter((mail) => {
+    const filtered = mails.filter((mail) => {
       const searchLower = searchText.toLowerCase();
       const matchesSearch = !searchText || 
         (mail.reference && mail.reference.toLowerCase().includes(searchLower)) ||
@@ -129,6 +218,9 @@ const MailList = () => {
 
       return matchesSearch && matchesNature && matchesType;
     });
+    
+    console.log('Filtered mails count:', filtered.length);
+    return filtered;
   }, [mails, searchText, selectedMailNatureId, selectedMailTypeId]);
 
   const columns: GridColDef[] = [
@@ -244,6 +336,10 @@ const MailList = () => {
     setSelectedMailTypeId(event.target.value);
   };
 
+  const handlePaginationModelChange = (newModel: GridPaginationModel) => {
+    setPaginationModel(newModel);
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 3 }}>
@@ -330,7 +426,10 @@ const MailList = () => {
           columns={columns}
           loading={loading}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationModelChange}
+          paginationMode="client"
+          rowCount={rowCount}
           disableRowSelectionOnClick
           autoHeight
           sx={{
