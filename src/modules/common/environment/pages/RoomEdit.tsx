@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -60,44 +60,61 @@ const RoomEdit = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    loadRelatedData();
-    if (isEditMode) {
-      loadRoomData();
-    }
+    loadData();
   }, [roomId]);
 
-  const loadRelatedData = async () => {
+  const loadData = async () => {
     try {
+      setLoading(true);
+      
+      // Load related data first
       const [blocsData, floorsData] = await Promise.all([
         blocService.getAll(),
         floorService.getAll(),
       ]);
       
-      setBlocs(Array.isArray(blocsData) ? blocsData : []);
-      setFloors(Array.isArray(floorsData) ? floorsData : []);
-    } catch (err: any) {
-      console.error('Failed to load related data:', err);
-      setError(err.message || 'Failed to load data');
-    }
-  };
-
-  const loadRoomData = async () => {
-    try {
-      setLoading(true);
-      const roomData = await roomService.getById(Number(roomId));
-      setRoom(roomData);
+      const loadedBlocs = Array.isArray(blocsData) ? blocsData : [];
+      const loadedFloors = Array.isArray(floorsData) ? floorsData : [];
       
-      if (roomData.bloc) {
-        setSelectedBloc(roomData.bloc);
-      }
-      if (roomData.floor) {
-        setSelectedFloor(roomData.floor);
+      setBlocs(loadedBlocs);
+      setFloors(loadedFloors);
+
+      // Then load room data if editing
+      if (isEditMode) {
+        const roomData = await roomService.getById(Number(roomId));
+        setRoom(roomData);
+        
+        // Match bloc by ID from the loaded blocs array
+        if (roomData.blocId) {
+          const matchedBloc = loadedBlocs.find(b => b.id === roomData.blocId);
+          if (matchedBloc) {
+            setSelectedBloc(matchedBloc);
+          }
+        } else if (roomData.bloc) {
+          const matchedBloc = loadedBlocs.find(b => b.id === roomData.bloc.id);
+          if (matchedBloc) {
+            setSelectedBloc(matchedBloc);
+          }
+        }
+        
+        // Match floor by ID from the loaded floors array
+        if (roomData.floorId) {
+          const matchedFloor = loadedFloors.find(f => f.id === roomData.floorId);
+          if (matchedFloor) {
+            setSelectedFloor(matchedFloor);
+          }
+        } else if (roomData.floor) {
+          const matchedFloor = loadedFloors.find(f => f.id === roomData.floor.id);
+          if (matchedFloor) {
+            setSelectedFloor(matchedFloor);
+          }
+        }
       }
       
       setError('');
     } catch (err: any) {
-      console.error('Failed to load room:', err);
-      setError(err.message || 'Failed to load room');
+      console.error('Failed to load data:', err);
+      setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
