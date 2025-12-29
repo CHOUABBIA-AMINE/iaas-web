@@ -7,6 +7,7 @@
  * @updated 12-29-2025 - Added Structure select field and PDF upload
  * @updated 12-29-2025 - Updated file upload endpoint to system/utility controller
  * @updated 12-29-2025 - Added tabs and referenced mails management
+ * @updated 12-29-2025 - Integrated referenced mails API calls
  */
 
 import { useState, useEffect } from 'react';
@@ -134,6 +135,7 @@ const MailEdit = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [mailNatures, setMailNatures] = useState<MailNatureDTO[]>([]);
   const [mailTypes, setMailTypes] = useState<MailTypeDTO[]>([]);
   const [structures, setStructures] = useState<StructureDTO[]>([]);
@@ -202,10 +204,19 @@ const MailEdit = () => {
         recordDate: formatDateForInput(data.recordDate),
       });
       
-      // Load referenced mails if available
-      // TODO: Implement getReferencedMails API call when backend is ready
-      // const referenced = await mailService.getReferencedMails(Number(id));
-      // setReferencedMails(referenced);
+      // Load referenced mails
+      try {
+        const referenced = await mailService.getReferencedMails(Number(id));
+        const referencedData = Array.isArray(referenced) 
+          ? referenced 
+          : (referenced?.data || referenced?.content || []);
+        setReferencedMails(referencedData);
+        console.log('Loaded referenced mails:', referencedData);
+      } catch (err: any) {
+        console.error('Failed to load referenced mails:', err);
+        // Don't show error to user, just log it
+        setReferencedMails([]);
+      }
       
       setError('');
     } catch (err: any) {
@@ -293,6 +304,7 @@ const MailEdit = () => {
 
     try {
       setLoading(true);
+      setError('');
 
       // Upload file first if selected
       let fileId = formData.fileId;
@@ -313,16 +325,32 @@ const MailEdit = () => {
         savedMailId = Number(id);
       } else {
         const result = await mailService.create(mailData);
-        savedMailId = result.id || result;
+        savedMailId = result.id || Number(result);
       }
 
-      // Save referenced mails
-      // TODO: Implement saveReferencedMails API call when backend is ready
-      // if (referencedMails.length > 0) {
-      //   await mailService.saveReferencedMails(savedMailId, referencedMails.map(m => m.id));
-      // }
+      // Save referenced mails if any exist
+      if (referencedMails.length > 0 && savedMailId) {
+        try {
+          const referencedMailIds = referencedMails
+            .map(m => m.id)
+            .filter((id): id is number => id !== undefined);
+          
+          await mailService.updateReferencedMails(savedMailId, referencedMailIds);
+          console.log('Referenced mails saved:', referencedMailIds);
+        } catch (err: any) {
+          console.error('Failed to save referenced mails:', err);
+          setError('Mail saved but failed to update references: ' + (err.message || 'Unknown error'));
+          setLoading(false);
+          return;
+        }
+      }
 
-      navigate('/communication/mails');
+      setSuccess(`Mail ${isEditMode ? 'updated' : 'created'} successfully!`);
+      
+      // Navigate after a short delay to show success message
+      setTimeout(() => {
+        navigate('/communication/mails');
+      }, 1500);
     } catch (err: any) {
       setError(err.message || `Failed to ${isEditMode ? 'update' : 'create'} mail`);
     } finally {
@@ -358,6 +386,7 @@ const MailEdit = () => {
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
 
       <Card elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
