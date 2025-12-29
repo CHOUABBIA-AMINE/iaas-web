@@ -61,6 +61,8 @@
   },
   "nav": {
     "dashboard": "لوحة التحكم",
+    "administration": "الإدارة",
+    "structure": "الهيكل",
     "system": "النظام",
     "security": "الأمان",
     "users": "المستخدمون",

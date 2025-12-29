@@ -61,6 +61,8 @@
   },
   "nav": {
     "dashboard": "Tableau de bord",
+    "administration": "Administration",
+    "structure": "Structure",
     "system": "Système",
     "security": "Sécurité",
     "users": "Utilisateurs",
