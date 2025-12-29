@@ -5,6 +5,7 @@
  * @author CHOUABBIA Amine
  * @created 12-28-2025
  * @updated 12-29-2025 - Added Structure select field and PDF upload
+ * @updated 12-29-2025 - Updated file upload endpoint to system/utility controller
  */
 
 import { useState, useEffect } from 'react';
@@ -180,7 +181,7 @@ const MailEdit = () => {
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const response = await axiosInstance.post('/common/environment/file/upload', formData, {
+      const response = await axiosInstance.post('/system/utility/file/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
