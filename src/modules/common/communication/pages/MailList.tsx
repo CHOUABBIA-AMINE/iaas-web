@@ -5,6 +5,7 @@
  * @author CHOUABBIA Amine
  * @created 12-28-2025
  * @updated 12-29-2025 - Fixed data response handling and added server-side pagination
+ * @updated 12-29-2025 - Added file visualization action
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -44,10 +45,12 @@ import {
   PictureAsPdf as PdfIcon,
   Mail as MailIcon,
   Clear as ClearIcon,
+  Visibility as ViewIcon,
 } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridValueGetterParams, GridPaginationModel } from '@mui/x-data-grid';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
+import axiosInstance from '../../../../shared/config/axios';
 
 // Helper function to format date as DD/MM/YYYY
 const formatDate = (dateString: string | undefined): string => {
@@ -223,6 +226,31 @@ const MailList = () => {
     return filtered;
   }, [mails, searchText, selectedMailNatureId, selectedMailTypeId]);
 
+  const handleViewFile = async (fileId: number | undefined) => {
+    if (!fileId) {
+      setError('No file attached to this mail');
+      return;
+    }
+
+    try {
+      // Get file download URL from backend
+      const response = await axiosInstance.get(`/system/utility/file/download/${fileId}`, {
+        responseType: 'blob',
+      });
+
+      // Create blob URL and open in new tab
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Clean up the URL after a delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+    } catch (err: any) {
+      console.error('Failed to open file:', err);
+      setError(err.response?.data?.message || 'Failed to open file');
+    }
+  };
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     { 
@@ -283,25 +311,41 @@ const MailList = () => {
     {
       field: 'actions',
       headerName: t('common.actions'),
-      width: 130,
+      width: 180,
       align: 'center',
       headerAlign: 'center',
       sortable: false,
       filterable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title={t('common.edit')}>
-            <IconButton size="small" onClick={() => handleEdit(params.row.id)} sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('common.delete')}>
-            <IconButton size="small" onClick={() => handleDelete(params.row.id)} sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
+      renderCell: (params) => {
+        const mail = params.row as MailDTO;
+        const hasFile = Boolean(mail.fileId);
+        
+        return (
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {hasFile && (
+              <Tooltip title="View File">
+                <IconButton 
+                  size="small" 
+                  onClick={() => handleViewFile(mail.fileId)} 
+                  sx={{ color: 'success.main', '&:hover': { bgcolor: alpha('#16a34a', 0.1) } }}
+                >
+                  <ViewIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip title={t('common.edit')}>
+              <IconButton size="small" onClick={() => handleEdit(params.row.id)} sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={t('common.delete')}>
+              <IconButton size="small" onClick={() => handleDelete(params.row.id)} sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        );
+      },
     },
   ];
 
