@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -61,10 +61,7 @@ const ShelfEdit = () => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    loadRelatedData();
-    if (isEditMode) {
-      loadShelfData();
-    }
+    loadData();
   }, [shelfId]);
 
   // Filter rooms when bloc changes
@@ -87,14 +84,18 @@ const ShelfEdit = () => {
         setSelectedRoom(null);
       }
     } else {
+      console.log('❌ No bloc selected - clearing filtered rooms');
       setFilteredRooms([]);
       setSelectedRoom(null);
     }
   }, [selectedBloc, allRooms]);
 
-  const loadRelatedData = async () => {
+  const loadData = async () => {
     try {
+      setLoading(true);
       console.log('🔄 Loading blocs and rooms...');
+      
+      // Step 1: Load related data first
       const [blocsData, roomsData] = await Promise.all([
         blocService.getAll(),
         roomService.getAll(),
@@ -105,41 +106,52 @@ const ShelfEdit = () => {
       console.log('🏠 Rooms response:', roomsData);
       console.log('🏠 Rooms count:', Array.isArray(roomsData) ? roomsData.length : 'Not an array');
       
-      const blocsArray = Array.isArray(blocsData) ? blocsData : [];
-      const roomsArray = Array.isArray(roomsData) ? roomsData : [];
+      const loadedBlocs = Array.isArray(blocsData) ? blocsData : [];
+      const loadedRooms = Array.isArray(roomsData) ? roomsData : [];
       
-      setBlocs(blocsArray);
-      setAllRooms(roomsArray);
+      setBlocs(loadedBlocs);
+      setAllRooms(loadedRooms);
       
-      console.log('✅ Loaded:', blocsArray.length, 'blocs and', roomsArray.length, 'rooms');
-    } catch (err: any) {
-      console.error('❌ Failed to load related data:', err);
-      console.error('Error details:', err.response?.data);
-      setError(err.response?.data?.message || err.message || 'Failed to load blocs and rooms');
-    }
-  };
+      console.log('✅ Loaded:', loadedBlocs.length, 'blocs and', loadedRooms.length, 'rooms');
 
-  const loadShelfData = async () => {
-    try {
-      setLoading(true);
-      const shelfData = await shelfService.getById(Number(shelfId));
-      console.log('📋 Loaded shelf data:', shelfData);
-      setShelf(shelfData);
-      
-      if (shelfData.room) {
-        setSelectedRoom(shelfData.room);
+      // Step 2: Then load shelf data if editing
+      if (isEditMode) {
+        const shelfData = await shelfService.getById(Number(shelfId));
+        console.log('📋 Loaded shelf data:', shelfData);
+        setShelf(shelfData);
         
-        // Set bloc from room's bloc
-        if (shelfData.room.bloc) {
-          console.log('🏢 Setting bloc from room:', shelfData.room.bloc);
-          setSelectedBloc(shelfData.room.bloc);
+        // Match room by ID from loaded rooms array
+        let matchedRoom: RoomDTO | null = null;
+        if (shelfData.roomId) {
+          matchedRoom = loadedRooms.find(r => r.id === shelfData.roomId) || null;
+        } else if (shelfData.room) {
+          matchedRoom = loadedRooms.find(r => r.id === shelfData.room.id) || null;
+        }
+        
+        if (matchedRoom) {
+          console.log('🏠 Matched room:', matchedRoom);
+          setSelectedRoom(matchedRoom);
+          
+          // Match bloc from room's blocId
+          let matchedBloc: BlocDTO | null = null;
+          if (matchedRoom.blocId) {
+            matchedBloc = loadedBlocs.find(b => b.id === matchedRoom.blocId) || null;
+          } else if (matchedRoom.bloc) {
+            matchedBloc = loadedBlocs.find(b => b.id === matchedRoom.bloc.id) || null;
+          }
+          
+          if (matchedBloc) {
+            console.log('🏢 Matched bloc from room:', matchedBloc);
+            setSelectedBloc(matchedBloc);
+          }
         }
       }
       
       setError('');
     } catch (err: any) {
-      console.error('❌ Failed to load shelf:', err);
-      setError(err.message || 'Failed to load shelf');
+      console.error('❌ Failed to load data:', err);
+      console.error('Error details:', err.response?.data);
+      setError(err.response?.data?.message || err.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
