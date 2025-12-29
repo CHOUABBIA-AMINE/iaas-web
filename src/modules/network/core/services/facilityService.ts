@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-24-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axios from '../../../../shared/config/axios';
@@ -23,7 +24,7 @@ export const facilityService = {
   },
 
   create: async (data: FacilityCreateDTO): Promise<FacilityDTO> => {
-    const response = await axios.post(API_BASE, data);
+    const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   },
 

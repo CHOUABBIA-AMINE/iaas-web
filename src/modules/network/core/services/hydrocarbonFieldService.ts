@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-23-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axios from '../../../../shared/config/axios';
@@ -50,7 +50,7 @@ class HydrocarbonFieldService {
   }
 
   async create(data: HydrocarbonFieldCreateDTO): Promise<HydrocarbonFieldDTO> {
-    const response = await axios.post(API_BASE, data);
+    const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   }
 
