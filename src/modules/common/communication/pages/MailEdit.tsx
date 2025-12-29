@@ -29,8 +29,8 @@ import {
 import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
-import { structureService } from '../../../system/organization/services';
-import { StructureDTO } from '../../../system/organization/dto';
+import { structureService } from '../../administration/services';
+import { StructureDTO } from '../../administration/dto';
 
 // Helper function to format date as YYYY-MM-DD for input
 const formatDateForInput = (dateString: string | undefined): string => {
