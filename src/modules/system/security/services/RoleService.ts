@@ -4,10 +4,12 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-29-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { RoleDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class RoleService {
   private readonly BASE_URL = '/system/security/role';
@@ -16,7 +18,32 @@ class RoleService {
    * Get all roles
    */
   async getAll(): Promise<RoleDTO[]> {
-    const response = await axiosInstance.get<RoleDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<RoleDTO[]>(`${this.BASE_URL}/all`);
+    return response.data;
+  }
+
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<RoleDTO>> {
+    const response = await axiosInstance.get<PageResponse<RoleDTO>>(this.BASE_URL, {
+      params: { page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<RoleDTO>> {
+    const response = await axiosInstance.get<PageResponse<RoleDTO>>(`${this.BASE_URL}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
     return response.data;
   }
 

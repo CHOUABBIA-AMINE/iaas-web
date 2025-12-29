@@ -4,10 +4,12 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
+ * @updated 12-29-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { GroupDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class GroupService {
   private readonly BASE_URL = '/system/security/group';
@@ -16,7 +18,32 @@ class GroupService {
    * Get all groups
    */
   async getAll(): Promise<GroupDTO[]> {
-    const response = await axiosInstance.get<GroupDTO[]>(this.BASE_URL);
+    const response = await axiosInstance.get<GroupDTO[]>(`${this.BASE_URL}/all`);
+    return response.data;
+  }
+
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<GroupDTO>> {
+    const response = await axiosInstance.get<PageResponse<GroupDTO>>(this.BASE_URL, {
+      params: { page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<GroupDTO>> {
+    const response = await axiosInstance.get<PageResponse<GroupDTO>>(`${this.BASE_URL}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
     return response.data;
   }
 
