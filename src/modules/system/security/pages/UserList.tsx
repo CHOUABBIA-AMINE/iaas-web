@@ -1,18 +1,17 @@
 /**
  * User List Page - Professional Version
- * Advanced DataGrid with search, filters, export, and polished UI
+ * Advanced DataGrid with server-side pagination, search, filters, export, and polished UI
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-23-2025
+ * @updated 12-29-2025
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
-  Card,
   Typography,
   Button,
   IconButton,
@@ -45,7 +44,7 @@ import {
   Description as ExcelIcon,
   PictureAsPdf as PdfIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import { userService } from '../services';
 import { UserDTO } from '../dto';
 import { exportToCSV, exportToExcel, exportToPDF } from '../utils/exportUtils';
@@ -54,113 +53,98 @@ const UserList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
-  // Data state
   const [users, setUsers] = useState<UserDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
-  // Filter state
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
-  
-  // Export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [allRoles, setAllRoles] = useState<string[]>([]);
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [paginationModel, sortModel, searchText, statusFilter, roleFilter]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await userService.getAll();
       
-      // Handle different response formats
-      let userData: UserDTO[] = [];
-      if (Array.isArray(response)) {
-        userData = response;
-      } else if (response && typeof response === 'object') {
-        userData = response.data || response.content || response.users || [];
+      const sortField = sortModel.length > 0 ? sortModel[0].field : 'id';
+      const sortDir = sortModel.length > 0 ? sortModel[0].sort || 'asc' : 'asc';
+
+      let pageResponse;
+      
+      if (searchText) {
+        pageResponse = await userService.search(searchText, paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+      } else {
+        pageResponse = await userService.getPage(paginationModel.page, paginationModel.pageSize, sortField, sortDir);
       }
       
-      if (!Array.isArray(userData)) {
-        console.error('Unexpected response format:', response);
-        userData = [];
+      let filteredContent = pageResponse.content;
+      
+      if (statusFilter !== 'all') {
+        filteredContent = filteredContent.filter(user => 
+          (statusFilter === 'enabled' && user.enabled) ||
+          (statusFilter === 'disabled' && !user.enabled)
+        );
       }
       
-      setUsers(userData);
+      if (roleFilter !== 'all') {
+        filteredContent = filteredContent.filter(user =>
+          user.roles && user.roles.some(role => role.name === roleFilter)
+        );
+      }
+      
+      setUsers(filteredContent);
+      setTotalRows(pageResponse.totalElements);
+      
+      const roles = new Set<string>();
+      pageResponse.content.forEach(user => {
+        if (user.roles && Array.isArray(user.roles)) {
+          user.roles.forEach(role => roles.add(role.name));
+        }
+      });
+      setAllRoles(Array.from(roles).sort());
+      
       setError('');
     } catch (err: any) {
       console.error('Failed to load users:', err);
       setError(err.message || 'Failed to load users');
       setUsers([]);
+      setTotalRows(0);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter users
-  const filteredUsers = useMemo(() => {
-    if (!Array.isArray(users)) return [];
-    
-    return users.filter((user) => {
-      const searchLower = searchText.toLowerCase();
-      const matchesSearch = !searchText || 
-        (user.username && user.username.toLowerCase().includes(searchLower)) ||
-        (user.email && user.email.toLowerCase().includes(searchLower));
+  const handlePaginationChange = useCallback((model: GridPaginationModel) => {
+    setPaginationModel(model);
+  }, []);
 
-      const matchesStatus = statusFilter === 'all' || 
-        (statusFilter === 'enabled' && user.enabled) ||
-        (statusFilter === 'disabled' && !user.enabled);
+  const handleSortChange = useCallback((model: GridSortModel) => {
+    setSortModel(model);
+  }, []);
 
-      const matchesRole = roleFilter === 'all' ||
-        (user.roles && user.roles.some(role => role.name === roleFilter));
-
-      return matchesSearch && matchesStatus && matchesRole;
-    });
-  }, [users, searchText, statusFilter, roleFilter]);
-
-  // Get unique roles
-  const availableRoles = useMemo(() => {
-    if (!Array.isArray(users)) return [];
-    const roles = new Set<string>();
-    users.forEach(user => {
-      if (user.roles && Array.isArray(user.roles)) {
-        user.roles.forEach(role => roles.add(role.name));
-      }
-    });
-    return Array.from(roles).sort();
-  }, [users]);
-
-  // DataGrid columns
   const columns: GridColDef[] = [
-    { 
-      field: 'id', 
-      headerName: 'ID', 
-      width: 80,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    { 
-      field: 'username', 
-      headerName: t('user.username'), 
-      minWidth: 180,
-      flex: 1,
-    },
-    { 
-      field: 'email', 
-      headerName: t('user.email'), 
-      minWidth: 250,
-      flex: 1.5,
-    },
+    { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
+    { field: 'username', headerName: t('user.username'), minWidth: 180, flex: 1 },
+    { field: 'email', headerName: t('user.email'), minWidth: 250, flex: 1.5 },
     {
       field: 'enabled',
       headerName: t('user.status'),
       width: 130,
       align: 'center',
       headerAlign: 'center',
+      sortable: false,
       renderCell: (params) => (
         <Chip
           label={params.value ? t('user.enabled') : t('user.disabled')}
@@ -179,13 +163,7 @@ const UserList = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}>
           {params.value && Array.isArray(params.value) && params.value.map((role: any) => (
-            <Chip
-              key={role.id}
-              label={role.name}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.75rem' }}
-            />
+            <Chip key={role.id} label={role.name} size="small" variant="outlined" sx={{ fontSize: '0.75rem' }} />
           ))}
         </Box>
       ),
@@ -201,26 +179,12 @@ const UserList = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title={t('common.edit')}>
-            <IconButton
-              size="small"
-              onClick={() => handleEdit(params.row.id)}
-              sx={{
-                color: 'primary.main',
-                '&:hover': { bgcolor: alpha('#2563eb', 0.1) }
-              }}
-            >
+            <IconButton size="small" onClick={() => handleEdit(params.row.id)} sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}>
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title={t('common.delete')}>
-            <IconButton
-              size="small"
-              onClick={() => handleDelete(params.row.id)}
-              sx={{
-                color: 'error.main',
-                '&:hover': { bgcolor: alpha('#dc2626', 0.1) }
-              }}
-            >
+            <IconButton size="small" onClick={() => handleDelete(params.row.id)} sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -248,120 +212,39 @@ const UserList = () => {
     setSearchText('');
     setStatusFilter('all');
     setRoleFilter('all');
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
   };
 
-  const handleRefresh = () => {
-    loadUsers();
-    setSuccess('Data refreshed');
-  };
-
-  // Export handlers
-  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setExportAnchorEl(event.currentTarget);
-  };
-
-  const handleExportMenuClose = () => {
-    setExportAnchorEl(null);
-  };
-
-  const handleExportCSV = () => {
-    exportToCSV(filteredUsers, 'users');
-    setSuccess('Exported to CSV');
-    handleExportMenuClose();
-  };
-
-  const handleExportExcel = () => {
-    exportToExcel(filteredUsers, 'users');
-    setSuccess('Exported to Excel');
-    handleExportMenuClose();
-  };
-
-  const handleExportPDF = () => {
-    exportToPDF(filteredUsers, 'users', t);
-    setSuccess('Exported to PDF');
-    handleExportMenuClose();
-  };
+  const handleRefresh = () => { loadUsers(); setSuccess('Data refreshed'); };
+  const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
+  const handleExportMenuClose = () => setExportAnchorEl(null);
+  const handleExportCSV = () => { exportToCSV(users, 'users'); setSuccess('Exported to CSV'); handleExportMenuClose(); };
+  const handleExportExcel = () => { exportToExcel(users, 'users'); setSuccess('Exported to Excel'); handleExportMenuClose(); };
+  const handleExportPDF = () => { exportToPDF(users, 'users', t); setSuccess('Exported to PDF'); handleExportMenuClose(); };
 
   return (
     <Box>
-      {/* Header */}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h4" fontWeight={700} color="text.primary">
-            {t('user.title')}
-          </Typography>
+          <Typography variant="h4" fontWeight={700} color="text.primary">{t('user.title')}</Typography>
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title="Refresh">
-              <IconButton onClick={handleRefresh} size="medium" color="primary">
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-            <Button
-              variant="outlined"
-              startIcon={<ExportIcon />}
-              onClick={handleExportMenuOpen}
-              sx={{ borderRadius: 2 }}
-            >
-              {t('common.export')}
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleCreate}
-              sx={{ borderRadius: 2, boxShadow: 2 }}
-            >
-              {t('user.createUser')}
-            </Button>
+            <Tooltip title="Refresh"><IconButton onClick={handleRefresh} size="medium" color="primary"><RefreshIcon /></IconButton></Tooltip>
+            <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>{t('common.export')}</Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate} sx={{ borderRadius: 2, boxShadow: 2 }}>{t('user.createUser')}</Button>
           </Stack>
         </Box>
-        <Typography variant="body2" color="text.secondary">
-          Manage and organize user accounts
-        </Typography>
+        <Typography variant="body2" color="text.secondary">Manage and organize user accounts</Typography>
       </Box>
 
-      {/* Export Menu */}
-      <Menu
-        anchorEl={exportAnchorEl}
-        open={Boolean(exportAnchorEl)}
-        onClose={handleExportMenuClose}
-        PaperProps={{
-          elevation: 3,
-          sx: { minWidth: 200 }
-        }}
-      >
-        <MenuItem onClick={handleExportCSV}>
-          <ListItemIcon>
-            <CsvIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportCSV')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportExcel}>
-          <ListItemIcon>
-            <ExcelIcon fontSize="small" color="success" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportExcel')}</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleExportPDF}>
-          <ListItemIcon>
-            <PdfIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText>{t('common.exportPDF')}</ListItemText>
-        </MenuItem>
+      <Menu anchorEl={exportAnchorEl} open={Boolean(exportAnchorEl)} onClose={handleExportMenuClose} PaperProps={{ elevation: 3, sx: { minWidth: 200 } }}>
+        <MenuItem onClick={handleExportCSV}><ListItemIcon><CsvIcon fontSize="small" /></ListItemIcon><ListItemText>{t('common.exportCSV')}</ListItemText></MenuItem>
+        <MenuItem onClick={handleExportExcel}><ListItemIcon><ExcelIcon fontSize="small" color="success" /></ListItemIcon><ListItemText>{t('common.exportExcel')}</ListItemText></MenuItem>
+        <MenuItem onClick={handleExportPDF}><ListItemIcon><PdfIcon fontSize="small" color="error" /></ListItemIcon><ListItemText>{t('common.exportPDF')}</ListItemText></MenuItem>
       </Menu>
 
-      {/* Alerts */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
-          {success}
-        </Alert>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
 
-      {/* Filters */}
       <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2.5 }}>
           <Stack spacing={2.5}>
@@ -371,23 +254,13 @@ const UserList = () => {
                 placeholder={t('user.searchUsers')}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment> }}
                 sx={{ maxWidth: { md: 400 } }}
               />
 
               <FormControl sx={{ minWidth: 180 }}>
                 <InputLabel>{t('user.filterByStatus')}</InputLabel>
-                <Select
-                  value={statusFilter}
-                  label={t('user.filterByStatus')}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
+                <Select value={statusFilter} label={t('user.filterByStatus')} onChange={(e) => setStatusFilter(e.target.value)}>
                   <MenuItem value="all">{t('user.allStatuses')}</MenuItem>
                   <MenuItem value="enabled">{t('user.enabled')}</MenuItem>
                   <MenuItem value="disabled">{t('user.disabled')}</MenuItem>
@@ -396,74 +269,47 @@ const UserList = () => {
 
               <FormControl sx={{ minWidth: 180 }}>
                 <InputLabel>{t('user.filterByRole')}</InputLabel>
-                <Select
-                  value={roleFilter}
-                  label={t('user.filterByRole')}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                >
+                <Select value={roleFilter} label={t('user.filterByRole')} onChange={(e) => setRoleFilter(e.target.value)}>
                   <MenuItem value="all">{t('user.allRoles')}</MenuItem>
-                  {availableRoles.map((role) => (
-                    <MenuItem key={role} value={role}>{role}</MenuItem>
-                  ))}
+                  {allRoles.map((role) => <MenuItem key={role} value={role}>{role}</MenuItem>)}
                 </Select>
               </FormControl>
 
-              <Button
-                variant="outlined"
-                startIcon={<FilterIcon />}
-                onClick={handleClearFilters}
-                sx={{ minWidth: 150 }}
-              >
-                {t('common.clearFilters')}
-              </Button>
+              <Button variant="outlined" startIcon={<FilterIcon />} onClick={handleClearFilters} sx={{ minWidth: 150 }}>{t('common.clearFilters')}</Button>
             </Stack>
 
             <Divider />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {filteredUsers.length} {t('common.results')}
-                {users.length !== filteredUsers.length && (
-                  <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>
-                    (filtered from {users.length})
-                  </Typography>
-                )}
+                {totalRows} {t('common.results')} total
               </Typography>
             </Box>
           </Stack>
         </Box>
       </Paper>
 
-      {/* DataGrid */}
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
-          rows={filteredUsers}
+          rows={users}
           columns={columns}
           loading={loading}
+          rowCount={totalRows}
+          paginationMode="server"
+          sortingMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortChange}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 25 },
-            },
-          }}
           disableRowSelectionOnClick
           autoHeight
           sx={{
             border: 0,
-            '& .MuiDataGrid-cell:focus': {
-              outline: 'none',
-            },
-            '& .MuiDataGrid-row:hover': {
-              backgroundColor: alpha('#2563eb', 0.04),
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: alpha('#2563eb', 0.05),
-              borderBottom: 2,
-              borderColor: 'divider',
-            },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontWeight: 600,
-            },
+            '& .MuiDataGrid-cell:focus': { outline: 'none' },
+            '& .MuiDataGrid-row:hover': { backgroundColor: alpha('#2563eb', 0.04) },
+            '& .MuiDataGrid-columnHeaders': { backgroundColor: alpha('#2563eb', 0.05), borderBottom: 2, borderColor: 'divider' },
+            '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 },
           }}
         />
       </Paper>
