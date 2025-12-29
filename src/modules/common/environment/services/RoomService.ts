@@ -5,7 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -50,13 +50,8 @@ class RoomService {
     return response.data;
   }
 
-  async getByCode(code: string): Promise<RoomDTO> {
-    const response = await axiosInstance.get<RoomDTO>(`${this.BASE_URL}/code/${code}`);
-    return response.data;
-  }
-
   async create(room: RoomDTO): Promise<RoomDTO> {
-    const response = await axiosInstance.post<RoomDTO>(this.BASE_URL, room);
+    const response = await axiosInstance.post<RoomDTO>(this.BASE_URL, { ...room, id: null });
     return response.data;
   }
 
@@ -67,11 +62,6 @@ class RoomService {
 
   async delete(id: number): Promise<void> {
     await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  async getByBloc(blocId: number): Promise<RoomDTO[]> {
-    const response = await axiosInstance.get<RoomDTO[]>(`${this.BASE_URL}/bloc/${blocId}`);
-    return response.data;
   }
 
   async getByFloor(floorId: number): Promise<RoomDTO[]> {

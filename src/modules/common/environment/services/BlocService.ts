@@ -5,7 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -51,7 +51,7 @@ class BlocService {
   }
 
   async create(bloc: BlocDTO): Promise<BlocDTO> {
-    const response = await axiosInstance.post<BlocDTO>(this.BASE_URL, bloc);
+    const response = await axiosInstance.post<BlocDTO>(this.BASE_URL, { ...bloc, id: null });
     return response.data;
   }
 

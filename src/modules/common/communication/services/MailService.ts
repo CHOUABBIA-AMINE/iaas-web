@@ -5,6 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -29,7 +30,7 @@ class MailService {
   }
 
   async create(mail: MailDTO): Promise<MailDTO> {
-    const response = await axiosInstance.post<MailDTO>(this.BASE_URL, mail);
+    const response = await axiosInstance.post<MailDTO>(this.BASE_URL, { ...mail, id: null });
     return response.data;
   }
 

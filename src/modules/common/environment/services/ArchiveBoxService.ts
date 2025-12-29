@@ -5,11 +5,11 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
-import { ArchiveBoxDTO } from '../dto';
+import { ArchiveBoxDTO } from '../dto/ArchiveBoxDTO';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class ArchiveBoxService {
@@ -50,13 +50,8 @@ class ArchiveBoxService {
     return response.data;
   }
 
-  async getByCode(code: string): Promise<ArchiveBoxDTO> {
-    const response = await axiosInstance.get<ArchiveBoxDTO>(`${this.BASE_URL}/code/${code}`);
-    return response.data;
-  }
-
   async create(archiveBox: ArchiveBoxDTO): Promise<ArchiveBoxDTO> {
-    const response = await axiosInstance.post<ArchiveBoxDTO>(this.BASE_URL, archiveBox);
+    const response = await axiosInstance.post<ArchiveBoxDTO>(this.BASE_URL, { ...archiveBox, id: null });
     return response.data;
   }
 

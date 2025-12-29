@@ -5,7 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -50,13 +50,8 @@ class FolderService {
     return response.data;
   }
 
-  async getByCode(code: string): Promise<FolderDTO> {
-    const response = await axiosInstance.get<FolderDTO>(`${this.BASE_URL}/code/${code}`);
-    return response.data;
-  }
-
   async create(folder: FolderDTO): Promise<FolderDTO> {
-    const response = await axiosInstance.post<FolderDTO>(this.BASE_URL, folder);
+    const response = await axiosInstance.post<FolderDTO>(this.BASE_URL, { ...folder, id: null });
     return response.data;
   }
 
@@ -67,11 +62,6 @@ class FolderService {
 
   async delete(id: number): Promise<void> {
     await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  async getByArchiveBox(archiveBoxId: number): Promise<FolderDTO[]> {
-    const response = await axiosInstance.get<FolderDTO[]>(`${this.BASE_URL}/archive-box/${archiveBoxId}`);
-    return response.data;
   }
 }
 

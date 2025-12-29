@@ -1,14 +1,15 @@
 /**
  * Shelf Service
  * Matches: dz.mdn.iaas.common.environment.service.ShelfService.java
+ * Communicates with: ShelfController.java
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
-import { ShelfDTO } from '../dto';
+import { ShelfDTO } from '../dto/ShelfDTO';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class ShelfService {
@@ -50,7 +51,7 @@ class ShelfService {
   }
 
   async create(shelf: ShelfDTO): Promise<ShelfDTO> {
-    const response = await axiosInstance.post<ShelfDTO>(this.BASE_URL, shelf);
+    const response = await axiosInstance.post<ShelfDTO>(this.BASE_URL, { ...shelf, id: null });
     return response.data;
   }
 
@@ -61,11 +62,6 @@ class ShelfService {
 
   async delete(id: number): Promise<void> {
     await axiosInstance.delete(`${this.BASE_URL}/${id}`);
-  }
-
-  async getByRoom(roomId: number): Promise<ShelfDTO[]> {
-    const response = await axiosInstance.get<ShelfDTO[]>(`${this.BASE_URL}/room/${roomId}`);
-    return response.data;
   }
 }
 
