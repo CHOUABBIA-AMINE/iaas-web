@@ -1,13 +1,13 @@
 /**
  * Room List Page - Professional Version
- * Advanced DataGrid with search, filters, and export
+ * Advanced DataGrid with server-side pagination, search, and filters
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -44,7 +44,7 @@ import {
   MeetingRoom as RoomIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import roomService from '../services/RoomService';
 import blocService from '../services/BlocService';
 import floorService from '../services/FloorService';
@@ -64,54 +64,94 @@ const RoomList = () => {
   const [selectedBlocId, setSelectedBlocId] = useState<number | ''>('');
   const [selectedFloorId, setSelectedFloorId] = useState<number | ''>('');  
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  
+  // Server-side pagination state
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
+  const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
-    loadData();
+    loadFilters();
   }, []);
 
-  const loadData = async () => {
+  useEffect(() => {
+    loadRooms();
+  }, [paginationModel, sortModel, searchText, selectedBlocId, selectedFloorId]);
+
+  const loadFilters = async () => {
     try {
-      setLoading(true);
-      const [roomsData, blocsData, floorsData] = await Promise.all([
-        roomService.getAll(),
+      const [blocsData, floorsData] = await Promise.all([
         blocService.getAll(),
         floorService.getAll(),
       ]);
       
-      console.log('Rooms loaded:', roomsData);
-      console.log('Blocs loaded:', blocsData);
-      console.log('Floors loaded:', floorsData);
-      
-      setRooms(Array.isArray(roomsData) ? roomsData : []);
       setBlocs(Array.isArray(blocsData) ? blocsData : []);
       setFloors(Array.isArray(floorsData) ? floorsData : []);
+    } catch (err: any) {
+      console.error('Failed to load filters:', err);
+    }
+  };
+
+  const loadRooms = async () => {
+    try {
+      setLoading(true);
+      
+      const sortField = sortModel.length > 0 ? sortModel[0].field : 'id';
+      const sortDir = sortModel.length > 0 ? sortModel[0].sort || 'asc' : 'asc';
+
+      let pageResponse;
+      
+      if (searchText) {
+        // Use search endpoint when there's search text
+        pageResponse = await roomService.search(
+          searchText,
+          paginationModel.page,
+          paginationModel.pageSize,
+          sortField,
+          sortDir
+        );
+      } else {
+        // Use regular paged endpoint
+        pageResponse = await roomService.getPage(
+          paginationModel.page,
+          paginationModel.pageSize,
+          sortField,
+          sortDir
+        );
+      }
+      
+      // Client-side filtering for bloc and floor
+      let filteredContent = pageResponse.content;
+      if (selectedBlocId) {
+        filteredContent = filteredContent.filter(room => room.blocId === selectedBlocId);
+      }
+      if (selectedFloorId) {
+        filteredContent = filteredContent.filter(room => room.floorId === selectedFloorId);
+      }
+      
+      setRooms(filteredContent);
+      setTotalRows(pageResponse.totalElements);
       setError('');
     } catch (err: any) {
       console.error('Failed to load rooms:', err);
       setError(err.message || 'Failed to load rooms');
       setRooms([]);
+      setTotalRows(0);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredRooms = useMemo(() => {
-    if (!Array.isArray(rooms)) return [];
-    
-    return rooms.filter((room) => {
-      const searchLower = searchText.toLowerCase();
-      const matchesSearch = !searchText || 
-        (room.code && room.code.toLowerCase().includes(searchLower)) ||
-        (room.designationFr && room.designationFr.toLowerCase().includes(searchLower)) ||
-        (room.designationEn && room.designationEn.toLowerCase().includes(searchLower)) ||
-        (room.designationAr && room.designationAr.toLowerCase().includes(searchLower));
+  const handlePaginationChange = useCallback((model: GridPaginationModel) => {
+    setPaginationModel(model);
+  }, []);
 
-      const matchesBloc = !selectedBlocId || room.blocId === selectedBlocId;
-      const matchesFloor = !selectedFloorId || room.floorId === selectedFloorId;
-
-      return matchesSearch && matchesBloc && matchesFloor;
-    });
-  }, [rooms, searchText, selectedBlocId, selectedFloorId]);
+  const handleSortChange = useCallback((model: GridSortModel) => {
+    setSortModel(model);
+  }, []);
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
@@ -144,6 +184,7 @@ const RoomList = () => {
       headerName: t('room.bloc') || 'Bloc', 
       minWidth: 150,
       flex: 1,
+      sortable: false,
       valueGetter: (params: GridValueGetterParams) => {
         const room = params.row as RoomDTO;
         if (room.bloc) {
@@ -164,6 +205,7 @@ const RoomList = () => {
       headerName: t('room.floor') || 'Floor', 
       minWidth: 120,
       flex: 0.8,
+      sortable: false,
       valueGetter: (params: GridValueGetterParams) => {
         const room = params.row as RoomDTO;
         if (room.floor) {
@@ -212,15 +254,20 @@ const RoomList = () => {
       try {
         await roomService.delete(roomId);
         setSuccess('Room deleted successfully');
-        loadData();
+        loadRooms();
       } catch (err: any) {
         setError(err.message || 'Failed to delete room');
       }
     }
   };
 
-  const handleRefresh = () => { loadData(); setSuccess('Data refreshed'); };
-  const handleClearFilters = () => { setSearchText(''); setSelectedBlocId(''); setSelectedFloorId(''); };
+  const handleRefresh = () => { loadRooms(); setSuccess('Data refreshed'); };
+  const handleClearFilters = () => { 
+    setSearchText(''); 
+    setSelectedBlocId(''); 
+    setSelectedFloorId(''); 
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
+  };
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
   const handleExportMenuClose = () => setExportAnchorEl(null);
   const handleExportCSV = () => { setSuccess('Exported to CSV'); handleExportMenuClose(); };
@@ -285,19 +332,24 @@ const RoomList = () => {
           </Stack>
 
           <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mt: 2 }}>
-            {filteredRooms.length} {t('common.results')}
-            {rooms.length !== filteredRooms.length && <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>(filtered from {rooms.length})</Typography>}
+            {totalRows} {t('common.results')} total
           </Typography>
         </Box>
       </Paper>
 
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
-          rows={filteredRooms}
+          rows={rooms}
           columns={columns}
           loading={loading}
+          rowCount={totalRows}
+          paginationMode="server"
+          sortingMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortChange}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
           disableRowSelectionOnClick
           autoHeight
           sx={{
