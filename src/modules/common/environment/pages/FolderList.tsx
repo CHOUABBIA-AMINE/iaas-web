@@ -1,13 +1,13 @@
 /**
  * Folder List Page - Professional Version
- * Advanced DataGrid with search, ArchiveBox filter, and export
+ * Advanced DataGrid with server-side pagination, search, ArchiveBox filter, and export
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -44,7 +44,7 @@ import {
   Folder as FolderIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import folderService from '../services/FolderService';
 import archiveBoxService from '../services/ArchiveBoxService';
 import { FolderDTO, ArchiveBoxDTO } from '../dto';
@@ -61,45 +61,71 @@ const FolderList = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedArchiveBoxId, setSelectedArchiveBoxId] = useState<number | ''>('');
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
+  const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
-    loadData();
+    loadArchiveBoxes();
   }, []);
 
-  const loadData = async () => {
+  useEffect(() => {
+    loadFolders();
+  }, [paginationModel, sortModel, searchText, selectedArchiveBoxId]);
+
+  const loadArchiveBoxes = async () => {
+    try {
+      const archiveBoxesData = await archiveBoxService.getAll();
+      setArchiveBoxes(Array.isArray(archiveBoxesData) ? archiveBoxesData : []);
+    } catch (err: any) {
+      console.error('Failed to load archive boxes:', err);
+    }
+  };
+
+  const loadFolders = async () => {
     try {
       setLoading(true);
-      const [foldersData, archiveBoxesData] = await Promise.all([
-        folderService.getAll(),
-        archiveBoxService.getAll(),
-      ]);
       
-      setFolders(Array.isArray(foldersData) ? foldersData : []);
-      setArchiveBoxes(Array.isArray(archiveBoxesData) ? archiveBoxesData : []);
+      const sortField = sortModel.length > 0 ? sortModel[0].field : 'id';
+      const sortDir = sortModel.length > 0 ? sortModel[0].sort || 'asc' : 'asc';
+
+      let pageResponse;
+      
+      if (searchText) {
+        pageResponse = await folderService.search(searchText, paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+      } else {
+        pageResponse = await folderService.getPage(paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+      }
+      
+      let filteredContent = pageResponse.content;
+      if (selectedArchiveBoxId) {
+        filteredContent = filteredContent.filter(folder => folder.archiveBoxId === selectedArchiveBoxId);
+      }
+      
+      setFolders(filteredContent);
+      setTotalRows(pageResponse.totalElements);
       setError('');
     } catch (err: any) {
       console.error('Failed to load folders:', err);
       setError(err.message || 'Failed to load folders');
       setFolders([]);
+      setTotalRows(0);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredFolders = useMemo(() => {
-    if (!Array.isArray(folders)) return [];
-    
-    return folders.filter((folder) => {
-      const searchLower = searchText.toLowerCase();
-      const matchesSearch = !searchText || 
-        (folder.code && folder.code.toLowerCase().includes(searchLower)) ||
-        (folder.description && folder.description.toLowerCase().includes(searchLower));
+  const handlePaginationChange = useCallback((model: GridPaginationModel) => {
+    setPaginationModel(model);
+  }, []);
 
-      const matchesArchiveBox = !selectedArchiveBoxId || folder.archiveBoxId === selectedArchiveBoxId;
-
-      return matchesSearch && matchesArchiveBox;
-    });
-  }, [folders, searchText, selectedArchiveBoxId]);
+  const handleSortChange = useCallback((model: GridSortModel) => {
+    setSortModel(model);
+  }, []);
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
@@ -121,6 +147,7 @@ const FolderList = () => {
       headerName: t('folder.archiveBox') || 'Archive Box', 
       minWidth: 180,
       flex: 1.2,
+      sortable: false,
       renderCell: (params) => (
         params.row.archiveBox ? (
           <Chip label={params.row.archiveBox.code} size="small" color="primary" variant="outlined" />
@@ -160,15 +187,19 @@ const FolderList = () => {
       try {
         await folderService.delete(folderId);
         setSuccess('Folder deleted successfully');
-        loadData();
+        loadFolders();
       } catch (err: any) {
         setError(err.message || 'Failed to delete folder');
       }
     }
   };
 
-  const handleRefresh = () => { loadData(); setSuccess('Data refreshed'); };
-  const handleClearFilters = () => { setSearchText(''); setSelectedArchiveBoxId(''); };
+  const handleRefresh = () => { loadFolders(); setSuccess('Data refreshed'); };
+  const handleClearFilters = () => { 
+    setSearchText(''); 
+    setSelectedArchiveBoxId(''); 
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
+  };
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
   const handleExportMenuClose = () => setExportAnchorEl(null);
   const handleExportCSV = () => { setSuccess('Exported to CSV'); handleExportMenuClose(); };
@@ -198,7 +229,6 @@ const FolderList = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
 
-      {/* Single-Row Filter Layout */}
       <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2.5 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="stretch">
@@ -225,19 +255,24 @@ const FolderList = () => {
           </Stack>
 
           <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mt: 2 }}>
-            {filteredFolders.length} {t('common.results')}
-            {folders.length !== filteredFolders.length && <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>(filtered from {folders.length})</Typography>}
+            {totalRows} {t('common.results')} total
           </Typography>
         </Box>
       </Paper>
 
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
-          rows={filteredFolders}
+          rows={folders}
           columns={columns}
           loading={loading}
+          rowCount={totalRows}
+          paginationMode="server"
+          sortingMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortChange}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
           disableRowSelectionOnClick
           autoHeight
           sx={{
