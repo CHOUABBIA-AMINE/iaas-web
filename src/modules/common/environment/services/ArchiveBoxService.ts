@@ -5,17 +5,43 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { ArchiveBoxDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class ArchiveBoxService {
   private readonly BASE_URL = '/common/environment/archiveBox';
 
   async getAll(): Promise<ArchiveBoxDTO[]> {
     const response = await axiosInstance.get<ArchiveBoxDTO[]>(`${this.BASE_URL}/all`);
+    return response.data;
+  }
+
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<ArchiveBoxDTO>> {
+    const response = await axiosInstance.get<PageResponse<ArchiveBoxDTO>>(this.BASE_URL, {
+      params: { page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<ArchiveBoxDTO>> {
+    const response = await axiosInstance.get<PageResponse<ArchiveBoxDTO>>(`${this.BASE_URL}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
     return response.data;
   }
 

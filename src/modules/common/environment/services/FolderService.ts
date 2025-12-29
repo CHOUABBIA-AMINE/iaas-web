@@ -5,16 +5,43 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { FolderDTO } from '../dto/FolderDTO';
+import { PageResponse } from '../../../../shared/types/PageResponse';
 
 class FolderService {
   private readonly BASE_URL = '/common/environment/folder';
 
   async getAll(): Promise<FolderDTO[]> {
     const response = await axiosInstance.get<FolderDTO[]>(`${this.BASE_URL}/all`);
+    return response.data;
+  }
+
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<FolderDTO>> {
+    const response = await axiosInstance.get<PageResponse<FolderDTO>>(this.BASE_URL, {
+      params: { page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<FolderDTO>> {
+    const response = await axiosInstance.get<PageResponse<FolderDTO>>(`${this.BASE_URL}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
     return response.data;
   }
 
