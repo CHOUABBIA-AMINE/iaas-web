@@ -5,6 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -34,7 +35,7 @@ class JobService {
   }
 
   async create(job: JobDTO): Promise<JobDTO> {
-    const response = await axiosInstance.post<JobDTO>(this.BASE_URL, job);
+    const response = await axiosInstance.post<JobDTO>(this.BASE_URL, { ...job, id: null });
     return response.data;
   }
 

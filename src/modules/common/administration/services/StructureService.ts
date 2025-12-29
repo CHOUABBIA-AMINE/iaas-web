@@ -5,6 +5,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -29,7 +30,7 @@ class StructureService {
   }
 
   async create(structure: StructureDTO): Promise<StructureDTO> {
-    const response = await axiosInstance.post<StructureDTO>(this.BASE_URL, structure);
+    const response = await axiosInstance.post<StructureDTO>(this.BASE_URL, { ...structure, id: null });
     return response.data;
   }
 
