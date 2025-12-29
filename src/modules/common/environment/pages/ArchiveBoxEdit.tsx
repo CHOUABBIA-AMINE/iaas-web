@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025
  */
 
 import { useState, useEffect } from 'react';
@@ -58,24 +59,21 @@ const ArchiveBoxEdit = () => {
     loadData();
   }, [boxId]);
 
-  useEffect(() => {
-    // Load shelf floors when shelf changes
-    if (selectedShelf?.id) {
-      loadShelfFloors(selectedShelf.id);
-    } else {
-      setAvailableShelfFloors([]);
-      setSelectedShelfFloor(null);
-    }
-  }, [selectedShelf]);
-
   const loadData = async () => {
     try {
       setLoading(true);
       
-      // Load shelves
-      const shelvesData = await shelfService.getAll().catch(() => []);
+      // Load both shelves and shelf floors independently
+      const [shelvesData, floorsData] = await Promise.all([
+        shelfService.getAll().catch(() => []),
+        shelfFloorService.getAll().catch(() => [])
+      ]);
+
       const shelves = Array.isArray(shelvesData) ? shelvesData : (shelvesData?.data || shelvesData?.content || []);
+      const floors = Array.isArray(floorsData) ? floorsData : (floorsData?.data || floorsData?.content || []);
+      
       setAvailableShelves(shelves);
+      setAvailableShelfFloors(floors);
 
       // Load archive box if editing
       if (isEditMode) {
@@ -92,6 +90,9 @@ const ArchiveBoxEdit = () => {
         
         if (boxData.shelfFloor) {
           setSelectedShelfFloor(boxData.shelfFloor);
+        } else if (boxData.shelfFloorId) {
+          const floor = floors.find(f => f.id === boxData.shelfFloorId);
+          if (floor) setSelectedShelfFloor(floor);
         }
       }
 
@@ -101,17 +102,6 @@ const ArchiveBoxEdit = () => {
       setError(err.message || 'Failed to load data');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadShelfFloors = async (shelfId: number) => {
-    try {
-      const floorsData = await shelfFloorService.getByShelf(shelfId).catch(() => []);
-      const floors = Array.isArray(floorsData) ? floorsData : (floorsData?.data || floorsData?.content || []);
-      setAvailableShelfFloors(floors);
-    } catch (err: any) {
-      console.error('Failed to load shelf floors:', err);
-      setAvailableShelfFloors([]);
     }
   };
 
@@ -149,7 +139,6 @@ const ArchiveBoxEdit = () => {
 
   const handleShelfChange = (_event: any, newValue: ShelfDTO | null) => {
     setSelectedShelf(newValue);
-    setSelectedShelfFloor(null); // Reset shelf floor when shelf changes
     
     // Clear validation error
     if (validationErrors.shelf) {
@@ -201,6 +190,45 @@ const ArchiveBoxEdit = () => {
 
   const handleCancel = () => {
     navigate('/environment/archive-boxes');
+  };
+
+  // Helper function to get shelf label with fallback
+  const getShelfLabel = (shelf: ShelfDTO): string => {
+    if (shelf.code) {
+      const designation = shelf.designationFr || shelf.designationEn || shelf.designationAr || '';
+      return designation ? `${shelf.code} - ${designation}` : shelf.code;
+    }
+    if (shelf.designationFr && shelf.designationFr.trim()) {
+      return shelf.designationFr;
+    }
+    if (shelf.designationEn && shelf.designationEn.trim()) {
+      return shelf.designationEn;
+    }
+    if (shelf.designationAr && shelf.designationAr.trim()) {
+      return shelf.designationAr;
+    }
+    return `Shelf #${shelf.id || 'Unknown'}`;
+  };
+
+  // Helper function to get shelf floor label with fallback
+  const getShelfFloorLabel = (floor: ShelfFloorDTO): string => {
+    if (floor.code) {
+      const designation = floor.designationFr || floor.designationEn || floor.designationAr || '';
+      return designation ? `${floor.code} - ${designation}` : floor.code;
+    }
+    if (floor.designationFr && floor.designationFr.trim()) {
+      return floor.designationFr;
+    }
+    if (floor.designationEn && floor.designationEn.trim()) {
+      return floor.designationEn;
+    }
+    if (floor.designationAr && floor.designationAr.trim()) {
+      return floor.designationAr;
+    }
+    if (floor.floorLevel !== undefined && floor.floorLevel !== null) {
+      return `Floor ${floor.floorLevel}`;
+    }
+    return `Floor #${floor.id || 'Unknown'}`;
   };
 
   if (loading) {
@@ -288,9 +316,10 @@ const ArchiveBoxEdit = () => {
                 <Grid item xs={12} md={6}>
                   <Autocomplete
                     options={availableShelves}
-                    getOptionLabel={(option) => option.designationLt || option.code}
+                    getOptionLabel={getShelfLabel}
                     value={selectedShelf}
                     onChange={handleShelfChange}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
                       <TextField
                         {...params}
@@ -306,20 +335,17 @@ const ArchiveBoxEdit = () => {
                 <Grid item xs={12} md={6}>
                   <Autocomplete
                     options={availableShelfFloors}
-                    getOptionLabel={(option) => option.designationLt || option.code}
+                    getOptionLabel={getShelfFloorLabel}
                     value={selectedShelfFloor}
                     onChange={handleShelfFloorChange}
-                    disabled={!selectedShelf}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label={t('archiveBox.shelfFloor') || 'Shelf Floor'}
                         required
                         error={!!validationErrors.shelfFloor}
-                        helperText={
-                          validationErrors.shelfFloor || 
-                          (selectedShelf ? 'Select the floor level on the shelf' : 'Select a shelf first')
-                        }
+                        helperText={validationErrors.shelfFloor || 'Select the floor level on the shelf'}
                       />
                     )}
                   />
