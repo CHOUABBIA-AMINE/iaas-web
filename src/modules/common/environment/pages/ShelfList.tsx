@@ -1,13 +1,13 @@
 /**
  * Shelf List Page - Professional Version
- * Advanced DataGrid with search, Room filter, and export
+ * Advanced DataGrid with server-side pagination, search, Room filter, and export
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 12-28-2025
+ * @updated 12-29-2025
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -44,7 +44,7 @@ import {
   ViewList as ShelfIcon,
   Clear as ClearIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x-data-grid';
 import shelfService from '../services/ShelfService';
 import roomService from '../services/RoomService';
 import { ShelfDTO, RoomDTO } from '../dto';
@@ -61,47 +61,71 @@ const ShelfList = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedRoomId, setSelectedRoomId] = useState<number | ''>('');
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
+  
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
+  const [totalRows, setTotalRows] = useState(0);
 
   useEffect(() => {
-    loadData();
+    loadRooms();
   }, []);
 
-  const loadData = async () => {
+  useEffect(() => {
+    loadShelves();
+  }, [paginationModel, sortModel, searchText, selectedRoomId]);
+
+  const loadRooms = async () => {
+    try {
+      const roomsData = await roomService.getAll();
+      setRooms(Array.isArray(roomsData) ? roomsData : []);
+    } catch (err: any) {
+      console.error('Failed to load rooms:', err);
+    }
+  };
+
+  const loadShelves = async () => {
     try {
       setLoading(true);
-      const [shelvesData, roomsData] = await Promise.all([
-        shelfService.getAll(),
-        roomService.getAll(),
-      ]);
       
-      setShelves(Array.isArray(shelvesData) ? shelvesData : []);
-      setRooms(Array.isArray(roomsData) ? roomsData : []);
+      const sortField = sortModel.length > 0 ? sortModel[0].field : 'id';
+      const sortDir = sortModel.length > 0 ? sortModel[0].sort || 'asc' : 'asc';
+
+      let pageResponse;
+      
+      if (searchText) {
+        pageResponse = await shelfService.search(searchText, paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+      } else {
+        pageResponse = await shelfService.getPage(paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+      }
+      
+      let filteredContent = pageResponse.content;
+      if (selectedRoomId) {
+        filteredContent = filteredContent.filter(shelf => shelf.roomId === selectedRoomId);
+      }
+      
+      setShelves(filteredContent);
+      setTotalRows(pageResponse.totalElements);
       setError('');
     } catch (err: any) {
       console.error('Failed to load shelves:', err);
       setError(err.message || 'Failed to load shelves');
       setShelves([]);
+      setTotalRows(0);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredShelves = useMemo(() => {
-    if (!Array.isArray(shelves)) return [];
-    
-    return shelves.filter((shelf) => {
-      const searchLower = searchText.toLowerCase();
-      const matchesSearch = !searchText || 
-        (shelf.code && shelf.code.toLowerCase().includes(searchLower)) ||
-        (shelf.designationFr && shelf.designationFr.toLowerCase().includes(searchLower)) ||
-        (shelf.designationEn && shelf.designationEn.toLowerCase().includes(searchLower)) ||
-        (shelf.designationAr && shelf.designationAr.toLowerCase().includes(searchLower));
+  const handlePaginationChange = useCallback((model: GridPaginationModel) => {
+    setPaginationModel(model);
+  }, []);
 
-      const matchesRoom = !selectedRoomId || shelf.roomId === selectedRoomId;
-
-      return matchesSearch && matchesRoom;
-    });
-  }, [shelves, searchText, selectedRoomId]);
+  const handleSortChange = useCallback((model: GridSortModel) => {
+    setSortModel(model);
+  }, []);
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
@@ -124,6 +148,7 @@ const ShelfList = () => {
       headerName: t('shelf.room') || 'Room', 
       minWidth: 180,
       flex: 1,
+      sortable: false,
       renderCell: (params) => (
         params.row.room ? (
           <Chip label={`${params.row.room.code} - ${params.row.room.designationFr || ''}`} size="small" color="primary" variant="outlined" />
@@ -163,15 +188,19 @@ const ShelfList = () => {
       try {
         await shelfService.delete(shelfId);
         setSuccess('Shelf deleted successfully');
-        loadData();
+        loadShelves();
       } catch (err: any) {
         setError(err.message || 'Failed to delete shelf');
       }
     }
   };
 
-  const handleRefresh = () => { loadData(); setSuccess('Data refreshed'); };
-  const handleClearFilters = () => { setSearchText(''); setSelectedRoomId(''); };
+  const handleRefresh = () => { loadShelves(); setSuccess('Data refreshed'); };
+  const handleClearFilters = () => { 
+    setSearchText(''); 
+    setSelectedRoomId(''); 
+    setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
+  };
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
   const handleExportMenuClose = () => setExportAnchorEl(null);
   const handleExportCSV = () => { setSuccess('Exported to CSV'); handleExportMenuClose(); };
@@ -201,7 +230,6 @@ const ShelfList = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
 
-      {/* Single-Row Filter Layout */}
       <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2.5 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems="stretch">
@@ -228,19 +256,24 @@ const ShelfList = () => {
           </Stack>
 
           <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ mt: 2 }}>
-            {filteredShelves.length} {t('common.results')}
-            {shelves.length !== filteredShelves.length && <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>(filtered from {shelves.length})</Typography>}
+            {totalRows} {t('common.results')} total
           </Typography>
         </Box>
       </Paper>
 
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
-          rows={filteredShelves}
+          rows={shelves}
           columns={columns}
           loading={loading}
+          rowCount={totalRows}
+          paginationMode="server"
+          sortingMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortChange}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
           disableRowSelectionOnClick
           autoHeight
           sx={{
