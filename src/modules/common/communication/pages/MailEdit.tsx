@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 12-29-2025 - Added Structure select field
  */
 
 import { useState, useEffect } from 'react';
@@ -28,6 +29,8 @@ import {
 import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
 import { mailService, mailNatureService, mailTypeService } from '../services';
 import { MailDTO, MailNatureDTO, MailTypeDTO } from '../dto';
+import { structureService } from '../../../system/organization/services';
+import { StructureDTO } from '../../../system/organization/dto';
 
 // Helper function to format date as YYYY-MM-DD for input
 const formatDateForInput = (dateString: string | undefined): string => {
@@ -63,6 +66,7 @@ const MailEdit = () => {
   const [error, setError] = useState('');
   const [mailNatures, setMailNatures] = useState<MailNatureDTO[]>([]);
   const [mailTypes, setMailTypes] = useState<MailTypeDTO[]>([]);
+  const [structures, setStructures] = useState<StructureDTO[]>([]);
 
   const [formData, setFormData] = useState<MailDTO>({
     reference: '',
@@ -72,7 +76,7 @@ const MailEdit = () => {
     recordDate: formatDateForInput(undefined),
     mailNatureId: undefined,
     mailTypeId: undefined,
-    structureId: 1,
+    structureId: undefined,
     fileId: 1,
   });
 
@@ -85,12 +89,14 @@ const MailEdit = () => {
 
   const loadLookupData = async () => {
     try {
-      const [naturesData, typesData] = await Promise.all([
+      const [naturesData, typesData, structuresData] = await Promise.all([
         mailNatureService.getAll(),
         mailTypeService.getAll(),
+        structureService.getAll(),
       ]);
       setMailNatures(Array.isArray(naturesData) ? naturesData : []);
       setMailTypes(Array.isArray(typesData) ? typesData : []);
+      setStructures(Array.isArray(structuresData) ? structuresData : []);
     } catch (err: any) {
       console.error('Failed to load lookup data:', err);
       setError('Failed to load form data');
@@ -117,7 +123,7 @@ const MailEdit = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.reference || !formData.subject || !formData.mailDate || !formData.mailNatureId || !formData.mailTypeId) {
+    if (!formData.reference || !formData.subject || !formData.mailDate || !formData.mailNatureId || !formData.mailTypeId || !formData.structureId) {
       setError('Please fill in all required fields');
       return;
     }
@@ -256,6 +262,24 @@ const MailEdit = () => {
                       {mailTypes.map((type) => (
                         <MenuItem key={type.id} value={type.id}>
                           {type.designationFr || type.designationEn}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>{t('mail.structure') || 'Structure'}</InputLabel>
+                    <Select
+                      value={formData.structureId || ''}
+                      label={t('mail.structure') || 'Structure'}
+                      onChange={handleChange('structureId')}
+                      disabled={loading}
+                    >
+                      {structures.map((structure) => (
+                        <MenuItem key={structure.id} value={structure.id}>
+                          {structure.designationFr || structure.designationEn || structure.code}
                         </MenuItem>
                       ))}
                     </Select>
