@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -59,7 +59,7 @@ class GroupService {
    * Create new group
    */
   async create(group: Partial<GroupDTO>): Promise<GroupDTO> {
-    const response = await axiosInstance.post<GroupDTO>(this.BASE_URL, group);
+    const response = await axiosInstance.post<GroupDTO>(this.BASE_URL, { ...group, id: null });
     return response.data;
   }
 

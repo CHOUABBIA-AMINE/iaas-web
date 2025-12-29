@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-22-2025
- * @updated 12-29-2025
+ * @updated 12-29-2025 - Set id=null in create
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -59,7 +59,7 @@ class RoleService {
    * Create new role
    */
   async create(role: Partial<RoleDTO>): Promise<RoleDTO> {
-    const response = await axiosInstance.post<RoleDTO>(this.BASE_URL, role);
+    const response = await axiosInstance.post<RoleDTO>(this.BASE_URL, { ...role, id: null });
     return response.data;
   }
 
