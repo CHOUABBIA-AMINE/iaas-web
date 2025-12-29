@@ -6,6 +6,7 @@
  * @author CHOUABBIA Amine
  * @created 12-28-2025
  * @updated 12-29-2025 - Set id=null in create
+ * @updated 12-29-2025 - Added referenced mails API methods
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -51,6 +52,54 @@ class MailService {
   async getByMailType(mailTypeId: number): Promise<MailDTO[]> {
     const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/mailType/${mailTypeId}`);
     return response.data;
+  }
+
+  // Referenced Mails Methods
+  
+  /**
+   * Get all mails referenced by a specific mail
+   * @param mailId - The ID of the parent mail
+   * @returns Array of referenced mail DTOs
+   */
+  async getReferencedMails(mailId: number): Promise<MailDTO[]> {
+    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/${mailId}/referenced-mails`);
+    return response.data;
+  }
+
+  /**
+   * Add a single mail reference
+   * @param mailId - The ID of the parent mail
+   * @param referencedMailId - The ID of the mail to reference
+   */
+  async addReferencedMail(mailId: number, referencedMailId: number): Promise<void> {
+    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referenced-mails/${referencedMailId}`);
+  }
+
+  /**
+   * Add multiple mail references at once
+   * @param mailId - The ID of the parent mail
+   * @param referencedMailIds - Array of mail IDs to reference
+   */
+  async addReferencedMails(mailId: number, referencedMailIds: number[]): Promise<void> {
+    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referenced-mails`, referencedMailIds);
+  }
+
+  /**
+   * Remove a mail reference
+   * @param mailId - The ID of the parent mail
+   * @param referencedMailId - The ID of the referenced mail to remove
+   */
+  async removeReferencedMail(mailId: number, referencedMailId: number): Promise<void> {
+    await axiosInstance.delete(`${this.BASE_URL}/${mailId}/referenced-mails/${referencedMailId}`);
+  }
+
+  /**
+   * Update all referenced mails (replaces existing references)
+   * @param mailId - The ID of the parent mail
+   * @param referencedMailIds - Array of mail IDs to set as references
+   */
+  async updateReferencedMails(mailId: number, referencedMailIds: number[]): Promise<void> {
+    await axiosInstance.put(`${this.BASE_URL}/${mailId}/referenced-mails`, referencedMailIds);
   }
 }
 
