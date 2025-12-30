@@ -1,5 +1,11 @@
-export * from './LocalityDTO';
-export * from './StateDTO';
-export * from './StructureDTO';
-export * from './StructureTypeDTO';
-export * from './JobDTO';
+/**
+ * Administration DTOs - Central Export
+ * @author CHOUABBIA Amine
+ */
+
+export type { StructureDTO } from './StructureDTO';
+export type { StructureTypeDTO } from './StructureTypeDTO';
+export type { JobDTO } from './JobDTO';
+export type { EmployeeDTO } from './EmployeeDTO';
+export type { MilitaryRankDTO } from './MilitaryRankDTO';
+export type { CountryDTO } from './CountryDTO';

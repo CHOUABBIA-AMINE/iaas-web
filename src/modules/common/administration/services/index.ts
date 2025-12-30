@@ -1,8 +1,13 @@
-// Named exports from existing services
+/**
+ * Administration Services - Central Export
+ * @author CHOUABBIA Amine
+ */
+
+export { structureService } from './StructureService';
+export { structureTypeService } from './StructureTypeService';
+export { jobService } from './JobService';
+export { employeeService } from './employeeService';
+export { militaryRankService } from './militaryRankService';
+export { countryService } from './countryService';
 export { localityService } from './localityService';
 export { stateService } from './stateService';
-
-// Default exports from new services
-export { default as structureService } from './StructureService';
-export { default as structureTypeService } from './StructureTypeService';
-export { default as jobService } from './JobService';

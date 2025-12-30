@@ -1,15 +1,12 @@
 /**
  * Country DTO
- * Data Transfer Object for Country entity
- * 
  * @author CHOUABBIA Amine
- * @created 12-23-2025
+ * @created 12-30-2025
  */
 
 export interface CountryDTO {
-  id: number;
-  name: string;
+  id?: number;
+  nameAr: string;
+  nameLt: string;
   code?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
