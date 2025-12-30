@@ -63,6 +63,7 @@
     "dashboard": "لوحة التحكم",
     "administration": "الإدارة",
     "structures": "الهياكل",
+    "employees": "الموظفين",
     "system": "النظام",
     "security": "الأمان",
     "users": "المستخدمون",
@@ -114,6 +115,25 @@
     "settings": "الإعدادات",
     "overview": "نظرة عامة",
     "profile": "الملف الشخصي"
+  },
+  "employee": {
+    "title": "الموظفين",
+    "create": "إنشاء موظف",
+    "edit": "تعديل الموظف",
+    "delete": "حذف الموظف",
+    "deleteConfirm": "هل أنت متأكد من حذف هذا الموظف؟",
+    "firstNameAr": "الاسم الأول بالعربية",
+    "lastNameAr": "اسم العائلة بالعربية",
+    "firstNameLt": "الاسم الأول باللاتينية",
+    "lastNameLt": "اسم العائلة باللاتينية",
+    "birthDate": "تاريخ الميلاد",
+    "birthPlace": "مكان الميلاد",
+    "registrationNumber": "رقم التسجيل",
+    "job": "الوظيفة",
+    "structure": "الهيكل",
+    "militaryRank": "الرتبة العسكرية",
+    "country": "البلد",
+    "searchPlaceholder": "البحث بالاسم أو رقم التسجيل..."
   },
   "map": {
     "title": "خريطة البنية التحتية",

@@ -63,6 +63,7 @@
     "dashboard": "Tableau de bord",
     "administration": "Administration",
     "structures": "Structures",
+    "employees": "Employés",
     "system": "Système",
     "security": "Sécurité",
     "users": "Utilisateurs",
@@ -114,6 +115,25 @@
     "settings": "Paramètres",
     "overview": "Aperçu",
     "profile": "Profil"
+  },
+  "employee": {
+    "title": "Employés",
+    "create": "Créer un Employé",
+    "edit": "Modifier l'Employé",
+    "delete": "Supprimer l'Employé",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet employé?",
+    "firstNameAr": "Prénom en Arabe",
+    "lastNameAr": "Nom de Famille en Arabe",
+    "firstNameLt": "Prénom en Latin",
+    "lastNameLt": "Nom de Famille en Latin",
+    "birthDate": "Date de Naissance",
+    "birthPlace": "Lieu de Naissance",
+    "registrationNumber": "Numéro d'Enregistrement",
+    "job": "Poste",
+    "structure": "Structure",
+    "militaryRank": "Rang Militaire",
+    "country": "Pays",
+    "searchPlaceholder": "Rechercher par nom ou numéro d'enregistrement..."
   },
   "map": {
     "title": "Carte d'infrastructure",
