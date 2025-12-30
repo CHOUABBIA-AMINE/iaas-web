@@ -7,6 +7,7 @@
  * @created 12-28-2025
  * @updated 12-29-2025 - Set id=null in create
  * @updated 12-29-2025 - Added referenced mails API methods
+ * @updated 12-30-2025 - Changed endpoint to referencedMails (camelCase)
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -62,7 +63,7 @@ class MailService {
    * @returns Array of referenced mail DTOs
    */
   async getReferencedMails(mailId: number): Promise<MailDTO[]> {
-    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/${mailId}/referenced-mails`);
+    const response = await axiosInstance.get<MailDTO[]>(`${this.BASE_URL}/${mailId}/referencedMails`);
     return response.data;
   }
 
@@ -72,7 +73,7 @@ class MailService {
    * @param referencedMailId - The ID of the mail to reference
    */
   async addReferencedMail(mailId: number, referencedMailId: number): Promise<void> {
-    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referenced-mails/${referencedMailId}`);
+    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referencedMails/${referencedMailId}`);
   }
 
   /**
@@ -81,7 +82,7 @@ class MailService {
    * @param referencedMailIds - Array of mail IDs to reference
    */
   async addReferencedMails(mailId: number, referencedMailIds: number[]): Promise<void> {
-    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referenced-mails`, referencedMailIds);
+    await axiosInstance.post(`${this.BASE_URL}/${mailId}/referencedMails`, referencedMailIds);
   }
 
   /**
@@ -90,7 +91,7 @@ class MailService {
    * @param referencedMailId - The ID of the referenced mail to remove
    */
   async removeReferencedMail(mailId: number, referencedMailId: number): Promise<void> {
-    await axiosInstance.delete(`${this.BASE_URL}/${mailId}/referenced-mails/${referencedMailId}`);
+    await axiosInstance.delete(`${this.BASE_URL}/${mailId}/referencedMails/${referencedMailId}`);
   }
 
   /**
@@ -99,7 +100,7 @@ class MailService {
    * @param referencedMailIds - Array of mail IDs to set as references
    */
   async updateReferencedMails(mailId: number, referencedMailIds: number[]): Promise<void> {
-    await axiosInstance.put(`${this.BASE_URL}/${mailId}/referenced-mails`, referencedMailIds);
+    await axiosInstance.put(`${this.BASE_URL}/${mailId}/referencedMails`, referencedMailIds);
   }
 }
 
