@@ -1,25 +1,20 @@
 /**
  * Employee DTO
- * Data Transfer Object for Employee entity
- * 
  * @author CHOUABBIA Amine
- * @created 12-23-2025
+ * @created 12-30-2025
  */
 
-import { PersonDTO } from './PersonDTO';
-import { JobDTO } from './JobDTO';
-import { StructureDTO } from './StructureDTO';
-
 export interface EmployeeDTO {
-  id: number;
-  personId: number;
-  person?: PersonDTO;
-  jobId: number;
-  job?: JobDTO;
-  structureId: number;
-  structure?: StructureDTO;
-  employeeNumber?: string;
-  hireDate?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  id?: number;
+  lastNameAr: string;
+  firstNameAr: string;
+  lastNameLt: string;
+  firstNameLt: string;
+  birthDate?: string;
+  birthPlace?: string;
+  countryId?: number;
+  registrationNumber?: string;
+  jobId?: number;
+  structureId?: number;
+  militaryRankId?: number;
 }
