@@ -6,6 +6,7 @@
  * @author CHOUABBIA Amine
  * @created 12-28-2025
  * @updated 12-29-2025 - Set id=null in create
+ * @updated 12-30-2025 - Added getAllList method
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -17,6 +18,10 @@ class JobService {
   async getAll(): Promise<JobDTO[]> {
     const response = await axiosInstance.get<JobDTO[]>(`${this.BASE_URL}/all`);
     return response.data;
+  }
+
+  async getAllList(): Promise<JobDTO[]> {
+    return this.getAll();
   }
 
   async getById(id: number): Promise<JobDTO> {
