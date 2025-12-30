@@ -5,6 +5,7 @@
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  * @updated 12-28-2025
+ * @updated 12-30-2025 - Added Employee routes
  */
 
 import { useEffect, useMemo } from 'react';
@@ -49,7 +50,7 @@ import {
   ShelfEdit
 } from './modules/common/environment/pages';
 import { MailList, MailEdit } from './modules/common/communication/pages';
-import { StructureList, StructureEdit } from './modules/common/administration';
+import { StructureList, StructureEdit, EmployeeList, EmployeeEdit } from './modules/common/administration';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -224,6 +225,32 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <StructureEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* Employees */}
+                  <Route
+                    path="employees"
+                    element={
+                      <ProtectedRoute>
+                        <EmployeeList />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="employees/create"
+                    element={
+                      <ProtectedRoute>
+                        <EmployeeEdit />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="employees/:id/edit"
+                    element={
+                      <ProtectedRoute>
+                        <EmployeeEdit />
                       </ProtectedRoute>
                     }
                   />
