@@ -5,6 +5,7 @@
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  * @updated 12-28-2025
+ * @updated 12-30-2025 - Added Employee entry
  */
 
 import {
@@ -49,6 +50,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LayersIcon from '@mui/icons-material/Layers';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import BadgeIcon from '@mui/icons-material/Badge';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -148,6 +150,11 @@ const Sidebar = ({ open }: SidebarProps) => {
               titleKey: 'nav.structures',
               icon: <CorporateFareIcon />,
               path: '/administration/structures',
+            },
+            {
+              titleKey: 'nav.employees',
+              icon: <BadgeIcon />,
+              path: '/administration/employees',
             },
           ],
         },
