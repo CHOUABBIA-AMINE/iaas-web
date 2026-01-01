@@ -9,12 +9,38 @@
 
 import axios from '../../../../shared/config/axios';
 import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
 
 const API_BASE = '/network/core/station';
 
 class StationService {
   async getAll(): Promise<StationDTO[]> {
     const response = await axios.get(`${API_BASE}/all`);
+    return response.data;
+  }
+
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<StationDTO>> {
+    const response = await axios.get<PageResponse<StationDTO>>(API_BASE, {
+      params: { page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<StationDTO>> {
+    const response = await axios.get<PageResponse<StationDTO>>(`${API_BASE}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
     return response.data;
   }
 
