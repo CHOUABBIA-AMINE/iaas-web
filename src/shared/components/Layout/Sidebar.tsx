@@ -43,7 +43,7 @@ import MapIcon from '@mui/icons-material/Map';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import MeetingRoomIcon from '@mui.icons-material/MeetingRoom';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import NatureIcon from '@mui/icons-material/Nature';
 import MailIcon from '@mui/icons-material/Mail';
@@ -332,14 +332,14 @@ const Sidebar = ({ open }: SidebarProps) => {
 
   const handleItemClick = (item: MenuItem) => {
     const title = t(item.titleKey);
-    
+
     if (item.children) {
       // Accordion behavior: close all other items at the same level
       const clickedDepth = getItemDepth(title);
-      
+
       setExpandedItems((prev) => {
         const isCurrentlyExpanded = prev.includes(title);
-        
+
         if (isCurrentlyExpanded) {
           // Close this item and all its children
           return prev.filter((expandedTitle) => {
@@ -461,9 +461,7 @@ const Sidebar = ({ open }: SidebarProps) => {
         },
       }}
     >
-      <List sx={{ pt: 2, px: 1 }}>
-        {menuItems.map((item, index) => renderMenuItem(item, 0, index))}
-      </List>
+      <List sx={{ pt: 2, px: 1 }}>{menuItems.map((item, index) => renderMenuItem(item, 0, index))}</List>
     </Drawer>
   );
 };

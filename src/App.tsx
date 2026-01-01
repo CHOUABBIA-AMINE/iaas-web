@@ -34,7 +34,9 @@ import {
   HydrocarbonFieldList,
   HydrocarbonFieldEdit,
   PipelineList,
-  PipelineEdit
+  PipelineEdit,
+  PipelineSystemList,
+  PipelineSystemEdit
 } from './modules/network/core/pages';
 import { NetworkMapPage, GeoDebugPage } from './modules/network/geo/pages';
 import { 
@@ -429,7 +431,7 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
-                  
+
                   {/* Geo Debug Page */}
                   <Route
                     path="map/debug"
@@ -552,6 +554,32 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <PipelineEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Pipeline Systems */}
+                    <Route
+                      path="pipeline-systems"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineSystemList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipeline-systems/create"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineSystemEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="pipeline-systems/:pipelineSystemId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <PipelineSystemEdit />
                         </ProtectedRoute>
                       }
                     />
