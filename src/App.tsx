@@ -6,6 +6,7 @@
  * @created 12-22-2025
  * @updated 12-28-2025
  * @updated 12-30-2025 - Added Employee routes
+ * @updated 01-01-2026 - Added Product routes
  */
 
 import { useEffect, useMemo } from 'react';
@@ -53,6 +54,10 @@ import {
 } from './modules/common/environment/pages';
 import { MailList, MailEdit } from './modules/common/communication/pages';
 import { StructureList, StructureEdit, EmployeeList, EmployeeEdit } from './modules/common/administration';
+
+// Network Common
+import ProductList from './modules/network/common/pages/ProductList';
+import ProductEdit from './modules/network/common/pages/ProductEdit';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -451,6 +456,27 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+
+                  {/* Common */}
+                  <Route path="common">
+                    {/* Products */}
+                    <Route
+                      path="products"
+                      element={
+                        <ProtectedRoute>
+                          <ProductList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="products/:productId"
+                      element={
+                        <ProtectedRoute>
+                          <ProductEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Route>
 
                   {/* Core Infrastructure */}
                   <Route path="core">
