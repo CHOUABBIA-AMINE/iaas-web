@@ -2,7 +2,7 @@
  * Layout Component
  * Main layout wrapper with navbar, sidebar, footer, and content area
  * Uses AuthContext for authentication state
- * 
+ *
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  */
@@ -56,6 +56,7 @@ const Layout = () => {
           overflow: 'hidden',
           // Critical: allow children (DataGrid) to shrink within flex containers
           minWidth: 0,
+          minHeight: 0,
         }}
       >
         {/* Content with padding for navbar and footer */}
@@ -71,6 +72,7 @@ const Layout = () => {
             transition: 'margin-left 0.2s ease-in-out',
             // Critical: allow children (DataGrid) to shrink within flex containers
             minWidth: 0,
+            minHeight: 0,
             '&::-webkit-scrollbar': {
               width: '8px',
             },
