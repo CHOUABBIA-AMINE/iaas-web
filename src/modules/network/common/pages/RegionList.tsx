@@ -45,7 +45,8 @@ const RegionList = () => {
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
   const [totalRows, setTotalRows] = useState(0);
 
-  const getDesignation = (obj: Partial<RegionDTO>): string => {
+  const getDesignation = (obj: any): string => {
+    if (!obj) return '';
     if (currentLanguage === 'ar') return obj.designationAr || obj.designationFr || obj.designationEn || '';
     if (currentLanguage === 'en') return obj.designationEn || obj.designationFr || obj.designationAr || '';
     return obj.designationFr || obj.designationEn || obj.designationAr || '';
@@ -114,20 +115,18 @@ const RegionList = () => {
       valueGetter: (params) => getDesignation(params.row as RegionDTO),
     },
     {
-      field: 'zoneId',
+      field: 'zone',
       headerName: 'Zone',
-      width: 120,
-      align: 'center',
-      headerAlign: 'center',
-      valueGetter: (params) => (params.row.zone?.id ?? params.row.zoneId) as any,
+      minWidth: 200,
+      flex: 1,
+      valueGetter: (params) => getDesignation((params.row as any).zone),
     },
     {
-      field: 'activityId',
+      field: 'activity',
       headerName: 'Activity',
-      width: 120,
-      align: 'center',
-      headerAlign: 'center',
-      valueGetter: (params) => (params.row.activity?.id ?? params.row.activityId) as any,
+      minWidth: 200,
+      flex: 1,
+      valueGetter: (params) => getDesignation((params.row as any).activity),
     },
     {
       field: 'actions',
