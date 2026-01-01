@@ -35,10 +35,13 @@ import { DataGrid, GridColDef, GridPaginationModel, GridSortModel } from '@mui/x
 
 import { pipelineSystemService } from '../services/pipelineSystemService';
 import { PipelineSystemDTO } from '../dto/PipelineSystemDTO';
+import { getLocalizedName } from '../utils/localizationUtils';
 
 const PipelineSystemList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const currentLanguage = i18n.language || 'en';
 
   const [pipelineSystems, setPipelineSystems] = useState<PipelineSystemDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,6 +102,14 @@ const PipelineSystemList = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     {
+      field: 'code',
+      headerName: 'Code',
+      width: 140,
+      renderCell: (params) => (
+        <Chip label={params.value} size="small" variant="outlined" sx={{ fontFamily: 'monospace' }} />
+      ),
+    },
+    {
       field: 'name',
       headerName: 'System Name',
       minWidth: 220,
@@ -110,33 +121,26 @@ const PipelineSystemList = () => {
       ),
     },
     {
-      field: 'code',
-      headerName: 'Code',
-      width: 140,
-      renderCell: (params) => (
-        <Chip label={params.value} size="small" variant="outlined" sx={{ fontFamily: 'monospace' }} />
-      ),
-    },
-    {
-      field: 'region',
+      field: 'regionId',
       headerName: 'Region',
       minWidth: 180,
       flex: 1,
-      valueGetter: (value, row) => row?.region?.name || row?.regionId,
+      valueGetter: (_value, row) => row?.region ? getLocalizedName(row.region as any, currentLanguage) : row?.regionId,
     },
     {
-      field: 'product',
+      field: 'productId',
       headerName: 'Product',
       minWidth: 180,
       flex: 1,
-      valueGetter: (value, row) => row?.product?.name || row?.productId,
+      valueGetter: (_value, row) => row?.product ? getLocalizedName(row.product as any, currentLanguage) : row?.productId,
     },
     {
-      field: 'operationalStatus',
+      field: 'operationalStatusId',
       headerName: 'Status',
       minWidth: 160,
       flex: 1,
-      valueGetter: (value, row) => row?.operationalStatus?.name || row?.operationalStatusId,
+      valueGetter: (_value, row) =>
+        row?.operationalStatus ? getLocalizedName(row.operationalStatus as any, currentLanguage) : row?.operationalStatusId,
     },
     {
       field: 'actions',
