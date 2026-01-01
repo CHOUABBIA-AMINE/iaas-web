@@ -56,7 +56,9 @@ const PartnerEdit = () => {
 
   const sortedCountries = useMemo(() => {
     const copy = [...countries];
-    return copy.sort((a, b) => getAdminLocalizedName(a, currentLanguage).localeCompare(getAdminLocalizedName(b, currentLanguage)));
+    return copy.sort((a, b) =>
+      getAdminLocalizedName(a, currentLanguage).localeCompare(getAdminLocalizedName(b, currentLanguage))
+    );
   }, [countries, currentLanguage]);
 
   useEffect(() => {
@@ -75,7 +77,7 @@ const PartnerEdit = () => {
 
       const [typesData, countriesData] = await Promise.allSettled([
         partnerTypeService.getAll(),
-        countryService.getAll(),
+        countryService.getAllList(),
       ]);
 
       if (typesData.status === 'fulfilled') {
@@ -84,7 +86,9 @@ const PartnerEdit = () => {
       }
 
       if (countriesData.status === 'fulfilled') {
-        const items = Array.isArray(countriesData.value) ? countriesData.value : (countriesData.value as any)?.data || (countriesData.value as any)?.content || [];
+        const items = Array.isArray(countriesData.value)
+          ? countriesData.value
+          : (countriesData.value as any)?.data || (countriesData.value as any)?.content || [];
         setCountries(items);
       }
 
@@ -202,12 +206,7 @@ const PartnerEdit = () => {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    value={partner.name || ''}
-                    onChange={handleChange('name')}
-                  />
+                  <TextField fullWidth label="Name" value={partner.name || ''} onChange={handleChange('name')} />
                 </Grid>
 
                 <Grid item xs={12} md={6}>
