@@ -7,6 +7,7 @@
  * @updated 12-28-2025
  * @updated 12-30-2025 - Added Employee routes
  * @updated 01-01-2026 - Added Product routes
+ * @updated 01-01-2026 - Added Region/Partner/Vendor routes
  */
 
 import { useEffect, useMemo } from 'react';
@@ -58,6 +59,12 @@ import { StructureList, StructureEdit, EmployeeList, EmployeeEdit } from './modu
 // Network Common
 import ProductList from './modules/network/common/pages/ProductList';
 import ProductEdit from './modules/network/common/pages/ProductEdit';
+import RegionList from './modules/network/common/pages/RegionList';
+import RegionEdit from './modules/network/common/pages/RegionEdit';
+import PartnerList from './modules/network/common/pages/PartnerList';
+import PartnerEdit from './modules/network/common/pages/PartnerEdit';
+import VendorList from './modules/network/common/pages/VendorList';
+import VendorEdit from './modules/network/common/pages/VendorEdit';
 
 // Flow Dashboard Module
 import { DashboardPage as FlowDashboardPage } from './modules/dashboard';
@@ -473,6 +480,84 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <ProductEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Regions */}
+                    <Route
+                      path="regions"
+                      element={
+                        <ProtectedRoute>
+                          <RegionList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="regions/create"
+                      element={
+                        <ProtectedRoute>
+                          <RegionEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="regions/:regionId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <RegionEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Partners */}
+                    <Route
+                      path="partners"
+                      element={
+                        <ProtectedRoute>
+                          <PartnerList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="partners/create"
+                      element={
+                        <ProtectedRoute>
+                          <PartnerEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="partners/:partnerId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <PartnerEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Vendors */}
+                    <Route
+                      path="vendors"
+                      element={
+                        <ProtectedRoute>
+                          <VendorList />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="vendors/create"
+                      element={
+                        <ProtectedRoute>
+                          <VendorEdit />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="vendors/:vendorId/edit"
+                      element={
+                        <ProtectedRoute>
+                          <VendorEdit />
                         </ProtectedRoute>
                       }
                     />
