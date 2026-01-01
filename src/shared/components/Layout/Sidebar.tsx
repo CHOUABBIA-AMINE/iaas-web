@@ -9,6 +9,7 @@
  * @updated 01-01-2026 - Reordered and simplified menus (view)
  * @updated 01-01-2026 - Restored Common children (Administration/Communication/Environment)
  * @updated 01-01-2026 - Added Workspace + Home translations
+ * @updated 01-01-2026 - Moved Dashboard/Map under Workspace
  */
 
 import {
@@ -52,6 +53,8 @@ import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import BadgeIcon from '@mui/icons-material/Badge';
 import HomeIcon from '@mui/icons-material/Home';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import MapIcon from '@mui/icons-material/Map';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -79,6 +82,7 @@ const Sidebar = ({ open }: SidebarProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Top-level order: Home page, Workspace, Common, Business, Network, System
+  // Workspace: Network Dashboard + Map Flow (previously top-level)
   // Network/Common: keep Product, Region, Partner, Vendor
   // Network/Core: keep PipelineSystem, Pipeline, HydrocarbonField, Station, Terminal
   const menuItems: MenuItem[] = [
@@ -90,7 +94,18 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.workspace',
       icon: <WorkspacesIcon />,
-      path: '/workspace',
+      children: [
+        {
+          titleKey: 'nav.dashboard',
+          icon: <DashboardIcon />,
+          path: '/network/flow/dashboard',
+        },
+        {
+          titleKey: 'nav.map',
+          icon: <MapIcon />,
+          path: '/network/map',
+        },
+      ],
     },
     {
       titleKey: 'nav.common',
