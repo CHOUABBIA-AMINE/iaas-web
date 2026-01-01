@@ -53,9 +53,9 @@ const PartnerList = () => {
 
   const getCountryLabel = (obj: any): string => {
     if (!obj) return '-';
-    if (currentLanguage === 'ar') return obj.nameAr || obj.nameFr || obj.nameEn || obj.name || '-';
-    if (currentLanguage === 'en') return obj.nameEn || obj.nameFr || obj.nameAr || obj.name || '-';
-    return obj.nameFr || obj.nameEn || obj.nameAr || obj.name || '-';
+    if (currentLanguage === 'ar') return obj.designationAr || obj.designationFr || obj.designationEn || '-';
+    if (currentLanguage === 'en') return obj.designationEn || obj.designationFr || obj.designationAr || '-';
+    return obj.designationFr || obj.designationEn || obj.designationAr || '-';
   };
 
   useEffect(() => {
