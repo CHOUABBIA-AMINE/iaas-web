@@ -1,3 +1,4 @@
-export * from './StationTypeDTO';
-export * from './TerminalTypeDTO';
-export * from './HydrocarbonFieldTypeDTO';
+export { HydrocarbonFieldTypeDTO } from './HydrocarbonFieldTypeDTO';
+export { StationTypeDTO } from './StationTypeDTO';
+export { TerminalTypeDTO } from './TerminalTypeDTO';
+export { PartnerTypeDTO } from './PartnerTypeDTO';
