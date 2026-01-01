@@ -5,3 +5,4 @@ export { equipmentTypeService } from './equipmentTypeService';
 export { facilityTypeService } from './facilityTypeService';
 export { partnerTypeService } from './partnerTypeService';
 export { vendorTypeService } from './vendorTypeService';
+export { companyTypeService } from './companyTypeService';
