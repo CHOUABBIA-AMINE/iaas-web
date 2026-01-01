@@ -1,11 +1,12 @@
 /**
  * Sidebar Component
  * Side navigation menu with collapsible icon-only mode and i18n support
- * 
+ *
  * @author CHOUABBIA Amine
  * @created 12-22-2025
  * @updated 12-28-2025
  * @updated 12-30-2025 - Added Employee entry
+ * @updated 01-01-2026 - Reordered and simplified menus (view)
  */
 
 import {
@@ -33,24 +34,12 @@ import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FactoryIcon from '@mui/icons-material/Factory';
 import OilBarrelIcon from '@mui/icons-material/OilBarrel';
-import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-import MapIcon from '@mui/icons-material/Map';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import ApartmentIcon from '@mui/icons-material/Apartment';
-import NatureIcon from '@mui/icons-material/Nature';
-import MailIcon from '@mui/icons-material/Mail';
-import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LayersIcon from '@mui/icons-material/Layers';
-import CorporateFareIcon from '@mui/icons-material/CorporateFare';
-import BadgeIcon from '@mui/icons-material/Badge';
+import HomeIcon from '@mui/icons-material/Home';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
@@ -78,16 +67,99 @@ const Sidebar = ({ open }: SidebarProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Menu structure with translation keys
+  // Requested order:
+  // - Home page
+  // - Common
+  // - Business
+  // - Network
+  // - System
+  //
+  // Network/Common: keep Product, Region, Partner, Vendor
+  // Network/Core: keep PipelineSystem, Pipeline, HydrocarbonField, Station, Terminal
   const menuItems: MenuItem[] = [
     {
-      titleKey: 'nav.dashboard',
-      icon: <DashboardIcon />,
-      path: '/network/flow/dashboard',
+      titleKey: 'nav.home',
+      icon: <HomeIcon />,
+      path: '/',
     },
     {
-      titleKey: 'nav.map',
-      icon: <MapIcon />,
-      path: '/network/map',
+      titleKey: 'nav.common',
+      icon: <LayersIcon />,
+      path: '/common',
+    },
+    {
+      titleKey: 'nav.business',
+      icon: <BusinessIcon />,
+      children: [
+        {
+          titleKey: 'nav.overview',
+          icon: <BusinessIcon />,
+          path: '/business/overview',
+        },
+      ],
+    },
+    {
+      titleKey: 'nav.network',
+      icon: <NetworkCheckIcon />,
+      children: [
+        {
+          titleKey: 'nav.networkCommon',
+          icon: <PublicIcon />,
+          children: [
+            {
+              titleKey: 'nav.products',
+              icon: <OilBarrelIcon />,
+              path: '/network/common/products',
+            },
+            {
+              titleKey: 'nav.regions',
+              icon: <PublicIcon />,
+              path: '/network/common/regions',
+            },
+            {
+              titleKey: 'nav.partners',
+              icon: <BusinessCenterIcon />,
+              path: '/network/common/partners',
+            },
+            {
+              titleKey: 'nav.vendors',
+              icon: <BusinessIcon />,
+              path: '/network/common/vendors',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.core',
+          icon: <AccountTreeIcon />,
+          children: [
+            {
+              titleKey: 'nav.pipelineSystems',
+              icon: <AccountTreeIcon />,
+              path: '/network/core/pipeline-systems',
+            },
+            {
+              titleKey: 'nav.pipelines',
+              icon: <AccountTreeIcon />,
+              path: '/network/core/pipelines',
+            },
+            {
+              titleKey: 'nav.hydrocarbonFields',
+              icon: <OilBarrelIcon />,
+              path: '/network/core/hydrocarbon-fields',
+            },
+            {
+              titleKey: 'nav.stations',
+              icon: <FactoryIcon />,
+              path: '/network/core/stations',
+            },
+            {
+              titleKey: 'nav.terminals',
+              icon: <FactoryIcon />,
+              path: '/network/core/terminals',
+            },
+          ],
+        },
+      ],
     },
     {
       titleKey: 'nav.system',
@@ -135,179 +207,6 @@ const Sidebar = ({ open }: SidebarProps) => {
               path: '/audit/logs',
             },
           ],
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.common',
-      icon: <LayersIcon />,
-      children: [
-        {
-          titleKey: 'nav.administration',
-          icon: <AdminPanelSettingsIcon />,
-          children: [
-            {
-              titleKey: 'nav.structures',
-              icon: <CorporateFareIcon />,
-              path: '/administration/structures',
-            },
-            {
-              titleKey: 'nav.employees',
-              icon: <BadgeIcon />,
-              path: '/administration/employees',
-            },
-          ],
-        },
-        {
-          titleKey: 'nav.communication',
-          icon: <ContactMailIcon />,
-          children: [
-            {
-              titleKey: 'nav.mails',
-              icon: <MailIcon />,
-              path: '/communication/mails',
-            },
-          ],
-        },
-        {
-          titleKey: 'nav.environment',
-          icon: <NatureIcon />,
-          children: [
-            {
-              titleKey: 'nav.archiveBoxes',
-              icon: <InventoryIcon />,
-              path: '/environment/archive-boxes',
-            },
-            {
-              titleKey: 'nav.folders',
-              icon: <CreateNewFolderIcon />,
-              path: '/environment/folders',
-            },
-            {
-              titleKey: 'nav.shelves',
-              icon: <ViewListIcon />,
-              path: '/environment/shelves',
-            },
-            {
-              titleKey: 'nav.rooms',
-              icon: <MeetingRoomIcon />,
-              path: '/environment/rooms',
-            },
-            {
-              titleKey: 'nav.blocs',
-              icon: <ApartmentIcon />,
-              path: '/environment/blocs',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.network',
-      icon: <NetworkCheckIcon />,
-      children: [
-        {
-          titleKey: 'nav.networkCommon',
-          icon: <PublicIcon />,
-          children: [
-            {
-              titleKey: 'nav.alloys',
-              icon: <AccountTreeIcon />,
-              path: '/network/common/alloys',
-            },
-            {
-              titleKey: 'nav.locations',
-              icon: <LocationOnIcon />,
-              path: '/network/common/locations',
-            },
-            {
-              titleKey: 'nav.partners',
-              icon: <BusinessCenterIcon />,
-              path: '/network/common/partners',
-            },
-            {
-              titleKey: 'nav.products',
-              icon: <OilBarrelIcon />,
-              path: '/network/common/products',
-            },
-            {
-              titleKey: 'nav.regions',
-              icon: <PublicIcon />,
-              path: '/network/common/regions',
-            },
-            {
-              titleKey: 'nav.vendors',
-              icon: <BusinessIcon />,
-              path: '/network/common/vendors',
-            },
-            {
-              titleKey: 'nav.zones',
-              icon: <PublicIcon />,
-              path: '/network/common/zones',
-            },
-            {
-              titleKey: 'nav.operationalStatus',
-              icon: <AssignmentIcon />,
-              path: '/network/common/operational-status',
-            },
-          ],
-        },
-        {
-          titleKey: 'nav.core',
-          icon: <AccountTreeIcon />,
-          children: [
-            {
-              titleKey: 'nav.equipment',
-              icon: <PrecisionManufacturingIcon />,
-              path: '/network/core/equipment',
-            },
-            {
-              titleKey: 'nav.facilities',
-              icon: <FactoryIcon />,
-              path: '/network/core/facilities',
-            },
-            {
-              titleKey: 'nav.hydrocarbonFields',
-              icon: <OilBarrelIcon />,
-              path: '/network/core/hydrocarbon-fields',
-            },
-            {
-              titleKey: 'nav.pipelines',
-              icon: <AccountTreeIcon />,
-              path: '/network/core/pipelines',
-            },
-            {
-              titleKey: 'nav.pipelineSegments',
-              icon: <AccountTreeIcon />,
-              path: '/network/core/pipeline-segments',
-            },
-            {
-              titleKey: 'nav.pipelineSystems',
-              icon: <AccountTreeIcon />,
-              path: '/network/core/pipeline-systems',
-            },
-            {
-              titleKey: 'nav.stations',
-              icon: <FactoryIcon />,
-              path: '/network/core/stations',
-            },
-            {
-              titleKey: 'nav.terminals',
-              icon: <FactoryIcon />,
-              path: '/network/core/terminals',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      titleKey: 'nav.business',
-      icon: <BusinessIcon />,
-      children: [
-        {
-          titleKey: 'nav.overview',
-          icon: <BusinessIcon />,
-          path: '/business/overview',
         },
       ],
     },
