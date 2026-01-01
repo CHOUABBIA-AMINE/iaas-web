@@ -1,20 +1,20 @@
 /**
  * Vendor DTO
- * Data Transfer Object for Vendor entity
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
+ * Mirrors backend: dz.mdn.iaas.network.common.dto.VendorDTO
  */
+
+import { CountryDTO } from '../../../common/administration/dto/CountryDTO';
+import { VendorTypeDTO } from '../../type/dto/VendorTypeDTO';
 
 export interface VendorDTO {
   id: number;
-  name: string;
-  code?: string;
-  description?: string;
-  contactPerson?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  createdAt?: string;
-  updatedAt?: string;
+
+  name?: string | null;
+  shortName?: string | null;
+
+  vendorTypeId: number;
+  countryId: number;
+
+  vendorType?: VendorTypeDTO | null;
+  country?: CountryDTO | null;
 }

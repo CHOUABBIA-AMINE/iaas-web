@@ -1,22 +1,17 @@
 /**
  * OperationalStatus DTO
- * Data Transfer Object for OperationalStatus entity
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- * @updated 12-23-2025
+ * Mirrors backend: dz.mdn.iaas.network.common.dto.OperationalStatusDTO
  */
 
 export interface OperationalStatusDTO {
   id: number;
-  name?: string;
-  code?: string;
-  description?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  color?: string;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  code: string;
+
+  designationAr?: string | null;
+  designationEn?: string | null;
+  designationFr: string;
+
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionFr: string;
 }

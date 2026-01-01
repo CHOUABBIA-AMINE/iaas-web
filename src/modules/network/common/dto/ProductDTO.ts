@@ -1,40 +1,19 @@
 /**
  * Product DTO
- * Data Transfer Object for Product entity
- * 
- * @author CHOUABBIA Amine
- * @created 12-24-2025
+ * Mirrors backend: dz.mdn.iaas.network.common.dto.ProductDTO
  */
 
 export interface ProductDTO {
   id: number;
-  name?: string;
-  code?: string;
-  description?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  category?: string;
-  physicalState?: string;
-  isHazardous?: boolean;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ProductCreateDTO {
-  name: string;
   code: string;
-  description?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  category?: string;
-  physicalState?: string;
-  isHazardous?: boolean;
-  isActive?: boolean;
-}
 
-export interface ProductUpdateDTO extends Partial<ProductCreateDTO> {
-  id: number;
+  designationAr?: string | null;
+  designationEn?: string | null;
+  designationFr: string;
+
+  density: number;
+  viscosity: number;
+  flashPoint: number;
+  sulfurContent: number;
+  isHazardous: boolean;
 }
