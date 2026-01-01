@@ -73,6 +73,10 @@ const PipelineSystemList = () => {
         ? await pipelineSystemService.search(searchText, paginationModel.page, paginationModel.pageSize, sortField, sortDir)
         : await pipelineSystemService.getPage(paginationModel.page, paginationModel.pageSize, sortField, sortDir);
 
+      // Debug: check if expanded objects are present
+      // eslint-disable-next-line no-console
+      console.log('PipelineSystem page sample:', pageResponse?.content?.[0]);
+
       setPipelineSystems(pageResponse.content);
       setTotalRows(pageResponse.totalElements);
       setError('');
@@ -105,6 +109,8 @@ const PipelineSystemList = () => {
     setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
   };
 
+  // NOTE: MUI DataGrid valueGetter signature differs between versions.
+  // Using renderCell avoids signature issues and guarantees correct display.
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     {
@@ -131,21 +137,30 @@ const PipelineSystemList = () => {
       headerName: 'Region',
       minWidth: 180,
       flex: 1,
-      valueGetter: (_value, row) => (row?.region ? getDesignation(row.region) : row?.regionId),
+      renderCell: (params) => {
+        const row = params.row as PipelineSystemDTO;
+        return <>{row.region ? getDesignation(row.region) : row.regionId ?? ''}</>;
+      },
     },
     {
       field: 'productId',
       headerName: 'Product',
       minWidth: 180,
       flex: 1,
-      valueGetter: (_value, row) => (row?.product ? getDesignation(row.product) : row?.productId),
+      renderCell: (params) => {
+        const row = params.row as PipelineSystemDTO;
+        return <>{row.product ? getDesignation(row.product) : row.productId ?? ''}</>;
+      },
     },
     {
       field: 'operationalStatusId',
       headerName: 'Status',
       minWidth: 160,
       flex: 1,
-      valueGetter: (_value, row) => (row?.operationalStatus ? getDesignation(row.operationalStatus) : row?.operationalStatusId),
+      renderCell: (params) => {
+        const row = params.row as PipelineSystemDTO;
+        return <>{row.operationalStatus ? getDesignation(row.operationalStatus) : row.operationalStatusId ?? ''}</>;
+      },
     },
     {
       field: 'actions',
