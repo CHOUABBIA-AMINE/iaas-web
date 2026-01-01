@@ -1,2 +1,4 @@
-// Shared/reusable UI components used across multiple modules
-export * from './Layout';
+export { default as LanguageSwitcher } from './LanguageSwitcher';
+export { default as ProtectedRoute } from './ProtectedRoute';
+export { default as PublicRoute } from './PublicRoute';
+export { ConfirmDialog } from './ConfirmDialog';
