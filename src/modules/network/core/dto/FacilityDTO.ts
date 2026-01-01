@@ -1,33 +1,31 @@
 /**
  * Facility DTO
- * Data Transfer Object for Facility entity
- * 
- * @author CHOUABBIA Amine
- * @created 12-24-2025
+ * Mirrors backend: dz.mdn.iaas.network.core.dto.FacilityDTO
  */
 
-import { OperationalStatusDTO } from '../../common/dto';
+import { LocalityDTO } from '../../../common/administration/dto/LocalityDTO';
+import { OperationalStatusDTO, VendorDTO } from '../../common/dto';
 
 export interface FacilityDTO {
   id: number;
+
   code: string;
   name: string;
-  type?: string;
-  description?: string;
-  operationalStatusId?: number;
-  operationalStatus?: OperationalStatusDTO;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
-export interface FacilityCreateDTO {
-  code: string;
-  name: string;
-  type?: string;
-  description?: string;
-  operationalStatusId?: number;
-}
+  installationDate?: string | null;
+  commissioningDate?: string | null;
+  decommissioningDate?: string | null;
 
-export interface FacilityUpdateDTO extends Partial<FacilityCreateDTO> {
-  id: number;
+  placeName: string;
+  latitude: number;
+  longitude: number;
+  elevation: number;
+
+  operationalStatusId: number;
+  vendorId: number;
+  localityId: number;
+
+  operationalStatus?: OperationalStatusDTO | null;
+  vendor?: VendorDTO | null;
+  locality?: LocalityDTO | null;
 }
