@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-30-2025
+ * @updated 01-01-2026 - Set id=null on create to prevent conflicts
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -40,9 +41,10 @@ export const employeeService = {
 
   /**
    * Create new employee
+   * Always send id=null to prevent conflict (409) errors
    */
   create: async (employee: EmployeeDTO): Promise<EmployeeDTO> => {
-    const response = await axiosInstance.post(BASE_URL, employee);
+    const response = await axiosInstance.post(BASE_URL, { ...employee, id: null });
     return response.data;
   },
 
