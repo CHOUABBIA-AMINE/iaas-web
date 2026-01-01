@@ -49,10 +49,18 @@ const PartnerEdit = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  const getPartnerTypeLabel = (obj: any): string => {
+    if (!obj) return '';
+    if (currentLanguage === 'ar') return obj.designationAr || obj.designationFr || obj.designationEn || '';
+    if (currentLanguage === 'en') return obj.designationEn || obj.designationFr || obj.designationAr || '';
+    return obj.designationFr || obj.designationEn || obj.designationAr || '';
+  };
+
   const sortedPartnerTypes = useMemo(() => {
     const copy = [...partnerTypes];
-    return copy.sort((a, b) => (a?.name || '').localeCompare(b?.name || ''));
-  }, [partnerTypes]);
+    return copy.sort((a, b) => getPartnerTypeLabel(a).localeCompare(getPartnerTypeLabel(b)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [partnerTypes, currentLanguage]);
 
   const sortedCountries = useMemo(() => {
     const copy = [...countries];
@@ -222,7 +230,7 @@ const PartnerEdit = () => {
                   >
                     {sortedPartnerTypes.map((pt) => (
                       <MenuItem key={pt.id} value={pt.id}>
-                        {pt.name}
+                        {getPartnerTypeLabel(pt)}
                       </MenuItem>
                     ))}
                   </TextField>

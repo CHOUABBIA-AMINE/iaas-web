@@ -49,10 +49,18 @@ const VendorEdit = () => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  const getVendorTypeLabel = (obj: any): string => {
+    if (!obj) return '';
+    if (currentLanguage === 'ar') return obj.designationAr || obj.designationFr || obj.designationEn || '';
+    if (currentLanguage === 'en') return obj.designationEn || obj.designationFr || obj.designationAr || '';
+    return obj.designationFr || obj.designationEn || obj.designationAr || '';
+  };
+
   const sortedVendorTypes = useMemo(() => {
     const copy = [...vendorTypes];
-    return copy.sort((a, b) => (a?.name || '').localeCompare(b?.name || ''));
-  }, [vendorTypes]);
+    return copy.sort((a, b) => getVendorTypeLabel(a).localeCompare(getVendorTypeLabel(b)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendorTypes, currentLanguage]);
 
   const sortedCountries = useMemo(() => {
     const copy = [...countries];
@@ -213,7 +221,7 @@ const VendorEdit = () => {
                   >
                     {sortedVendorTypes.map((vt) => (
                       <MenuItem key={vt.id} value={vt.id}>
-                        {vt.name}
+                        {getVendorTypeLabel(vt)}
                       </MenuItem>
                     ))}
                   </TextField>
