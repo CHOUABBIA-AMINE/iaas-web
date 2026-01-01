@@ -51,20 +51,34 @@ import { StructureDTO } from '../dto/StructureDTO';
 import { StructureTypeDTO } from '../dto/StructureTypeDTO';
 
 const StructureList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  
+
+  const currentLanguage = i18n.language || 'en';
+
+  const getStructureDesignation = (s?: Partial<StructureDTO> | null): string => {
+    if (!s) return '-';
+    if (currentLanguage === 'ar') return s.designationAr || s.designationFr || s.designationEn || '-';
+    if (currentLanguage === 'en') return s.designationEn || s.designationFr || s.designationAr || '-';
+    return s.designationFr || s.designationEn || s.designationAr || '-';
+  };
+
+  // NOTE: StructureTypeDTO currently provides only `label` (no multilingual fields)
+  const getStructureTypeLabel = (type?: Partial<StructureTypeDTO> | null): string => {
+    return type?.label || '-';
+  };
+
   // Data state
   const [structures, setStructures] = useState<StructureDTO[]>([]);
   const [structureTypes, setStructureTypes] = useState<StructureTypeDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   // Filter state
   const [searchText, setSearchText] = useState('');
   const [selectedTypeId, setSelectedTypeId] = useState<string>('');
-  
+
   // Export menu
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -77,23 +91,23 @@ const StructureList = () => {
       setLoading(true);
       const [structuresData, typesData] = await Promise.all([
         structureService.getAll(),
-        structureTypeService.getAll()
+        structureTypeService.getAll(),
       ]);
-      
+
       let structuresList: StructureDTO[] = [];
       if (Array.isArray(structuresData)) {
         structuresList = structuresData;
       } else if (structuresData && typeof structuresData === 'object') {
         structuresList = (structuresData as any).data || (structuresData as any).content || [];
       }
-      
+
       let typesList: StructureTypeDTO[] = [];
       if (Array.isArray(typesData)) {
         typesList = typesData;
       } else if (typesData && typeof typesData === 'object') {
         typesList = (typesData as any).data || (typesData as any).content || [];
       }
-      
+
       setStructures(structuresList);
       setStructureTypes(typesList);
       setError('');
@@ -110,16 +124,18 @@ const StructureList = () => {
   // Filter structures
   const filteredStructures = useMemo(() => {
     if (!Array.isArray(structures)) return [];
-    
+
     return structures.filter((structure) => {
       const searchLower = searchText.toLowerCase();
-      const matchesSearch = !searchText || 
+      const matchesSearch =
+        !searchText ||
         (structure.code && structure.code.toLowerCase().includes(searchLower)) ||
         (structure.designationFr && structure.designationFr.toLowerCase().includes(searchLower)) ||
         (structure.designationEn && structure.designationEn.toLowerCase().includes(searchLower)) ||
         (structure.designationAr && structure.designationAr.toLowerCase().includes(searchLower));
 
-      const matchesType = !selectedTypeId || 
+      const matchesType =
+        !selectedTypeId ||
         (structure.structureTypeId && structure.structureTypeId.toString() === selectedTypeId);
 
       return matchesSearch && matchesType;
@@ -128,16 +144,16 @@ const StructureList = () => {
 
   // DataGrid columns
   const columns: GridColDef[] = [
-    { 
-      field: 'id', 
-      headerName: 'ID', 
+    {
+      field: 'id',
+      headerName: 'ID',
       width: 80,
       align: 'center',
       headerAlign: 'center',
     },
-    { 
-      field: 'code', 
-      headerName: 'Code', 
+    {
+      field: 'code',
+      headerName: t('common.code', { defaultValue: 'Code' }),
       width: 120,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -148,49 +164,39 @@ const StructureList = () => {
         </Box>
       ),
     },
-    { 
-      field: 'designationFr', 
-      headerName: 'Designation (FR)', 
-      minWidth: 250,
+    {
+      field: 'designation',
+      headerName: t('common.designation', { defaultValue: 'Designation' }),
+      minWidth: 260,
       flex: 2,
+      valueGetter: (p) => getStructureDesignation(p.row as StructureDTO),
     },
-    { 
-      field: 'designationEn', 
-      headerName: 'Designation (EN)', 
-      minWidth: 200,
-      flex: 1.5,
-    },
-    { 
-      field: 'structureType', 
-      headerName: 'Type', 
-      width: 150,
+    {
+      field: 'structureType',
+      headerName: t('common.type', { defaultValue: 'Type' }),
+      width: 170,
       renderCell: (params) => {
-        const type = params.row.structureType;
+        const type = (params.row as any).structureType as StructureTypeDTO | undefined;
         return type ? (
-          <Chip 
-            label={type.designationFr || type.designationEn} 
-            size="small" 
-            color="primary" 
-            variant="outlined"
-          />
+          <Chip label={getStructureTypeLabel(type)} size="small" color="primary" variant="outlined" />
         ) : null;
       },
     },
-    { 
-      field: 'parentStructure', 
-      headerName: 'Organization', 
-      width: 180,
+    {
+      field: 'parentStructure',
+      headerName: t('administration.organization', { defaultValue: 'Organization' }),
+      width: 200,
       renderCell: (params) => {
-        const parent = params.row.parentStructure;
+        const parent = (params.row as any).parentStructure as StructureDTO | undefined;
         return parent ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <OrganizationIcon fontSize="small" color="action" />
             <Typography variant="body2" noWrap>
-              {parent.designationFr || parent.code}
+              {getStructureDesignation(parent) || parent.code}
             </Typography>
           </Box>
         ) : (
-          <Chip label="Root" size="small" color="success" variant="outlined" />
+          <Chip label={t('common.root', { defaultValue: 'Root' })} size="small" color="success" variant="outlined" />
         );
       },
     },
@@ -210,7 +216,7 @@ const StructureList = () => {
               onClick={() => handleEdit(params.row.id)}
               sx={{
                 color: 'primary.main',
-                '&:hover': { bgcolor: alpha('#2563eb', 0.1) }
+                '&:hover': { bgcolor: alpha('#2563eb', 0.1) },
               }}
             >
               <EditIcon fontSize="small" />
@@ -222,7 +228,7 @@ const StructureList = () => {
               onClick={() => handleDelete(params.row.id)}
               sx={{
                 color: 'error.main',
-                '&:hover': { bgcolor: alpha('#dc2626', 0.1) }
+                '&:hover': { bgcolor: alpha('#dc2626', 0.1) },
               }}
             >
               <DeleteIcon fontSize="small" />
@@ -235,12 +241,12 @@ const StructureList = () => {
 
   const handleCreate = () => navigate('/administration/structures/create');
   const handleEdit = (structureId: number) => navigate(`/administration/structures/${structureId}/edit`);
-  
+
   const handleDelete = async (structureId: number) => {
     if (window.confirm('Delete this structure?')) {
       try {
         await structureService.delete(structureId);
-        setSuccess('Structure deleted successfully');
+        setSuccess(t('common.deleted', { defaultValue: 'Deleted' }));
         loadData();
       } catch (err: any) {
         setError(err.message || 'Failed to delete structure');
@@ -250,7 +256,7 @@ const StructureList = () => {
 
   const handleRefresh = () => {
     loadData();
-    setSuccess('Data refreshed');
+    setSuccess(t('common.refreshed', { defaultValue: 'Data refreshed' }));
   };
 
   const handleTypeFilterChange = (event: SelectChangeEvent<string>) => {
@@ -272,17 +278,17 @@ const StructureList = () => {
   };
 
   const handleExportCSV = () => {
-    setSuccess('Exported to CSV');
+    setSuccess(t('common.exportedCSV', { defaultValue: 'Exported to CSV' }));
     handleExportMenuClose();
   };
 
   const handleExportExcel = () => {
-    setSuccess('Exported to Excel');
+    setSuccess(t('common.exportedExcel', { defaultValue: 'Exported to Excel' }));
     handleExportMenuClose();
   };
 
   const handleExportPDF = () => {
-    setSuccess('Exported to PDF');
+    setSuccess(t('common.exportedPDF', { defaultValue: 'Exported to PDF' }));
     handleExportMenuClose();
   };
 
@@ -292,20 +298,15 @@ const StructureList = () => {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="h4" fontWeight={700} color="text.primary">
-            Organizational Structures
+            {t('administration.structures', { defaultValue: 'Organizational Structures' })}
           </Typography>
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title="Refresh">
+            <Tooltip title={t('common.refresh', { defaultValue: 'Refresh' })}>
               <IconButton onClick={handleRefresh} size="medium" color="primary">
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
-            <Button
-              variant="outlined"
-              startIcon={<ExportIcon />}
-              onClick={handleExportMenuOpen}
-              sx={{ borderRadius: 2 }}
-            >
+            <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>
               {t('common.export')}
             </Button>
             <Button
@@ -314,12 +315,12 @@ const StructureList = () => {
               onClick={handleCreate}
               sx={{ borderRadius: 2, boxShadow: 2 }}
             >
-              Create Structure
+              {t('administration.createStructure', { defaultValue: 'Create Structure' })}
             </Button>
           </Stack>
         </Box>
         <Typography variant="body2" color="text.secondary">
-          Manage organizational structures and hierarchies
+          {t('administration.structuresSubtitle', { defaultValue: 'Manage organizational structures and hierarchies' })}
         </Typography>
       </Box>
 
@@ -330,7 +331,7 @@ const StructureList = () => {
         onClose={handleExportMenuClose}
         PaperProps={{
           elevation: 3,
-          sx: { minWidth: 200 }
+          sx: { minWidth: 200 },
         }}
       >
         <MenuItem onClick={handleExportCSV}>
@@ -371,7 +372,7 @@ const StructureList = () => {
           <Stack spacing={2.5}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <TextField
-                placeholder="Search by code or designation..."
+                placeholder={t('common.searchByCodeOrDesignation', { defaultValue: 'Search by code or designation...' })}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
                 InputProps={{
@@ -385,29 +386,21 @@ const StructureList = () => {
               />
 
               <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel>Structure Type</InputLabel>
-                <Select
-                  value={selectedTypeId}
-                  onChange={handleTypeFilterChange}
-                  label="Structure Type"
-                >
+                <InputLabel>{t('administration.structureType', { defaultValue: 'Structure Type' })}</InputLabel>
+                <Select value={selectedTypeId} onChange={handleTypeFilterChange} label={t('administration.structureType', { defaultValue: 'Structure Type' })}>
                   <MenuItem value="">
-                    <em>All Types</em>
+                    <em>{t('common.allTypes', { defaultValue: 'All Types' })}</em>
                   </MenuItem>
                   {structureTypes.map((type) => (
                     <MenuItem key={type.id} value={type.id.toString()}>
-                      {type.designationFr || type.designationEn}
+                      {getStructureTypeLabel(type)}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
 
               {(searchText || selectedTypeId) && (
-                <Button
-                  variant="outlined"
-                  onClick={handleClearFilters}
-                  sx={{ minWidth: 120 }}
-                >
+                <Button variant="outlined" onClick={handleClearFilters} sx={{ minWidth: 120 }}>
                   {t('common.clearFilters')}
                 </Button>
               )}
