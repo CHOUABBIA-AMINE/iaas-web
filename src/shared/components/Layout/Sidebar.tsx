@@ -43,7 +43,7 @@ import MapIcon from '@mui/icons-material/Map';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import MeetingRoomIcon from '@mui.icons-material/MeetingRoom';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import NatureIcon from '@mui/icons-material/Nature';
 import MailIcon from '@mui/icons-material/Mail';
