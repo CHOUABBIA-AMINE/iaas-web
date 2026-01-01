@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Typography,
@@ -30,7 +31,9 @@ import { vendorService } from '../services/vendorService';
 import { VendorDTO } from '../dto/VendorDTO';
 
 const VendorList = () => {
+  const { i18n } = useTranslation();
   const navigate = useNavigate();
+  const currentLanguage = i18n.language || 'en';
 
   const [rows, setRows] = useState<VendorDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +43,20 @@ const VendorList = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 25 });
   const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
   const [totalRows, setTotalRows] = useState(0);
+
+  const getTypeLabel = (obj: any): string => {
+    if (!obj) return '-';
+    if (currentLanguage === 'ar') return obj.designationAr || obj.designationFr || obj.designationEn || '-';
+    if (currentLanguage === 'en') return obj.designationEn || obj.designationFr || obj.designationAr || '-';
+    return obj.designationFr || obj.designationEn || obj.designationAr || '-';
+  };
+
+  const getCountryLabel = (obj: any): string => {
+    if (!obj) return '-';
+    if (currentLanguage === 'ar') return obj.nameAr || obj.nameFr || obj.nameEn || obj.name || '-';
+    if (currentLanguage === 'en') return obj.nameEn || obj.nameFr || obj.nameAr || obj.name || '-';
+    return obj.nameFr || obj.nameEn || obj.nameAr || obj.name || '-';
+  };
 
   useEffect(() => {
     loadData();
@@ -100,25 +117,23 @@ const VendorList = () => {
     {
       field: 'name',
       headerName: 'Name',
-      minWidth: 240,
+      minWidth: 220,
       flex: 1,
       valueGetter: (p) => p.row.name || '-',
     },
     {
-      field: 'vendorTypeId',
+      field: 'vendorType',
       headerName: 'Type',
-      width: 120,
-      align: 'center',
-      headerAlign: 'center',
-      valueGetter: (p) => p.row.vendorType?.id ?? p.row.vendorTypeId,
+      minWidth: 180,
+      flex: 1,
+      valueGetter: (p) => getTypeLabel(p.row.vendorType),
     },
     {
-      field: 'countryId',
+      field: 'country',
       headerName: 'Country',
-      width: 120,
-      align: 'center',
-      headerAlign: 'center',
-      valueGetter: (p) => p.row.country?.id ?? p.row.countryId,
+      minWidth: 180,
+      flex: 1,
+      valueGetter: (p) => getCountryLabel(p.row.country),
     },
     {
       field: 'actions',
