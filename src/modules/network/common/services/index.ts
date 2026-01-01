@@ -10,3 +10,4 @@ export { regionService } from './regionService';
 export { zoneService } from './zoneService';
 export { activityService } from './activityService';
 export { locationService } from './locationService';
+export { partnerService } from './partnerService';
