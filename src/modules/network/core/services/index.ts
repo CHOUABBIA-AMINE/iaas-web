@@ -4,3 +4,5 @@ export { hydrocarbonFieldService } from './hydrocarbonFieldService';
 export { pipelineSystemService } from './pipelineSystemService';
 export { pipelineService } from './pipelineService';
 export { facilityService } from './facilityService';
+export { equipmentService } from './equipmentService';
+export { pipelineSegmentService } from './pipelineSegmentService';
