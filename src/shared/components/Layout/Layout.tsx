@@ -18,6 +18,7 @@ import Footer from './Footer';
 const NAVBAR_HEIGHT = 64;
 const FOOTER_HEIGHT = 40;
 const DRAWER_WIDTH_COLLAPSED = 64;
+const DRAWER_WIDTH_EXPANDED = 260;
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -30,6 +31,10 @@ const Layout = () => {
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  const contentLeftMargin = isAuthenticated
+    ? `${sidebarOpen ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED}px`
+    : 0;
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -49,6 +54,8 @@ const Layout = () => {
           position: 'relative',
           height: '100vh',
           overflow: 'hidden',
+          // Critical: allow children (DataGrid) to shrink within flex containers
+          minWidth: 0,
         }}
       >
         {/* Content with padding for navbar and footer */}
@@ -57,11 +64,13 @@ const Layout = () => {
             flexGrow: 1,
             mt: `${NAVBAR_HEIGHT}px`,
             mb: `${FOOTER_HEIGHT}px`,
-            ml: isAuthenticated ? `${DRAWER_WIDTH_COLLAPSED}px` : 0,
+            ml: contentLeftMargin,
             overflow: 'auto',
             bgcolor: 'background.default',
             p: isLoginPage ? 0 : 3,
             transition: 'margin-left 0.2s ease-in-out',
+            // Critical: allow children (DataGrid) to shrink within flex containers
+            minWidth: 0,
             '&::-webkit-scrollbar': {
               width: '8px',
             },
