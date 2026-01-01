@@ -66,7 +66,9 @@ const Layout = () => {
             mt: `${NAVBAR_HEIGHT}px`,
             mb: `${FOOTER_HEIGHT}px`,
             ml: contentLeftMargin,
-            overflow: 'auto',
+            // Allow horizontal + vertical scrolling when needed (DataGrid wide columns)
+            overflowX: 'auto',
+            overflowY: 'auto',
             bgcolor: 'background.default',
             p: isLoginPage ? 0 : 3,
             transition: 'margin-left 0.2s ease-in-out',
@@ -75,6 +77,7 @@ const Layout = () => {
             minHeight: 0,
             '&::-webkit-scrollbar': {
               width: '8px',
+              height: '8px',
             },
             '&::-webkit-scrollbar-track': {
               background: 'transparent',
