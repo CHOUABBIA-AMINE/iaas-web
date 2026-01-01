@@ -63,9 +63,17 @@ const StructureList = () => {
     return s.designationFr || s.designationEn || s.designationAr || '-';
   };
 
-  // NOTE: StructureTypeDTO currently provides only `label` (no multilingual fields)
-  const getStructureTypeLabel = (type?: Partial<StructureTypeDTO> | null): string => {
-    return type?.label || '-';
+  // StructureTypeDTO only guarantees `label` in frontend; backend may send more, so fall back safely.
+  const getStructureTypeLabel = (type?: any): string => {
+    if (!type) return '-';
+    return (
+      type.label ||
+      type.designationFr ||
+      type.designationEn ||
+      type.designationAr ||
+      type.code ||
+      '-'
+    );
   };
 
   // Data state
@@ -169,10 +177,14 @@ const StructureList = () => {
       headerName: t('common.type', { defaultValue: 'Type' }),
       width: 170,
       renderCell: (params) => {
-        const type = (params.row as any).structureType as StructureTypeDTO | undefined;
-        return type ? (
-          <Chip label={getStructureTypeLabel(type)} size="small" color="primary" variant="outlined" />
-        ) : null;
+        const row = params.row as any;
+        // backend might return either `structureType` or legacy `type`
+        const typeObj = row.structureType || row.type;
+        return typeObj ? (
+          <Chip label={getStructureTypeLabel(typeObj)} size="small" color="primary" variant="outlined" />
+        ) : (
+          <Chip label={t('common.notAvailable', { defaultValue: 'N/A' })} size="small" variant="outlined" />
+        );
       },
     },
     {
@@ -195,7 +207,7 @@ const StructureList = () => {
     },
     {
       field: 'actions',
-      headerName: t('common.actions'),
+      headerName: t('common.actions', { defaultValue: 'Actions' }),
       width: 130,
       align: 'center',
       headerAlign: 'center',
@@ -203,7 +215,7 @@ const StructureList = () => {
       filterable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title={t('common.edit')}>
+          <Tooltip title={t('common.edit', { defaultValue: 'Edit' })}>
             <IconButton
               size="small"
               onClick={() => handleEdit(params.row.id)}
@@ -215,7 +227,7 @@ const StructureList = () => {
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={t('common.delete')}>
+          <Tooltip title={t('common.delete', { defaultValue: 'Delete' })}>
             <IconButton
               size="small"
               onClick={() => handleDelete(params.row.id)}
@@ -300,7 +312,7 @@ const StructureList = () => {
               </IconButton>
             </Tooltip>
             <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>
-              {t('common.export')}
+              {t('common.export', { defaultValue: 'Export' })}
             </Button>
             <Button
               variant="contained"
@@ -380,7 +392,11 @@ const StructureList = () => {
 
               <FormControl sx={{ minWidth: 200 }}>
                 <InputLabel>{t('administration.structureType', { defaultValue: 'Structure Type' })}</InputLabel>
-                <Select value={selectedTypeId} onChange={handleTypeFilterChange} label={t('administration.structureType', { defaultValue: 'Structure Type' })}>
+                <Select
+                  value={selectedTypeId}
+                  onChange={handleTypeFilterChange}
+                  label={t('administration.structureType', { defaultValue: 'Structure Type' })}
+                >
                   <MenuItem value="">
                     <em>{t('common.allTypes', { defaultValue: 'All Types' })}</em>
                   </MenuItem>
@@ -394,14 +410,14 @@ const StructureList = () => {
 
               {(searchText || selectedTypeId) && (
                 <Button variant="outlined" onClick={handleClearFilters} sx={{ minWidth: 120 }}>
-                  {t('common.clearFilters')}
+                  {t('common.clearFilters', { defaultValue: 'Clear filters' })}
                 </Button>
               )}
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {filteredStructures.length} {t('common.results')}
+                {filteredStructures.length} {t('common.results', { defaultValue: 'results' })}
                 {structures.length !== filteredStructures.length && (
                   <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>
                     (filtered from {structures.length})
