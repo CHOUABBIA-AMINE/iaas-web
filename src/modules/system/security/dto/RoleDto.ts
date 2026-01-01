@@ -1,9 +1,20 @@
-export interface RoleDto {
-  id?: number;
-  code?: string;
-  nameAr?: string;
-  nameEn?: string;
-  nameFr?: string;
+/**
+ * Role DTO
+ * Matches backend: dz.mdn.iaas.system.security.dto.RoleDTO
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-22-2025
+ */
+
+export interface RoleDTO {
+  id: number;
+  name: string;
   description?: string;
-  permissionIds?: number[];
+  permissions?: Array<{
+    id: number;
+    name: string;
+    description?: string;
+  }>;
 }
+
+export default RoleDTO;

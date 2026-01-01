@@ -1,10 +1,17 @@
-export interface PermissionDto {
-  id?: number;
-  code?: string;
-  nameAr?: string;
-  nameEn?: string;
-  nameFr?: string;
+/**
+ * Permission DTO
+ * Matches backend: dz.mdn.iaas.system.security.dto.PermissionDTO
+ * 
+ * @author CHOUABBIA Amine
+ * @created 12-22-2025
+ */
+
+export interface PermissionDTO {
+  id: number;
+  name: string;
+  description?: string;
   resource?: string;
   action?: string;
-  authorityIds?: number[];
 }
+
+export default PermissionDTO;
