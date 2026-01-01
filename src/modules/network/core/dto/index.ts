@@ -1,6 +1,9 @@
-export * from './StationDTO';
-export * from './TerminalDTO';
-export * from './HydrocarbonFieldDTO';
-export * from './PipelineSystemDTO';
-export * from './PipelineDTO';
-export * from './FacilityDTO';
+export { FacilityDTO } from './FacilityDTO';
+export { HydrocarbonFieldDTO } from './HydrocarbonFieldDTO';
+export { PipelineDTO } from './PipelineDTO';
+export { PipelineSystemDTO } from './PipelineSystemDTO';
+export { StationDTO } from './StationDTO';
+export { TerminalDTO } from './TerminalDTO';
+export { InfrastructureDTO } from './InfrastructureDTO';
+export { EquipmentDTO } from './EquipmentDTO';
+export { PipelineSegmentDTO } from './PipelineSegmentDTO';
