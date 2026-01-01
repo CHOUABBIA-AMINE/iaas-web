@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-30-2025
+ * @updated 01-01-2026 - Align routes and translation keys
  */
 
 import { useState, useEffect } from 'react';
@@ -28,7 +29,6 @@ import {
   Stack,
   Alert,
   Tooltip,
-  Chip,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -49,7 +49,7 @@ const EmployeeList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // Pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
@@ -61,6 +61,7 @@ const EmployeeList = () => {
 
   useEffect(() => {
     fetchEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage]);
 
   const fetchEmployees = async () => {
@@ -72,7 +73,7 @@ const EmployeeList = () => {
       setTotalElements(response.totalElements || 0);
     } catch (err) {
       console.error('Error fetching employees:', err);
-      setError('Failed to load employees');
+      setError(t('common.error', 'Error'));
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ const EmployeeList = () => {
       setTotalElements(response.totalElements || 0);
     } catch (err) {
       console.error('Error searching employees:', err);
-      setError('Search failed');
+      setError(t('common.error', 'Error'));
     } finally {
       setLoading(false);
     }
@@ -105,7 +106,7 @@ const EmployeeList = () => {
       fetchEmployees();
     } catch (err) {
       console.error('Error deleting employee:', err);
-      setError('Failed to delete employee');
+      setError(t('common.error', 'Error'));
     }
   };
 
@@ -135,14 +136,14 @@ const EmployeeList = () => {
           {/* Header */}
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h5" component="h1">
-              {t('employees.title', 'Employees')}
+              {t('employee.title', 'Employees')}
             </Typography>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => navigate('/common/administration/employee/new')}
+              onClick={() => navigate('/administration/employees/create')}
             >
-              {t('employees.add', 'Add Employee')}
+              {t('employee.create', 'Create Employee')}
             </Button>
           </Stack>
 
@@ -150,19 +151,15 @@ const EmployeeList = () => {
           <Stack direction="row" spacing={2} mb={3}>
             <TextField
               fullWidth
-              placeholder={t('employees.search', 'Search employees...')}
+              placeholder={t('employee.searchPlaceholder', 'Search...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
               }}
             />
-            <Button
-              variant="outlined"
-              onClick={handleSearch}
-              sx={{ minWidth: '120px' }}
-            >
+            <Button variant="outlined" onClick={handleSearch} sx={{ minWidth: '120px' }}>
               {t('common.search', 'Search')}
             </Button>
             <Tooltip title={t('common.refresh', 'Refresh')}>
@@ -185,10 +182,10 @@ const EmployeeList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>ID</TableCell>
-                  <TableCell>{t('employees.registrationNumber', 'Registration #')}</TableCell>
-                  <TableCell>{t('employees.fullNameAr', 'Full Name (Arabic)')}</TableCell>
-                  <TableCell>{t('employees.fullNameLt', 'Full Name (Latin)')}</TableCell>
-                  <TableCell>{t('employees.birthDate', 'Birth Date')}</TableCell>
+                  <TableCell>{t('employee.registrationNumber', 'Registration Number')}</TableCell>
+                  <TableCell>{t('employee.lastNameAr', 'Arabic Last Name')}</TableCell>
+                  <TableCell>{t('employee.firstNameAr', 'Arabic First Name')}</TableCell>
+                  <TableCell>{t('employee.birthDate', 'Birth Date')}</TableCell>
                   <TableCell align="right">{t('common.actions', 'Actions')}</TableCell>
                 </TableRow>
               </TableHead>
@@ -202,28 +199,22 @@ const EmployeeList = () => {
                 ) : employees.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
-                      {t('employees.noData', 'No employees found')}
+                      {t('common.noData', 'No data')}
                     </TableCell>
                   </TableRow>
                 ) : (
                   employees.map((employee) => (
                     <TableRow key={employee.id} hover>
                       <TableCell>{employee.id}</TableCell>
-                      <TableCell>
-                        {employee.registrationNumber || '-'}
-                      </TableCell>
-                      <TableCell>
-                        {`${employee.lastNameAr} ${employee.firstNameAr}`}
-                      </TableCell>
-                      <TableCell>
-                        {`${employee.lastNameLt} ${employee.firstNameLt}`}
-                      </TableCell>
+                      <TableCell>{employee.registrationNumber || '-'}</TableCell>
+                      <TableCell>{employee.lastNameAr || '-'}</TableCell>
+                      <TableCell>{employee.firstNameAr || '-'}</TableCell>
                       <TableCell>{formatDate(employee.birthDate)}</TableCell>
                       <TableCell align="right">
                         <Tooltip title={t('common.edit', 'Edit')}>
                           <IconButton
                             size="small"
-                            onClick={() => navigate(`/common/administration/employee/${employee.id}`)}
+                            onClick={() => navigate(`/administration/employees/${employee.id}/edit`)}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -264,8 +255,8 @@ const EmployeeList = () => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={deleteDialogOpen}
-        title={t('employees.deleteTitle', 'Delete Employee')}
-        message={t('employees.deleteMessage', 'Are you sure you want to delete this employee?')}
+        title={t('employee.delete', 'Delete Employee')}
+        message={t('employee.deleteConfirm', 'Are you sure you want to delete this employee?')}
         onConfirm={handleDelete}
         onCancel={() => {
           setDeleteDialogOpen(false);
