@@ -1,32 +1,62 @@
 /**
  * Vendor Service
- * API service for managing vendors
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- * @updated 12-24-2025
+ * Mirrors backend controller: /network/common/vendor
  */
 
-import axiosInstance from '../../../../shared/config/axios';
+import axios from '../../../../shared/config/axios';
 import { VendorDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
+
+const API_BASE = '/network/common/vendor';
 
 class VendorService {
-  private readonly BASE_URL = '/network/common/vendor';
-
-  /**
-   * Get all vendors (non-paginated)
-   */
   async getAll(): Promise<VendorDTO[]> {
-    const response = await axiosInstance.get<VendorDTO[]>(`${this.BASE_URL}/all`);
+    const response = await axios.get(`${API_BASE}/all`);
     return response.data;
   }
 
-  /**
-   * Get vendor by ID
-   */
-  async getById(id: number): Promise<VendorDTO> {
-    const response = await axiosInstance.get<VendorDTO>(`${this.BASE_URL}/${id}`);
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<VendorDTO>> {
+    const response = await axios.get<PageResponse<VendorDTO>>(API_BASE, {
+      params: { page, size, sortBy, sortDir }
+    });
     return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<VendorDTO>> {
+    const response = await axios.get<PageResponse<VendorDTO>>(`${API_BASE}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async getById(id: number): Promise<VendorDTO> {
+    const response = await axios.get(`${API_BASE}/${id}`);
+    return response.data;
+  }
+
+  async create(data: VendorDTO): Promise<VendorDTO> {
+    const response = await axios.post(API_BASE, { ...data, id: null });
+    return response.data;
+  }
+
+  async update(id: number, data: VendorDTO): Promise<VendorDTO> {
+    const response = await axios.put(`${API_BASE}/${id}`, data);
+    return response.data;
+  }
+
+  async delete(id: number): Promise<void> {
+    await axios.delete(`${API_BASE}/${id}`);
   }
 }
 
