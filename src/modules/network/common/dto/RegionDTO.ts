@@ -1,24 +1,26 @@
 /**
  * Region DTO
- * Data Transfer Object for Region entity
- *
- * Backend model: dz.mdn.iaas.network.common.model.Region
- *
- * @author CHOUABBIA Amine
+ * Mirrors backend: dz.mdn.iaas.network.common.dto.RegionDTO
  */
 
-import { ZoneDTO } from './ZoneDTO';
 import { ActivityDTO } from './ActivityDTO';
+import { ZoneDTO } from './ZoneDTO';
 
 export interface RegionDTO {
   id: number;
   code: string;
-  designationAr?: string;
-  designationEn?: string;
+
+  designationAr?: string | null;
+  designationEn?: string | null;
   designationFr: string;
-  descriptionAr?: string;
-  descriptionEn?: string;
-  descriptionFr?: string;
-  zone: ZoneDTO;
+
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionFr: string;
+
+  zoneId: number;
+  activityId: number;
+
+  zone?: ZoneDTO | null;
   activity?: ActivityDTO | null;
 }
