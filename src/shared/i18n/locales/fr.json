@@ -60,6 +60,8 @@
     "profileUpdated": "Profil mis à jour avec succès"
   },
   "nav": {
+    "home": "Accueil",
+    "workspace": "Espace de travail",
     "dashboard": "Tableau de bord",
     "administration": "Administration",
     "structures": "Structures",

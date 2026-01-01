@@ -8,6 +8,7 @@
  * @updated 12-30-2025 - Added Employee entry
  * @updated 01-01-2026 - Reordered and simplified menus (view)
  * @updated 01-01-2026 - Restored Common children (Administration/Communication/Environment)
+ * @updated 01-01-2026 - Added Workspace + Home translations
  */
 
 import {
@@ -24,7 +25,6 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import SecurityIcon from '@mui/icons-material/Security';
 import PeopleIcon from '@mui/icons-material/People';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -35,7 +35,6 @@ import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -52,11 +51,12 @@ import LayersIcon from '@mui/icons-material/Layers';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import BadgeIcon from '@mui/icons-material/Badge';
 import HomeIcon from '@mui/icons-material/Home';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
 const DRAWER_WIDTH_EXPANDED = 260;
-const DRAWER_WIDTH_COLLAPAPSED = 64;
+const DRAWER_WIDTH_COLLAPSED = 64;
 
 interface SidebarProps {
   open: boolean;
@@ -78,7 +78,7 @@ const Sidebar = ({ open }: SidebarProps) => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Top-level order (requested): Home page, Common, Business, Network, System
+  // Top-level order: Home page, Workspace, Common, Business, Network, System
   // Network/Common: keep Product, Region, Partner, Vendor
   // Network/Core: keep PipelineSystem, Pipeline, HydrocarbonField, Station, Terminal
   const menuItems: MenuItem[] = [
@@ -86,6 +86,11 @@ const Sidebar = ({ open }: SidebarProps) => {
       titleKey: 'nav.home',
       icon: <HomeIcon />,
       path: '/',
+    },
+    {
+      titleKey: 'nav.workspace',
+      icon: <WorkspacesIcon />,
+      path: '/workspace',
     },
     {
       titleKey: 'nav.common',
@@ -277,7 +282,7 @@ const Sidebar = ({ open }: SidebarProps) => {
   ];
 
   const isExpanded = open || isHovered;
-  const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPAPSED;
+  const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED;
 
   const getItemDepth = (itemTitle: string, items: MenuItem[] = menuItems, depth = 0): number => {
     for (const item of items) {

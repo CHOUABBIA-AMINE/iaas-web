@@ -60,6 +60,8 @@
     "profileUpdated": "تم تحديث الملف الشخصي بنجاح"
   },
   "nav": {
+    "home": "الرئيسية",
+    "workspace": "مساحة العمل",
     "dashboard": "لوحة التحكم",
     "administration": "الإدارة",
     "structures": "الهياكل",
