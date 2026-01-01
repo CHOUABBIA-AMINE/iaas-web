@@ -145,13 +145,6 @@ const StructureList = () => {
   // DataGrid columns
   const columns: GridColDef[] = [
     {
-      field: 'id',
-      headerName: 'ID',
-      width: 80,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
       field: 'code',
       headerName: t('common.code', { defaultValue: 'Code' }),
       width: 120,
