@@ -1,6 +1,5 @@
 // Pages
-export { default as StructureList } from './pages/StructureList';
-export { default as StructureEdit } from './pages/StructureEdit';
+export * from './pages';
 
 // Services
 export * from './services';
