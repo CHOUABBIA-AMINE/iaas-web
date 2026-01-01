@@ -1,16 +1,16 @@
 /**
- * Alloy Service
- * Mirrors backend controller: /network/common/alloy
+ * Zone Service
+ * Mirrors backend controller: /network/common/zone
  */
 
 import axios from '../../../../shared/config/axios';
-import { AlloyDTO } from '../dto/AlloyDTO';
+import { ZoneDTO } from '../dto';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
-const API_BASE = '/network/common/alloy';
+const API_BASE = '/network/common/zone';
 
-class AlloyService {
-  async getAll(): Promise<AlloyDTO[]> {
+class ZoneService {
+  async getAll(): Promise<ZoneDTO[]> {
     const response = await axios.get(`${API_BASE}/all`);
     return response.data;
   }
@@ -20,8 +20,8 @@ class AlloyService {
     size: number = 20,
     sortBy: string = 'id',
     sortDir: string = 'asc'
-  ): Promise<PageResponse<AlloyDTO>> {
-    const response = await axios.get<PageResponse<AlloyDTO>>(API_BASE, {
+  ): Promise<PageResponse<ZoneDTO>> {
+    const response = await axios.get<PageResponse<ZoneDTO>>(API_BASE, {
       params: { page, size, sortBy, sortDir }
     });
     return response.data;
@@ -33,24 +33,24 @@ class AlloyService {
     size: number = 20,
     sortBy: string = 'id',
     sortDir: string = 'asc'
-  ): Promise<PageResponse<AlloyDTO>> {
-    const response = await axios.get<PageResponse<AlloyDTO>>(`${API_BASE}/search`, {
+  ): Promise<PageResponse<ZoneDTO>> {
+    const response = await axios.get<PageResponse<ZoneDTO>>(`${API_BASE}/search`, {
       params: { q: query, page, size, sortBy, sortDir }
     });
     return response.data;
   }
 
-  async getById(id: number): Promise<AlloyDTO> {
+  async getById(id: number): Promise<ZoneDTO> {
     const response = await axios.get(`${API_BASE}/${id}`);
     return response.data;
   }
 
-  async create(data: AlloyDTO): Promise<AlloyDTO> {
+  async create(data: ZoneDTO): Promise<ZoneDTO> {
     const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   }
 
-  async update(id: number, data: AlloyDTO): Promise<AlloyDTO> {
+  async update(id: number, data: ZoneDTO): Promise<ZoneDTO> {
     const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
@@ -60,4 +60,4 @@ class AlloyService {
   }
 }
 
-export const alloyService = new AlloyService();
+export const zoneService = new ZoneService();

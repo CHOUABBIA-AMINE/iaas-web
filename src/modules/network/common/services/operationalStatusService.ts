@@ -1,32 +1,62 @@
 /**
  * OperationalStatus Service
- * API service for managing operational statuses
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- * @updated 12-24-2025
+ * Mirrors backend controller: /network/common/operationalStatus
  */
 
-import axiosInstance from '../../../../shared/config/axios';
+import axios from '../../../../shared/config/axios';
 import { OperationalStatusDTO } from '../dto';
+import { PageResponse } from '../../../../shared/types/PageResponse';
+
+const API_BASE = '/network/common/operationalStatus';
 
 class OperationalStatusService {
-  private readonly BASE_URL = '/network/common/operationalStatus';
-
-  /**
-   * Get all operational statuses (non-paginated)
-   */
   async getAll(): Promise<OperationalStatusDTO[]> {
-    const response = await axiosInstance.get<OperationalStatusDTO[]>(`${this.BASE_URL}/all`);
+    const response = await axios.get(`${API_BASE}/all`);
     return response.data;
   }
 
-  /**
-   * Get operational status by ID
-   */
-  async getById(id: number): Promise<OperationalStatusDTO> {
-    const response = await axiosInstance.get<OperationalStatusDTO>(`${this.BASE_URL}/${id}`);
+  async getPage(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<OperationalStatusDTO>> {
+    const response = await axios.get<PageResponse<OperationalStatusDTO>>(API_BASE, {
+      params: { page, size, sortBy, sortDir }
+    });
     return response.data;
+  }
+
+  async search(
+    query: string,
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'id',
+    sortDir: string = 'asc'
+  ): Promise<PageResponse<OperationalStatusDTO>> {
+    const response = await axios.get<PageResponse<OperationalStatusDTO>>(`${API_BASE}/search`, {
+      params: { q: query, page, size, sortBy, sortDir }
+    });
+    return response.data;
+  }
+
+  async getById(id: number): Promise<OperationalStatusDTO> {
+    const response = await axios.get(`${API_BASE}/${id}`);
+    return response.data;
+  }
+
+  async create(data: OperationalStatusDTO): Promise<OperationalStatusDTO> {
+    const response = await axios.post(API_BASE, { ...data, id: null });
+    return response.data;
+  }
+
+  async update(id: number, data: OperationalStatusDTO): Promise<OperationalStatusDTO> {
+    const response = await axios.put(`${API_BASE}/${id}`, data);
+    return response.data;
+  }
+
+  async delete(id: number): Promise<void> {
+    await axios.delete(`${API_BASE}/${id}`);
   }
 }
 
