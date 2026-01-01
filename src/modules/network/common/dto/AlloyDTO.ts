@@ -1,38 +1,17 @@
 /**
  * Alloy DTO
- * Data Transfer Object for Alloy entity
- * 
- * @author CHOUABBIA Amine
- * @created 12-24-2025
+ * Mirrors backend: dz.mdn.iaas.network.common.dto.AlloyDTO
  */
 
 export interface AlloyDTO {
   id: number;
-  name?: string;
-  code?: string;
-  description?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  grade?: string;
-  specification?: string;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface AlloyCreateDTO {
-  name: string;
   code: string;
-  description?: string;
-  designationAr?: string;
-  designationEn?: string;
-  designationFr?: string;
-  grade?: string;
-  specification?: string;
-  isActive?: boolean;
-}
 
-export interface AlloyUpdateDTO extends Partial<AlloyCreateDTO> {
-  id: number;
+  designationAr?: string | null;
+  designationEn?: string | null;
+  designationFr: string;
+
+  descriptionAr?: string | null;
+  descriptionEn?: string | null;
+  descriptionFr: string;
 }
