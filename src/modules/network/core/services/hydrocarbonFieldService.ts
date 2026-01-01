@@ -1,14 +1,10 @@
 /**
  * HydrocarbonField Service
- * Handles API calls for HydrocarbonField CRUD operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- * @updated 12-29-2025 - Set id=null in create
+ * Mirrors backend controller: /network/core/hydrocarbonField
  */
 
 import axios from '../../../../shared/config/axios';
-import { HydrocarbonFieldDTO, HydrocarbonFieldCreateDTO, HydrocarbonFieldUpdateDTO } from '../dto';
+import { HydrocarbonFieldDTO } from '../dto';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
 const API_BASE = '/network/core/hydrocarbonField';
@@ -49,12 +45,12 @@ class HydrocarbonFieldService {
     return response.data;
   }
 
-  async create(data: HydrocarbonFieldCreateDTO): Promise<HydrocarbonFieldDTO> {
+  async create(data: HydrocarbonFieldDTO): Promise<HydrocarbonFieldDTO> {
     const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   }
 
-  async update(id: number, data: HydrocarbonFieldUpdateDTO): Promise<HydrocarbonFieldDTO> {
+  async update(id: number, data: HydrocarbonFieldDTO): Promise<HydrocarbonFieldDTO> {
     const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }

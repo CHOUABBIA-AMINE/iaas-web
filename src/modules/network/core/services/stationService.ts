@@ -1,14 +1,12 @@
 /**
  * Station Service
  * Handles API calls for Station CRUD operations
- * 
- * @author CHOUABBIA Amine
- * @created 12-23-2025
- * @updated 12-29-2025 - Set id=null in create
+ *
+ * Note: Keeps extra endpoints (getByCode/getByFacility) as requested.
  */
 
 import axios from '../../../../shared/config/axios';
-import { StationDTO, StationCreateDTO, StationUpdateDTO } from '../dto';
+import { StationDTO } from '../dto';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
 const API_BASE = '/network/core/station';
@@ -49,6 +47,7 @@ class StationService {
     return response.data;
   }
 
+  // Extra endpoints kept
   async getByCode(code: string): Promise<StationDTO> {
     const response = await axios.get(`${API_BASE}/code/${code}`);
     return response.data;
@@ -59,12 +58,12 @@ class StationService {
     return response.data;
   }
 
-  async create(data: StationCreateDTO): Promise<StationDTO> {
+  async create(data: StationDTO): Promise<StationDTO> {
     const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   }
 
-  async update(id: number, data: StationUpdateDTO): Promise<StationDTO> {
+  async update(id: number, data: StationDTO): Promise<StationDTO> {
     const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
