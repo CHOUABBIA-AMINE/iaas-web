@@ -1,16 +1,16 @@
 /**
- * HydrocarbonFieldType Service
- * Mirrors backend controller: /network/type/hydrocarbonField
+ * FacilityType Service
+ * Mirrors backend controller: /network/type/facility
  */
 
 import axios from '../../../../shared/config/axios';
-import { HydrocarbonFieldTypeDTO } from '../dto';
+import { FacilityTypeDTO } from '../dto';
 import { PageResponse } from '../../../../shared/types/PageResponse';
 
-const API_BASE = '/network/type/hydrocarbonField';
+const API_BASE = '/network/type/facility';
 
-class HydrocarbonFieldTypeService {
-  async getAll(): Promise<HydrocarbonFieldTypeDTO[]> {
+class FacilityTypeService {
+  async getAll(): Promise<FacilityTypeDTO[]> {
     const response = await axios.get(`${API_BASE}/all`);
     return response.data;
   }
@@ -20,8 +20,8 @@ class HydrocarbonFieldTypeService {
     size: number = 20,
     sortBy: string = 'id',
     sortDir: string = 'asc'
-  ): Promise<PageResponse<HydrocarbonFieldTypeDTO>> {
-    const response = await axios.get<PageResponse<HydrocarbonFieldTypeDTO>>(API_BASE, {
+  ): Promise<PageResponse<FacilityTypeDTO>> {
+    const response = await axios.get<PageResponse<FacilityTypeDTO>>(API_BASE, {
       params: { page, size, sortBy, sortDir }
     });
     return response.data;
@@ -33,24 +33,24 @@ class HydrocarbonFieldTypeService {
     size: number = 20,
     sortBy: string = 'id',
     sortDir: string = 'asc'
-  ): Promise<PageResponse<HydrocarbonFieldTypeDTO>> {
-    const response = await axios.get<PageResponse<HydrocarbonFieldTypeDTO>>(`${API_BASE}/search`, {
+  ): Promise<PageResponse<FacilityTypeDTO>> {
+    const response = await axios.get<PageResponse<FacilityTypeDTO>>(`${API_BASE}/search`, {
       params: { q: query, page, size, sortBy, sortDir }
     });
     return response.data;
   }
 
-  async getById(id: number): Promise<HydrocarbonFieldTypeDTO> {
+  async getById(id: number): Promise<FacilityTypeDTO> {
     const response = await axios.get(`${API_BASE}/${id}`);
     return response.data;
   }
 
-  async create(data: HydrocarbonFieldTypeDTO): Promise<HydrocarbonFieldTypeDTO> {
+  async create(data: FacilityTypeDTO): Promise<FacilityTypeDTO> {
     const response = await axios.post(API_BASE, { ...data, id: null });
     return response.data;
   }
 
-  async update(id: number, data: HydrocarbonFieldTypeDTO): Promise<HydrocarbonFieldTypeDTO> {
+  async update(id: number, data: FacilityTypeDTO): Promise<FacilityTypeDTO> {
     const response = await axios.put(`${API_BASE}/${id}`, data);
     return response.data;
   }
@@ -60,4 +60,4 @@ class HydrocarbonFieldTypeService {
   }
 }
 
-export const hydrocarbonFieldTypeService = new HydrocarbonFieldTypeService();
+export const facilityTypeService = new FacilityTypeService();
