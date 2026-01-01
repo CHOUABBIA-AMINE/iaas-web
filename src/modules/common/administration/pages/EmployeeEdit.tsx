@@ -5,9 +5,10 @@
  * @author CHOUABBIA Amine
  * @created 12-30-2025
  * @updated 01-01-2026 - Align routes and translation keys
+ * @updated 01-01-2026 - Dependent selects (Structure→Job, Category→Rank) and multilingual labels
  */
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -32,12 +33,26 @@ import {
   jobService,
   structureService,
   militaryRankService,
+  militaryCategoryService,
   countryService,
 } from '../services';
-import { EmployeeDTO, JobDTO, StructureDTO, MilitaryRankDTO, CountryDTO } from '../dto';
+import {
+  EmployeeDTO,
+  JobDTO,
+  StructureDTO,
+  MilitaryRankDTO,
+  MilitaryCategoryDTO,
+  CountryDTO,
+} from '../dto';
+
+type HasDesignation = {
+  designationAr?: string;
+  designationEn?: string;
+  designationFr?: string;
+};
 
 const EmployeeEdit = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
@@ -62,34 +77,85 @@ const EmployeeEdit = () => {
     militaryRankId: undefined,
   });
 
+  // Dependent selections
+  const [selectedMilitaryCategoryId, setSelectedMilitaryCategoryId] = useState<number | ''>('');
+
   // Lookup data
-  const [jobs, setJobs] = useState<JobDTO[]>([]);
   const [structures, setStructures] = useState<StructureDTO[]>([]);
+  const [jobs, setJobs] = useState<JobDTO[]>([]);
+  const [militaryCategories, setMilitaryCategories] = useState<MilitaryCategoryDTO[]>([]);
   const [militaryRanks, setMilitaryRanks] = useState<MilitaryRankDTO[]>([]);
   const [countries, setCountries] = useState<CountryDTO[]>([]);
 
   // Form validation
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  const lang = useMemo(() => (i18n.language || 'fr').split('-')[0], [i18n.language]);
+
+  const getDesignation = (item?: HasDesignation | null): string => {
+    if (!item) return '';
+    if (lang === 'ar') return item.designationAr || item.designationFr || item.designationEn || '';
+    if (lang === 'en') return item.designationEn || item.designationFr || item.designationAr || '';
+    return item.designationFr || item.designationEn || item.designationAr || '';
+  };
+
   useEffect(() => {
-    loadLookupData();
+    loadInitialLookupData();
     if (isEditMode) {
       loadEmployee();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const loadLookupData = async () => {
+  // When structure changes, load jobs for that structure
+  useEffect(() => {
+    if (!formData.structureId) {
+      setJobs([]);
+      setFormData((prev) => ({ ...prev, jobId: undefined }));
+      return;
+    }
+
+    (async () => {
+      try {
+        const jobsData = await jobService.getByStructure(Number(formData.structureId));
+        setJobs(jobsData);
+      } catch (err) {
+        console.error('Error loading jobs by structure:', err);
+        setError(t('common.error', 'Error'));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.structureId]);
+
+  // When military category changes, load ranks for that category
+  useEffect(() => {
+    if (!selectedMilitaryCategoryId) {
+      setMilitaryRanks([]);
+      setFormData((prev) => ({ ...prev, militaryRankId: undefined }));
+      return;
+    }
+
+    (async () => {
+      try {
+        const ranksData = await militaryRankService.getByCategory(Number(selectedMilitaryCategoryId));
+        setMilitaryRanks(ranksData);
+      } catch (err) {
+        console.error('Error loading ranks by category:', err);
+        setError(t('common.error', 'Error'));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMilitaryCategoryId]);
+
+  const loadInitialLookupData = async () => {
     try {
-      const [jobsData, structuresData, ranksData, countriesData] = await Promise.all([
-        jobService.getAllList(),
+      const [structuresData, categoriesData, countriesData] = await Promise.all([
         structureService.getAllList(),
-        militaryRankService.getAllList(),
+        militaryCategoryService.getAllList(),
         countryService.getAllList(),
       ]);
-      setJobs(jobsData);
       setStructures(structuresData);
-      setMilitaryRanks(ranksData);
+      setMilitaryCategories(categoriesData);
       setCountries(countriesData);
     } catch (err) {
       console.error('Error loading lookup data:', err);
@@ -103,6 +169,10 @@ const EmployeeEdit = () => {
       setLoading(true);
       const data = await employeeService.getById(Number(id));
       setFormData(data);
+
+      // If backend returns rank/category, set category select to allow rank list loading
+      // Fallback: if only rank id exists, leave category empty.
+      // (Can be improved if backend includes militaryCategoryId in employee payload.)
     } catch (err) {
       console.error('Error loading employee:', err);
       setError(t('common.error', 'Error'));
@@ -182,7 +252,6 @@ const EmployeeEdit = () => {
     <Box sx={{ p: 3 }}>
       <Card>
         <CardContent>
-          {/* Header */}
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h5" component="h1">
               {isEditMode ? t('employee.edit', 'Edit Employee') : t('employee.create', 'Create Employee')}
@@ -192,24 +261,20 @@ const EmployeeEdit = () => {
             </Button>
           </Stack>
 
-          {/* Success Alert */}
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
               {t('common.success', 'Success')}
             </Alert>
           )}
 
-          {/* Error Alert */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
               {error}
             </Alert>
           )}
 
-          {/* Form */}
           <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              {/* Arabic Names */}
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -219,7 +284,6 @@ const EmployeeEdit = () => {
                   onChange={(e) => handleChange('lastNameAr', e.target.value)}
                   error={Boolean(fieldErrors.lastNameAr)}
                   helperText={fieldErrors.lastNameAr}
-                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -231,11 +295,9 @@ const EmployeeEdit = () => {
                   onChange={(e) => handleChange('firstNameAr', e.target.value)}
                   error={Boolean(fieldErrors.firstNameAr)}
                   helperText={fieldErrors.firstNameAr}
-                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
 
-              {/* Latin Names */}
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -245,7 +307,6 @@ const EmployeeEdit = () => {
                   onChange={(e) => handleChange('lastNameLt', e.target.value)}
                   error={Boolean(fieldErrors.lastNameLt)}
                   helperText={fieldErrors.lastNameLt}
-                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -257,11 +318,9 @@ const EmployeeEdit = () => {
                   onChange={(e) => handleChange('firstNameLt', e.target.value)}
                   error={Boolean(fieldErrors.firstNameLt)}
                   helperText={fieldErrors.firstNameLt}
-                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
 
-              {/* Birth Information */}
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -278,11 +337,10 @@ const EmployeeEdit = () => {
                   label={t('employee.birthPlace', 'Birth Place')}
                   value={formData.birthPlace || ''}
                   onChange={(e) => handleChange('birthPlace', e.target.value)}
-                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
 
-              {/* Country */}
+              {/* Country (multilingual designation) */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
                   <InputLabel>{t('employee.country', 'Country')}</InputLabel>
@@ -296,27 +354,49 @@ const EmployeeEdit = () => {
                     </MenuItem>
                     {countries.map((country) => (
                       <MenuItem key={country.id} value={country.id}>
-                        {country.nameLt}
+                        {getDesignation(country)}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              {/* Registration Number */}
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label={t('employee.registrationNumber', 'Registration Number')}
                   value={formData.registrationNumber || ''}
                   onChange={(e) => handleChange('registrationNumber', e.target.value)}
-                  inputProps={{ maxLength: 50 }}
                 />
               </Grid>
 
-              {/* Job */}
+              {/* Structure -> Job (dependent) */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
+                  <InputLabel>{t('employee.structure', 'Structure')}</InputLabel>
+                  <Select
+                    value={formData.structureId || ''}
+                    onChange={(e) => {
+                      const newStructureId = e.target.value || undefined;
+                      // reset job when structure changes
+                      setFormData((prev) => ({ ...prev, structureId: newStructureId as any, jobId: undefined }));
+                    }}
+                    label={t('employee.structure', 'Structure')}
+                  >
+                    <MenuItem value="">
+                      <em>{t('common.none', 'None')}</em>
+                    </MenuItem>
+                    {structures.map((structure) => (
+                      <MenuItem key={structure.id} value={structure.id}>
+                        {getDesignation(structure)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth disabled={!formData.structureId}>
                   <InputLabel>{t('employee.job', 'Job')}</InputLabel>
                   <Select
                     value={formData.jobId || ''}
@@ -328,37 +408,41 @@ const EmployeeEdit = () => {
                     </MenuItem>
                     {jobs.map((job) => (
                       <MenuItem key={job.id} value={job.id}>
-                        {job.nameLt}
+                        {getDesignation(job)}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              {/* Structure */}
+              {/* Military Category -> Military Rank (dependent) */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('employee.structure', 'Structure')}</InputLabel>
+                  <InputLabel>{t('employee.militaryCategory', 'Military Category')}</InputLabel>
                   <Select
-                    value={formData.structureId || ''}
-                    onChange={(e) => handleChange('structureId', e.target.value || undefined)}
-                    label={t('employee.structure', 'Structure')}
+                    value={selectedMilitaryCategoryId}
+                    onChange={(e) => {
+                      const newCategoryId = e.target.value as any;
+                      setSelectedMilitaryCategoryId(newCategoryId);
+                      // reset rank when category changes
+                      setFormData((prev) => ({ ...prev, militaryRankId: undefined }));
+                    }}
+                    label={t('employee.militaryCategory', 'Military Category')}
                   >
                     <MenuItem value="">
                       <em>{t('common.none', 'None')}</em>
                     </MenuItem>
-                    {structures.map((structure) => (
-                      <MenuItem key={structure.id} value={structure.id}>
-                        {structure.nameLt}
+                    {militaryCategories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.id}>
+                        {getDesignation(cat)}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
               </Grid>
 
-              {/* Military Rank */}
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={!selectedMilitaryCategoryId}>
                   <InputLabel>{t('employee.militaryRank', 'Military Rank')}</InputLabel>
                   <Select
                     value={formData.militaryRankId || ''}
@@ -370,7 +454,7 @@ const EmployeeEdit = () => {
                     </MenuItem>
                     {militaryRanks.map((rank) => (
                       <MenuItem key={rank.id} value={rank.id}>
-                        {rank.nameLt}
+                        {getDesignation(rank)}
                       </MenuItem>
                     ))}
                   </Select>
@@ -378,7 +462,6 @@ const EmployeeEdit = () => {
               </Grid>
             </Grid>
 
-            {/* Actions */}
             <Stack direction="row" spacing={2} justifyContent="flex-end" mt={4}>
               <Button variant="outlined" onClick={() => navigate('/administration/employees')} disabled={saving}>
                 {t('common.cancel', 'Cancel')}

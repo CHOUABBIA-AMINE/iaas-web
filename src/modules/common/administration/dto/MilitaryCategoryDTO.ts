@@ -1,16 +1,16 @@
 /**
  * Military Category DTO
- * Data Transfer Object for MilitaryCategory entity
+ * Used to filter Military Ranks.
  * 
  * @author CHOUABBIA Amine
- * @created 12-23-2025
+ * @created 01-01-2026
  */
 
 export interface MilitaryCategoryDTO {
-  id: number;
-  label: string;
-  description?: string;
+  id?: number;
   code?: string;
-  createdAt?: string;
-  updatedAt?: string;
+
+  designationAr?: string;
+  designationEn?: string;
+  designationFr: string;
 }
