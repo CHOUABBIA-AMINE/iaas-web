@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-30-2025
+ * @updated 01-01-2026 - Align routes and translation keys
  */
 
 import { useState, useEffect } from 'react';
@@ -25,11 +26,14 @@ import {
   MenuItem,
   Grid,
 } from '@mui/material';
+import { Save as SaveIcon, ArrowBack as BackIcon } from '@mui/icons-material';
 import {
-  Save as SaveIcon,
-  ArrowBack as BackIcon,
-} from '@mui/icons-material';
-import { employeeService, jobService, structureService, militaryRankService, countryService } from '../services';
+  employeeService,
+  jobService,
+  structureService,
+  militaryRankService,
+  countryService,
+} from '../services';
 import { EmployeeDTO, JobDTO, StructureDTO, MilitaryRankDTO, CountryDTO } from '../dto';
 
 const EmployeeEdit = () => {
@@ -65,13 +69,14 @@ const EmployeeEdit = () => {
   const [countries, setCountries] = useState<CountryDTO[]>([]);
 
   // Form validation
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadLookupData();
     if (isEditMode) {
       loadEmployee();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadLookupData = async () => {
@@ -88,7 +93,7 @@ const EmployeeEdit = () => {
       setCountries(countriesData);
     } catch (err) {
       console.error('Error loading lookup data:', err);
-      setError('Failed to load form data');
+      setError(t('common.error', 'Error'));
     }
   };
 
@@ -100,7 +105,7 @@ const EmployeeEdit = () => {
       setFormData(data);
     } catch (err) {
       console.error('Error loading employee:', err);
-      setError('Failed to load employee');
+      setError(t('common.error', 'Error'));
     } finally {
       setLoading(false);
     }
@@ -109,28 +114,20 @@ const EmployeeEdit = () => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.lastNameAr?.trim()) {
-      newErrors.lastNameAr = 'Arabic last name is required';
-    }
-    if (!formData.firstNameAr?.trim()) {
-      newErrors.firstNameAr = 'Arabic first name is required';
-    }
-    if (!formData.lastNameLt?.trim()) {
-      newErrors.lastNameLt = 'Latin last name is required';
-    }
-    if (!formData.firstNameLt?.trim()) {
-      newErrors.firstNameLt = 'Latin first name is required';
-    }
+    if (!formData.lastNameAr?.trim()) newErrors.lastNameAr = t('common.required', 'Required');
+    if (!formData.firstNameAr?.trim()) newErrors.firstNameAr = t('common.required', 'Required');
+    if (!formData.lastNameLt?.trim()) newErrors.lastNameLt = t('common.required', 'Required');
+    if (!formData.firstNameLt?.trim()) newErrors.firstNameLt = t('common.required', 'Required');
 
-    setErrors(newErrors);
+    setFieldErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
-      setError('Please fix the errors in the form');
+      setError(t('common.error', 'Error'));
       return;
     }
 
@@ -146,20 +143,20 @@ const EmployeeEdit = () => {
 
       setSuccess(true);
       setTimeout(() => {
-        navigate('/common/administration/employee');
-      }, 1500);
+        navigate('/administration/employees');
+      }, 800);
     } catch (err: any) {
       console.error('Error saving employee:', err);
-      setError(err.response?.data?.message || 'Failed to save employee');
+      setError(err.response?.data?.message || t('common.error', 'Error'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleChange = (field: keyof EmployeeDTO, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field as string]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -188,14 +185,9 @@ const EmployeeEdit = () => {
           {/* Header */}
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h5" component="h1">
-              {isEditMode
-                ? t('employees.edit', 'Edit Employee')
-                : t('employees.create', 'Create Employee')}
+              {isEditMode ? t('employee.edit', 'Edit Employee') : t('employee.create', 'Create Employee')}
             </Typography>
-            <Button
-              startIcon={<BackIcon />}
-              onClick={() => navigate('/common/administration/employee')}
-            >
+            <Button startIcon={<BackIcon />} onClick={() => navigate('/administration/employees')}>
               {t('common.back', 'Back')}
             </Button>
           </Stack>
@@ -203,7 +195,7 @@ const EmployeeEdit = () => {
           {/* Success Alert */}
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
-              {t('employees.saveSuccess', 'Employee saved successfully')}
+              {t('common.success', 'Success')}
             </Alert>
           )}
 
@@ -222,11 +214,11 @@ const EmployeeEdit = () => {
                 <TextField
                   fullWidth
                   required
-                  label={t('employees.lastNameAr', 'Last Name (Arabic)')}
+                  label={t('employee.lastNameAr', 'Arabic Last Name')}
                   value={formData.lastNameAr}
                   onChange={(e) => handleChange('lastNameAr', e.target.value)}
-                  error={Boolean(errors.lastNameAr)}
-                  helperText={errors.lastNameAr}
+                  error={Boolean(fieldErrors.lastNameAr)}
+                  helperText={fieldErrors.lastNameAr}
                   inputProps={{ maxLength: 100 }}
                 />
               </Grid>
@@ -234,11 +226,11 @@ const EmployeeEdit = () => {
                 <TextField
                   fullWidth
                   required
-                  label={t('employees.firstNameAr', 'First Name (Arabic)')}
+                  label={t('employee.firstNameAr', 'Arabic First Name')}
                   value={formData.firstNameAr}
                   onChange={(e) => handleChange('firstNameAr', e.target.value)}
-                  error={Boolean(errors.firstNameAr)}
-                  helperText={errors.firstNameAr}
+                  error={Boolean(fieldErrors.firstNameAr)}
+                  helperText={fieldErrors.firstNameAr}
                   inputProps={{ maxLength: 100 }}
                 />
               </Grid>
@@ -248,11 +240,11 @@ const EmployeeEdit = () => {
                 <TextField
                   fullWidth
                   required
-                  label={t('employees.lastNameLt', 'Last Name (Latin)')}
+                  label={t('employee.lastNameLt', 'Latin Last Name')}
                   value={formData.lastNameLt}
                   onChange={(e) => handleChange('lastNameLt', e.target.value)}
-                  error={Boolean(errors.lastNameLt)}
-                  helperText={errors.lastNameLt}
+                  error={Boolean(fieldErrors.lastNameLt)}
+                  helperText={fieldErrors.lastNameLt}
                   inputProps={{ maxLength: 100 }}
                 />
               </Grid>
@@ -260,11 +252,11 @@ const EmployeeEdit = () => {
                 <TextField
                   fullWidth
                   required
-                  label={t('employees.firstNameLt', 'First Name (Latin)')}
+                  label={t('employee.firstNameLt', 'Latin First Name')}
                   value={formData.firstNameLt}
                   onChange={(e) => handleChange('firstNameLt', e.target.value)}
-                  error={Boolean(errors.firstNameLt)}
-                  helperText={errors.firstNameLt}
+                  error={Boolean(fieldErrors.firstNameLt)}
+                  helperText={fieldErrors.firstNameLt}
                   inputProps={{ maxLength: 100 }}
                 />
               </Grid>
@@ -274,7 +266,7 @@ const EmployeeEdit = () => {
                 <TextField
                   fullWidth
                   type="date"
-                  label={t('employees.birthDate', 'Birth Date')}
+                  label={t('employee.birthDate', 'Birth Date')}
                   value={formatDateForInput(formData.birthDate)}
                   onChange={(e) => handleChange('birthDate', e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -283,7 +275,7 @@ const EmployeeEdit = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label={t('employees.birthPlace', 'Birth Place')}
+                  label={t('employee.birthPlace', 'Birth Place')}
                   value={formData.birthPlace || ''}
                   onChange={(e) => handleChange('birthPlace', e.target.value)}
                   inputProps={{ maxLength: 100 }}
@@ -293,11 +285,11 @@ const EmployeeEdit = () => {
               {/* Country */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('employees.country', 'Country')}</InputLabel>
+                  <InputLabel>{t('employee.country', 'Country')}</InputLabel>
                   <Select
                     value={formData.countryId || ''}
                     onChange={(e) => handleChange('countryId', e.target.value || undefined)}
-                    label={t('employees.country', 'Country')}
+                    label={t('employee.country', 'Country')}
                   >
                     <MenuItem value="">
                       <em>{t('common.none', 'None')}</em>
@@ -315,7 +307,7 @@ const EmployeeEdit = () => {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label={t('employees.registrationNumber', 'Registration Number')}
+                  label={t('employee.registrationNumber', 'Registration Number')}
                   value={formData.registrationNumber || ''}
                   onChange={(e) => handleChange('registrationNumber', e.target.value)}
                   inputProps={{ maxLength: 50 }}
@@ -325,11 +317,11 @@ const EmployeeEdit = () => {
               {/* Job */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('employees.job', 'Job')}</InputLabel>
+                  <InputLabel>{t('employee.job', 'Job')}</InputLabel>
                   <Select
                     value={formData.jobId || ''}
                     onChange={(e) => handleChange('jobId', e.target.value || undefined)}
-                    label={t('employees.job', 'Job')}
+                    label={t('employee.job', 'Job')}
                   >
                     <MenuItem value="">
                       <em>{t('common.none', 'None')}</em>
@@ -346,11 +338,11 @@ const EmployeeEdit = () => {
               {/* Structure */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('employees.structure', 'Structure')}</InputLabel>
+                  <InputLabel>{t('employee.structure', 'Structure')}</InputLabel>
                   <Select
                     value={formData.structureId || ''}
                     onChange={(e) => handleChange('structureId', e.target.value || undefined)}
-                    label={t('employees.structure', 'Structure')}
+                    label={t('employee.structure', 'Structure')}
                   >
                     <MenuItem value="">
                       <em>{t('common.none', 'None')}</em>
@@ -367,11 +359,11 @@ const EmployeeEdit = () => {
               {/* Military Rank */}
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
-                  <InputLabel>{t('employees.militaryRank', 'Military Rank')}</InputLabel>
+                  <InputLabel>{t('employee.militaryRank', 'Military Rank')}</InputLabel>
                   <Select
                     value={formData.militaryRankId || ''}
                     onChange={(e) => handleChange('militaryRankId', e.target.value || undefined)}
-                    label={t('employees.militaryRank', 'Military Rank')}
+                    label={t('employee.militaryRank', 'Military Rank')}
                   >
                     <MenuItem value="">
                       <em>{t('common.none', 'None')}</em>
@@ -388,11 +380,7 @@ const EmployeeEdit = () => {
 
             {/* Actions */}
             <Stack direction="row" spacing={2} justifyContent="flex-end" mt={4}>
-              <Button
-                variant="outlined"
-                onClick={() => navigate('/common/administration/employee')}
-                disabled={saving}
-              >
+              <Button variant="outlined" onClick={() => navigate('/administration/employees')} disabled={saving}>
                 {t('common.cancel', 'Cancel')}
               </Button>
               <Button
@@ -401,7 +389,7 @@ const EmployeeEdit = () => {
                 startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
                 disabled={saving}
               >
-                {saving ? t('common.saving', 'Saving...') : t('common.save', 'Save')}
+                {saving ? t('common.loading', 'Loading...') : t('common.save', 'Save')}
               </Button>
             </Stack>
           </Box>
