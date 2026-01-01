@@ -7,6 +7,7 @@
  * @updated 12-28-2025
  * @updated 12-30-2025 - Added Employee entry
  * @updated 01-01-2026 - Reordered and simplified menus (view)
+ * @updated 01-01-2026 - Restored Common children (Administration/Communication/Environment)
  */
 
 import {
@@ -34,17 +35,28 @@ import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import BusinessIcon from '@mui/icons-material/Business';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PublicIcon from '@mui/icons-material/Public';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import FactoryIcon from '@mui/icons-material/Factory';
 import OilBarrelIcon from '@mui/icons-material/OilBarrel';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import NatureIcon from '@mui/icons-material/Nature';
+import MailIcon from '@mui/icons-material/Mail';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LayersIcon from '@mui/icons-material/Layers';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import BadgeIcon from '@mui/icons-material/Badge';
 import HomeIcon from '@mui/icons-material/Home';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
 const DRAWER_WIDTH_EXPANDED = 260;
-const DRAWER_WIDTH_COLLAPSED = 64;
+const DRAWER_WIDTH_COLLAPAPSED = 64;
 
 interface SidebarProps {
   open: boolean;
@@ -66,14 +78,7 @@ const Sidebar = ({ open }: SidebarProps) => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Menu structure with translation keys
-  // Requested order:
-  // - Home page
-  // - Common
-  // - Business
-  // - Network
-  // - System
-  //
+  // Top-level order (requested): Home page, Common, Business, Network, System
   // Network/Common: keep Product, Region, Partner, Vendor
   // Network/Core: keep PipelineSystem, Pipeline, HydrocarbonField, Station, Terminal
   const menuItems: MenuItem[] = [
@@ -85,7 +90,66 @@ const Sidebar = ({ open }: SidebarProps) => {
     {
       titleKey: 'nav.common',
       icon: <LayersIcon />,
-      path: '/common',
+      children: [
+        {
+          titleKey: 'nav.administration',
+          icon: <AdminPanelSettingsIcon />,
+          children: [
+            {
+              titleKey: 'nav.structures',
+              icon: <CorporateFareIcon />,
+              path: '/administration/structures',
+            },
+            {
+              titleKey: 'nav.employees',
+              icon: <BadgeIcon />,
+              path: '/administration/employees',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.communication',
+          icon: <ContactMailIcon />,
+          children: [
+            {
+              titleKey: 'nav.mails',
+              icon: <MailIcon />,
+              path: '/communication/mails',
+            },
+          ],
+        },
+        {
+          titleKey: 'nav.environment',
+          icon: <NatureIcon />,
+          children: [
+            {
+              titleKey: 'nav.archiveBoxes',
+              icon: <InventoryIcon />,
+              path: '/environment/archive-boxes',
+            },
+            {
+              titleKey: 'nav.folders',
+              icon: <CreateNewFolderIcon />,
+              path: '/environment/folders',
+            },
+            {
+              titleKey: 'nav.shelves',
+              icon: <ViewListIcon />,
+              path: '/environment/shelves',
+            },
+            {
+              titleKey: 'nav.rooms',
+              icon: <MeetingRoomIcon />,
+              path: '/environment/rooms',
+            },
+            {
+              titleKey: 'nav.blocs',
+              icon: <ApartmentIcon />,
+              path: '/environment/blocs',
+            },
+          ],
+        },
+      ],
     },
     {
       titleKey: 'nav.business',
@@ -213,9 +277,8 @@ const Sidebar = ({ open }: SidebarProps) => {
   ];
 
   const isExpanded = open || isHovered;
-  const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPSED;
+  const drawerWidth = isExpanded ? DRAWER_WIDTH_EXPANDED : DRAWER_WIDTH_COLLAPAPSED;
 
-  // Get depth level of an item based on its title
   const getItemDepth = (itemTitle: string, items: MenuItem[] = menuItems, depth = 0): number => {
     for (const item of items) {
       if (t(item.titleKey) === itemTitle) {
@@ -233,20 +296,17 @@ const Sidebar = ({ open }: SidebarProps) => {
     const title = t(item.titleKey);
 
     if (item.children) {
-      // Accordion behavior: close all other items at the same level
       const clickedDepth = getItemDepth(title);
 
       setExpandedItems((prev) => {
         const isCurrentlyExpanded = prev.includes(title);
 
         if (isCurrentlyExpanded) {
-          // Close this item and all its children
           return prev.filter((expandedTitle) => {
             const expandedDepth = getItemDepth(expandedTitle);
             return expandedDepth < clickedDepth || expandedTitle !== title;
           });
         } else {
-          // Close all items at the same level or deeper, then open this one
           const filtered = prev.filter((expandedTitle) => {
             const expandedDepth = getItemDepth(expandedTitle);
             return expandedDepth < clickedDepth;
