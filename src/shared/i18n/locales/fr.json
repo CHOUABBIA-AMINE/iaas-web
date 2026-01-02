@@ -266,7 +266,8 @@
     "searchPlaceholder": "Rechercher par code ou description...",
     "subtitles": {
       "basicInformation": "Informations de base",
-      "location": "Emplacement"
+      "location": "Emplacement",
+      "list": "Gérer et organiser les boîtes d'archives dans les étagères"
     },
     "hints": {
       "code": "Identifiant unique de la boîte d'archives",

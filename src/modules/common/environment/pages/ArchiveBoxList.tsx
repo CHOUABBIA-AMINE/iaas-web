@@ -51,7 +51,7 @@ import { ArchiveBoxDTO, ShelfDTO } from '../dto';
 const ArchiveBoxList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
+
   const [archiveBoxes, setArchiveBoxes] = useState<ArchiveBoxDTO[]>([]);
   const [shelves, setShelves] = useState<ShelfDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +60,7 @@ const ArchiveBoxList = () => {
   const [searchText, setSearchText] = useState('');
   const [shelfFilter, setShelfFilter] = useState<string>('all');
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
-  
+
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 25,
@@ -88,23 +88,34 @@ const ArchiveBoxList = () => {
   const loadArchiveBoxes = async () => {
     try {
       setLoading(true);
-      
+
       const sortField = sortModel.length > 0 ? sortModel[0].field : 'id';
       const sortDir = sortModel.length > 0 ? sortModel[0].sort || 'asc' : 'asc';
 
       let pageResponse;
-      
+
       if (searchText) {
-        pageResponse = await archiveBoxService.search(searchText, paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+        pageResponse = await archiveBoxService.search(
+          searchText,
+          paginationModel.page,
+          paginationModel.pageSize,
+          sortField,
+          sortDir,
+        );
       } else {
-        pageResponse = await archiveBoxService.getPage(paginationModel.page, paginationModel.pageSize, sortField, sortDir);
+        pageResponse = await archiveBoxService.getPage(
+          paginationModel.page,
+          paginationModel.pageSize,
+          sortField,
+          sortDir,
+        );
       }
-      
+
       let filteredContent = pageResponse.content;
       if (shelfFilter !== 'all') {
-        filteredContent = filteredContent.filter(box => box.shelfId && box.shelfId.toString() === shelfFilter);
+        filteredContent = filteredContent.filter((box: ArchiveBoxDTO) => box.shelfId && box.shelfId.toString() === shelfFilter);
       }
-      
+
       setArchiveBoxes(filteredContent);
       setTotalRows(pageResponse.totalElements);
       setError('');
@@ -127,15 +138,17 @@ const ArchiveBoxList = () => {
   }, []);
 
   const columns: GridColDef[] = [
-    { 
-      field: 'code', 
-      headerName: t('archiveBox.code'), 
+    {
+      field: 'code',
+      headerName: t('archiveBox.code'),
       minWidth: 180,
       flex: 1,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <BoxIcon fontSize="small" color="action" />
-          <Typography variant="body2" fontWeight={600}>{params.value}</Typography>
+          <Typography variant="body2" fontWeight={600}>
+            {params.value}
+          </Typography>
         </Box>
       ),
     },
@@ -162,12 +175,20 @@ const ArchiveBoxList = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Tooltip title={t('common.edit')}>
-            <IconButton size="small" onClick={() => handleEdit(params.row.id)} sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}>
+            <IconButton
+              size="small"
+              onClick={() => handleEdit(params.row.id)}
+              sx={{ color: 'primary.main', '&:hover': { bgcolor: alpha('#2563eb', 0.1) } }}
+            >
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Tooltip title={t('common.delete')}>
-            <IconButton size="small" onClick={() => handleDelete(params.row.id)} sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}>
+            <IconButton
+              size="small"
+              onClick={() => handleDelete(params.row.id)}
+              sx={{ color: 'error.main', '&:hover': { bgcolor: alpha('#dc2626', 0.1) } }}
+            >
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -178,7 +199,7 @@ const ArchiveBoxList = () => {
 
   const handleCreate = () => navigate('/environment/archive-boxes/create');
   const handleEdit = (boxId: number) => navigate(`/environment/archive-boxes/${boxId}/edit`);
-  
+
   const handleDelete = async (boxId: number) => {
     if (window.confirm(t('archiveBox.deleteConfirm') || 'Delete this archive box?')) {
       try {
@@ -197,35 +218,97 @@ const ArchiveBoxList = () => {
     setPaginationModel({ page: 0, pageSize: paginationModel.pageSize });
   };
 
-  const handleRefresh = () => { loadArchiveBoxes(); setSuccess('Data refreshed'); };
+  const handleRefresh = () => {
+    loadArchiveBoxes();
+    setSuccess('Data refreshed');
+  };
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => setExportAnchorEl(event.currentTarget);
   const handleExportMenuClose = () => setExportAnchorEl(null);
-  const handleExportCSV = () => { setSuccess('Exported to CSV'); handleExportMenuClose(); };
-  const handleExportExcel = () => { setSuccess('Exported to Excel'); handleExportMenuClose(); };
-  const handleExportPDF = () => { setSuccess('Exported to PDF'); handleExportMenuClose(); };
+  const handleExportCSV = () => {
+    setSuccess('Exported to CSV');
+    handleExportMenuClose();
+  };
+  const handleExportExcel = () => {
+    setSuccess('Exported to Excel');
+    handleExportMenuClose();
+  };
+  const handleExportPDF = () => {
+    setSuccess('Exported to PDF');
+    handleExportMenuClose();
+  };
 
   return (
     <Box>
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h4" fontWeight={700} color="text.primary">{t('archiveBox.title') || 'Archive Boxes'}</Typography>
+          <Typography variant="h4" fontWeight={700} color="text.primary">
+            {t('archiveBox.title') || 'Archive Boxes'}
+          </Typography>
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title="Refresh"><IconButton onClick={handleRefresh} size="medium" color="primary"><RefreshIcon /></IconButton></Tooltip>
-            <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>{t('common.export')}</Button>
-            <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate} sx={{ borderRadius: 2, boxShadow: 2 }}>{t('archiveBox.create') || 'Create Archive Box'}</Button>
+            <Tooltip title="Refresh">
+              <IconButton onClick={handleRefresh} size="medium" color="primary">
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+            <Button
+              variant="outlined"
+              startIcon={<ExportIcon />}
+              onClick={handleExportMenuOpen}
+              sx={{ borderRadius: 2 }}
+            >
+              {t('common.export')}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreate}
+              sx={{ borderRadius: 2, boxShadow: 2 }}
+            >
+              {t('archiveBox.create') || 'Create Archive Box'}
+            </Button>
           </Stack>
         </Box>
-        <Typography variant="body2" color="text.secondary">Manage and organize archive boxes in shelves</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {t('archiveBox.subtitles.list') || 'Manage and organize archive boxes in shelves'}
+        </Typography>
       </Box>
 
-      <Menu anchorEl={exportAnchorEl} open={Boolean(exportAnchorEl)} onClose={handleExportMenuClose} PaperProps={{ elevation: 3, sx: { minWidth: 200 } }}>
-        <MenuItem onClick={handleExportCSV}><ListItemIcon><CsvIcon fontSize="small" /></ListItemIcon><ListItemText>{t('common.exportCSV')}</ListItemText></MenuItem>
-        <MenuItem onClick={handleExportExcel}><ListItemIcon><ExcelIcon fontSize="small" color="success" /></ListItemIcon><ListItemText>{t('common.exportExcel')}</ListItemText></MenuItem>
-        <MenuItem onClick={handleExportPDF}><ListItemIcon><PdfIcon fontSize="small" color="error" /></ListItemIcon><ListItemText>{t('common.exportPDF')}</ListItemText></MenuItem>
+      <Menu
+        anchorEl={exportAnchorEl}
+        open={Boolean(exportAnchorEl)}
+        onClose={handleExportMenuClose}
+        PaperProps={{ elevation: 3, sx: { minWidth: 200 } }}
+      >
+        <MenuItem onClick={handleExportCSV}>
+          <ListItemIcon>
+            <CsvIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t('common.exportCSV')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleExportExcel}>
+          <ListItemIcon>
+            <ExcelIcon fontSize="small" color="success" />
+          </ListItemIcon>
+          <ListItemText>{t('common.exportExcel')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleExportPDF}>
+          <ListItemIcon>
+            <PdfIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText>{t('common.exportPDF')}</ListItemText>
+        </MenuItem>
       </Menu>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+          {success}
+        </Alert>
+      )}
 
       <Paper elevation={0} sx={{ mb: 3, border: 1, borderColor: 'divider' }}>
         <Box sx={{ p: 2.5 }}>
@@ -235,20 +318,43 @@ const ArchiveBoxList = () => {
               placeholder={t('archiveBox.searchPlaceholder') || 'Search by code or description...'}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment> }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
               sx={{ flex: 2 }}
             />
 
             <FormControl sx={{ minWidth: 200, flex: 1 }}>
               <InputLabel>{t('archiveBox.filterByShelf') || 'Filter by Shelf'}</InputLabel>
-              <Select value={shelfFilter} label={t('archiveBox.filterByShelf') || 'Filter by Shelf'} onChange={(e) => setShelfFilter(e.target.value)}>
-                <MenuItem value="all"><em>{t('common.all') || 'All'}</em></MenuItem>
-                {shelves.map((shelf) => <MenuItem key={shelf.id} value={shelf.id?.toString()}>{shelf.designationLt || shelf.code}</MenuItem>)}
+              <Select
+                value={shelfFilter}
+                label={t('archiveBox.filterByShelf') || 'Filter by Shelf'}
+                onChange={(e) => setShelfFilter(e.target.value)}
+              >
+                <MenuItem value="all">
+                  <em>{t('common.all') || 'All'}</em>
+                </MenuItem>
+                {shelves.map((shelf) => (
+                  <MenuItem key={shelf.id} value={shelf.id?.toString()}>
+                    {shelf.designationLt || shelf.code}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
             {(searchText || shelfFilter !== 'all') && (
-              <Button variant="outlined" startIcon={<ClearIcon />} onClick={handleClearFilters} sx={{ minWidth: 140 }}>{t('common.clearFilters')}</Button>
+              <Button
+                variant="outlined"
+                startIcon={<ClearIcon />}
+                onClick={handleClearFilters}
+                sx={{ minWidth: 140 }}
+              >
+                {t('common.clearFilters')}
+              </Button>
             )}
           </Stack>
 
@@ -277,7 +383,11 @@ const ArchiveBoxList = () => {
             border: 0,
             '& .MuiDataGrid-cell:focus': { outline: 'none' },
             '& .MuiDataGrid-row:hover': { backgroundColor: alpha('#2563eb', 0.04) },
-            '& .MuiDataGrid-columnHeaders': { backgroundColor: alpha('#2563eb', 0.05), borderBottom: 2, borderColor: 'divider' },
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: alpha('#2563eb', 0.05),
+              borderBottom: 2,
+              borderColor: 'divider',
+            },
             '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 },
           }}
         />

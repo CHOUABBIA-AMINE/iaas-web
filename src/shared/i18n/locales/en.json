@@ -266,7 +266,8 @@
     "searchPlaceholder": "Search by code or description...",
     "subtitles": {
       "basicInformation": "Basic Information",
-      "location": "Location"
+      "location": "Location",
+      "list": "Manage and organize archive boxes in shelves"
     },
     "hints": {
       "code": "Unique identifier for the archive box",
