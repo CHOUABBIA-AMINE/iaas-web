@@ -50,7 +50,7 @@ import roomService from '../services/RoomService';
 import { ShelfDTO, RoomDTO } from '../dto';
 
 const ShelfList = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const [shelves, setShelves] = useState<ShelfDTO[]>([]);
@@ -127,6 +127,16 @@ const ShelfList = () => {
     setSortModel(model);
   }, []);
 
+  const getShelfDesignation = (shelf: any): string => {
+    const lang = (i18n.language || 'en').toLowerCase();
+
+    if (lang.startsWith('ar')) return shelf.designationAr || shelf.designationEn || shelf.designationFr || '';
+    if (lang.startsWith('fr')) return shelf.designationFr || shelf.designationEn || shelf.designationAr || '';
+
+    // default: en
+    return shelf.designationEn || shelf.designationFr || shelf.designationAr || '';
+  };
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     {
@@ -143,8 +153,14 @@ const ShelfList = () => {
         </Box>
       ),
     },
-    { field: 'designationFr', headerName: t('shelf.designationFr') || 'French Designation', minWidth: 200, flex: 1.5 },
-    { field: 'designationEn', headerName: t('shelf.designationEn') || 'English Designation', minWidth: 200, flex: 1.5 },
+    {
+      field: 'designation',
+      headerName: t('common.designation') || 'Designation',
+      minWidth: 220,
+      flex: 1.8,
+      sortable: false,
+      valueGetter: (_value, row) => getShelfDesignation(row),
+    },
     {
       field: 'room',
       headerName: t('shelf.room') || 'Room',
