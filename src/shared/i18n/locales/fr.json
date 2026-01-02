@@ -263,7 +263,17 @@
     "shelfFloor": "Étage de l'étagère",
     "location": "Emplacement",
     "filterByShelf": "Filtrer par étagère",
-    "searchPlaceholder": "Rechercher par code ou description..."
+    "searchPlaceholder": "Rechercher par code ou description...",
+    "subtitles": {
+      "basicInformation": "Informations de base",
+      "location": "Emplacement"
+    },
+    "hints": {
+      "code": "Identifiant unique de la boîte d'archives",
+      "description": "Description optionnelle du contenu de la boîte",
+      "shelfFloor": "Sélectionner le niveau (étage) sur l'étagère",
+      "shelf": "Sélectionner l'étagère où se trouve la boîte"
+    }
   },
   "bloc": {
     "title": "Blocs",

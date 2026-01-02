@@ -263,7 +263,17 @@
     "shelfFloor": "طابق الرف",
     "location": "الموقع",
     "filterByShelf": "تصفية حسب الرف",
-    "searchPlaceholder": "البحث بالرمز أو الوصف..."
+    "searchPlaceholder": "البحث بالرمز أو الوصف...",
+    "subtitles": {
+      "basicInformation": "المعلومات الأساسية",
+      "location": "الموقع"
+    },
+    "hints": {
+      "code": "معرّف فريد لصندوق الأرشيف",
+      "description": "وصف اختياري لمحتويات الصندوق",
+      "shelfFloor": "اختر مستوى الطابق على الرف",
+      "shelf": "اختر الرف الذي يوجد فيه الصندوق"
+    }
   },
   "bloc": {
     "title": "الكتل",

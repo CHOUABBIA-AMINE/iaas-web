@@ -263,7 +263,17 @@
     "shelfFloor": "Shelf Floor",
     "location": "Location",
     "filterByShelf": "Filter by Shelf",
-    "searchPlaceholder": "Search by code or description..."
+    "searchPlaceholder": "Search by code or description...",
+    "subtitles": {
+      "basicInformation": "Basic Information",
+      "location": "Location"
+    },
+    "hints": {
+      "code": "Unique identifier for the archive box",
+      "description": "Optional description of box contents",
+      "shelfFloor": "Select the floor level on the shelf",
+      "shelf": "Select the shelf where the box is located"
+    }
   },
   "bloc": {
     "title": "Blocs",
