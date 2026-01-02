@@ -127,7 +127,6 @@ const ArchiveBoxList = () => {
   }, []);
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 80, align: 'center', headerAlign: 'center' },
     { 
       field: 'code', 
       headerName: t('archiveBox.code'), 
