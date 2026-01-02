@@ -338,7 +338,10 @@
     "designationAr": "Arabic Designation",
     "room": "Room",
     "filterByRoom": "Filter by Room",
-    "searchPlaceholder": "Search by code or designation..."
+    "searchPlaceholder": "Search by code or designation...",
+    "subtitles": {
+      "list": "Create a new folder in an archive box"
+    }
   },
   "footer": {
     "copyright": "© {{year}} IAAS Platform. All rights reserved."

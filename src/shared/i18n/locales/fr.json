@@ -338,7 +338,10 @@
     "designationAr": "Désignation arabe",
     "room": "Salle",
     "filterByRoom": "Filtrer par salle",
-    "searchPlaceholder": "Rechercher par code ou désignation..."
+    "searchPlaceholder": "Rechercher par code ou désignation...",
+    "subtitles": {
+      "list": "Créer un nouveau dossier dans une boîte d'archives"
+    }
   },
   "footer": {
     "copyright": "© {{year}} Plateforme IAAS. Tous droits réservés."
