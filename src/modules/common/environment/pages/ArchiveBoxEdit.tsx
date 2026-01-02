@@ -62,16 +62,16 @@ const ArchiveBoxEdit = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // Load both shelves and shelf floors independently
       const [shelvesData, floorsData] = await Promise.all([
         shelfService.getAll().catch(() => []),
-        shelfFloorService.getAll().catch(() => [])
+        shelfFloorService.getAll().catch(() => []),
       ]);
 
-      const shelves = Array.isArray(shelvesData) ? shelvesData : (shelvesData?.data || shelvesData?.content || []);
-      const floors = Array.isArray(floorsData) ? floorsData : (floorsData?.data || floorsData?.content || []);
-      
+      const shelves = Array.isArray(shelvesData) ? shelvesData : shelvesData?.data || shelvesData?.content || [];
+      const floors = Array.isArray(floorsData) ? floorsData : floorsData?.data || floorsData?.content || [];
+
       setAvailableShelves(shelves);
       setAvailableShelfFloors(floors);
 
@@ -79,19 +79,19 @@ const ArchiveBoxEdit = () => {
       if (isEditMode) {
         const boxData = await archiveBoxService.getById(Number(boxId));
         setArchiveBox(boxData);
-        
+
         // Set selected shelf and shelf floor
         if (boxData.shelf) {
           setSelectedShelf(boxData.shelf);
         } else if (boxData.shelfId) {
-          const shelf = shelves.find(s => s.id === boxData.shelfId);
+          const shelf = shelves.find((s: ShelfDTO) => s.id === boxData.shelfId);
           if (shelf) setSelectedShelf(shelf);
         }
-        
+
         if (boxData.shelfFloor) {
           setSelectedShelfFloor(boxData.shelfFloor);
         } else if (boxData.shelfFloorId) {
-          const floor = floors.find(f => f.id === boxData.shelfFloorId);
+          const floor = floors.find((f: ShelfFloorDTO) => f.id === boxData.shelfFloorId);
           if (floor) setSelectedShelfFloor(floor);
         }
       }
@@ -130,7 +130,7 @@ const ArchiveBoxEdit = () => {
   const handleChange = (field: keyof ArchiveBoxDTO) => (e: any) => {
     const value = e.target.value;
     setArchiveBox({ ...archiveBox, [field]: value });
-    
+
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors({ ...validationErrors, [field]: '' });
@@ -139,7 +139,7 @@ const ArchiveBoxEdit = () => {
 
   const handleShelfChange = (_event: any, newValue: ShelfDTO | null) => {
     setSelectedShelf(newValue);
-    
+
     // Clear validation error
     if (validationErrors.shelf) {
       setValidationErrors({ ...validationErrors, shelf: '' });
@@ -148,7 +148,7 @@ const ArchiveBoxEdit = () => {
 
   const handleShelfFloorChange = (_event: any, newValue: ShelfFloorDTO | null) => {
     setSelectedShelfFloor(newValue);
-    
+
     // Clear validation error
     if (validationErrors.shelfFloor) {
       setValidationErrors({ ...validationErrors, shelfFloor: '' });
@@ -157,7 +157,7 @@ const ArchiveBoxEdit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -243,15 +243,11 @@ const ArchiveBoxEdit = () => {
     <Box>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
-        <Button
-          startIcon={<BackIcon />}
-          onClick={handleCancel}
-          sx={{ mb: 2 }}
-        >
+        <Button startIcon={<BackIcon />} onClick={handleCancel} sx={{ mb: 2 }}>
           {t('common.back')}
         </Button>
         <Typography variant="h4" fontWeight={700} color="text.primary">
-          {isEditMode ? (t('archiveBox.edit') || 'Edit Archive Box') : (t('archiveBox.create') || 'Create Archive Box')}
+          {isEditMode ? t('archiveBox.edit') || 'Edit Archive Box' : t('archiveBox.create') || 'Create Archive Box'}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           {isEditMode ? 'Update archive box information and location' : 'Create a new archive box'}
@@ -272,10 +268,10 @@ const ArchiveBoxEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Basic Information
+                {t('archiveBox.subtitles.basicInformation') || 'Basic Information'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -285,7 +281,7 @@ const ArchiveBoxEdit = () => {
                     onChange={handleChange('code')}
                     required
                     error={!!validationErrors.code}
-                    helperText={validationErrors.code || 'Unique identifier for the archive box'}
+                    helperText={validationErrors.code || t('archiveBox.hints.code') || 'Unique identifier for the archive box'}
                   />
                 </Grid>
 
@@ -297,7 +293,7 @@ const ArchiveBoxEdit = () => {
                     onChange={handleChange('description')}
                     multiline
                     rows={3}
-                    helperText="Optional description of box contents"
+                    helperText={t('archiveBox.hints.description') || 'Optional description of box contents'}
                   />
                 </Grid>
               </Grid>
@@ -308,10 +304,10 @@ const ArchiveBoxEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Location
+                {t('archiveBox.subtitles.location') || 'Location'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <Autocomplete
@@ -326,7 +322,7 @@ const ArchiveBoxEdit = () => {
                         label={t('archiveBox.shelf') || 'Shelf'}
                         required
                         error={!!validationErrors.shelf}
-                        helperText={validationErrors.shelf || 'Select the shelf where the box is located'}
+                        helperText={validationErrors.shelf || t('archiveBox.hints.shelf') || 'Select the shelf where the box is located'}
                       />
                     )}
                   />
@@ -345,7 +341,7 @@ const ArchiveBoxEdit = () => {
                         label={t('archiveBox.shelfFloor') || 'Shelf Floor'}
                         required
                         error={!!validationErrors.shelfFloor}
-                        helperText={validationErrors.shelfFloor || 'Select the floor level on the shelf'}
+                        helperText={validationErrors.shelfFloor || t('archiveBox.hints.shelfFloor') || 'Select the floor level on the shelf'}
                       />
                     )}
                   />
@@ -357,13 +353,7 @@ const ArchiveBoxEdit = () => {
           {/* Actions */}
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
             <Box sx={{ p: 2.5, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-              <Button
-                variant="outlined"
-                startIcon={<CancelIcon />}
-                onClick={handleCancel}
-                disabled={saving}
-                size="large"
-              >
+              <Button variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} disabled={saving} size="large">
                 {t('common.cancel')}
               </Button>
               <Button
