@@ -301,7 +301,8 @@
     "subtitles": {
       "list": "Gérer les dossiers à l'intérieur des boîtes d'archives",
       "basicInformation": "Informations de base",
-      "location": "Emplacement"
+      "location": "Emplacement",
+      "create": "Créer un nouveau dossier dans une boîte d'archives"
     },
     "hints": {
       "code": "Obligatoire - Code unique du dossier",

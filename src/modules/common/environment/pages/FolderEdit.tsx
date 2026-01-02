@@ -178,7 +178,9 @@ const FolderEdit = () => {
           {isEditMode ? t('folder.edit') || 'Edit Folder' : t('folder.create') || 'Create Folder'}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          {isEditMode ? 'Update folder information and location' : 'Create a new folder in an archive box'}
+          {isEditMode
+            ? 'Update folder information and location'
+            : t('folder.subtitles.create') || 'Create a new folder in an archive box'}
         </Typography>
       </Box>
 

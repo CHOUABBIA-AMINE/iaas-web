@@ -301,7 +301,8 @@
     "subtitles": {
       "list": "Manage folders inside archive boxes",
       "basicInformation": "Basic Information",
-      "location": "Location"
+      "location": "Location",
+      "create": "Create a new folder in an archive box"
     },
     "hints": {
       "code": "Required - Unique folder code",
