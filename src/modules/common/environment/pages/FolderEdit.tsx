@@ -75,11 +75,11 @@ const FolderEdit = () => {
       setLoading(true);
       const folderData = await folderService.getById(Number(folderId));
       setFolder(folderData);
-      
+
       if (folderData.archiveBox) {
         setSelectedArchiveBox(folderData.archiveBox);
       }
-      
+
       setError('');
     } catch (err: any) {
       console.error('Failed to load folder:', err);
@@ -109,14 +109,14 @@ const FolderEdit = () => {
   const handleChange = (field: keyof FolderDTO) => (e: any) => {
     const value = e.target.value;
     setFolder({ ...folder, [field]: value });
-    
+
     // Clear validation error for this field
     if (validationErrors[field]) {
       setValidationErrors({ ...validationErrors, [field]: '' });
     }
   };
 
-  const handleArchiveBoxChange = (event: any, newValue: ArchiveBoxDTO | null) => {
+  const handleArchiveBoxChange = (_event: any, newValue: ArchiveBoxDTO | null) => {
     setSelectedArchiveBox(newValue);
     if (validationErrors.archiveBox) {
       setValidationErrors({ ...validationErrors, archiveBox: '' });
@@ -125,7 +125,7 @@ const FolderEdit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -171,15 +171,11 @@ const FolderEdit = () => {
     <Box>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
-        <Button
-          startIcon={<BackIcon />}
-          onClick={handleCancel}
-          sx={{ mb: 2 }}
-        >
+        <Button startIcon={<BackIcon />} onClick={handleCancel} sx={{ mb: 2 }}>
           {t('common.back')}
         </Button>
         <Typography variant="h4" fontWeight={700} color="text.primary">
-          {isEditMode ? (t('folder.edit') || 'Edit Folder') : (t('folder.create') || 'Create Folder')}
+          {isEditMode ? t('folder.edit') || 'Edit Folder' : t('folder.create') || 'Create Folder'}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           {isEditMode ? 'Update folder information and location' : 'Create a new folder in an archive box'}
@@ -200,10 +196,10 @@ const FolderEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Basic Information
+                {t('folder.subtitles.basicInformation') || 'Basic Information'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
@@ -213,7 +209,7 @@ const FolderEdit = () => {
                     onChange={handleChange('code')}
                     required
                     error={!!validationErrors.code}
-                    helperText={validationErrors.code || 'Required - Unique folder code'}
+                    helperText={validationErrors.code || t('folder.hints.code') || 'Required - Unique folder code'}
                   />
                 </Grid>
 
@@ -225,7 +221,7 @@ const FolderEdit = () => {
                     onChange={handleChange('description')}
                     multiline
                     rows={3}
-                    helperText="Optional - Folder description"
+                    helperText={t('folder.hints.description') || 'Optional - Folder description'}
                   />
                 </Grid>
               </Grid>
@@ -236,10 +232,10 @@ const FolderEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Location
+                {t('folder.subtitles.location') || 'Location'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
-              
+
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <Autocomplete
@@ -253,7 +249,11 @@ const FolderEdit = () => {
                         label={t('folder.archiveBox') || 'Archive Box'}
                         required
                         error={!!validationErrors.archiveBox}
-                        helperText={validationErrors.archiveBox || 'Required - Select the archive box where this folder is located'}
+                        helperText={
+                          validationErrors.archiveBox ||
+                          t('folder.hints.archiveBox') ||
+                          'Select the archive box where this folder is located'
+                        }
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option.id === value.id}

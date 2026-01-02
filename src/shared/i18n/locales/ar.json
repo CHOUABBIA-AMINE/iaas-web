@@ -297,7 +297,17 @@
     "description": "الوصف",
     "archiveBox": "صندوق الأرشيف",
     "filterByArchiveBox": "تصفية حسب صندوق الأرشيف",
-    "searchPlaceholder": "البحث بالرمز أو الوصف..."
+    "searchPlaceholder": "البحث بالرمز أو الوصف...",
+    "subtitles": {
+      "list": "إدارة المجلدات داخل صناديق الأرشيف",
+      "basicInformation": "المعلومات الأساسية",
+      "location": "الموقع"
+    },
+    "hints": {
+      "code": "إجباري - رمز فريد للمجلد",
+      "description": "اختياري - وصف المجلد",
+      "archiveBox": "اختر صندوق الأرشيف الذي يوجد فيه هذا المجلد"
+    }
   },
   "room": {
     "title": "الغرف",

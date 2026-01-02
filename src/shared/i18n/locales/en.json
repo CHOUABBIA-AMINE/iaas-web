@@ -297,7 +297,17 @@
     "description": "Description",
     "archiveBox": "Archive Box",
     "filterByArchiveBox": "Filter by Archive Box",
-    "searchPlaceholder": "Search by code or description..."
+    "searchPlaceholder": "Search by code or description...",
+    "subtitles": {
+      "list": "Manage folders inside archive boxes",
+      "basicInformation": "Basic Information",
+      "location": "Location"
+    },
+    "hints": {
+      "code": "Required - Unique folder code",
+      "description": "Optional - Folder description",
+      "archiveBox": "Select the archive box where this folder is located"
+    }
   },
   "room": {
     "title": "Rooms",

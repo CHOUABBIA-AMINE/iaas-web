@@ -297,7 +297,17 @@
     "description": "Description",
     "archiveBox": "Boîte d'archives",
     "filterByArchiveBox": "Filtrer par boîte d'archives",
-    "searchPlaceholder": "Rechercher par code ou description..."
+    "searchPlaceholder": "Rechercher par code ou description...",
+    "subtitles": {
+      "list": "Gérer les dossiers à l'intérieur des boîtes d'archives",
+      "basicInformation": "Informations de base",
+      "location": "Emplacement"
+    },
+    "hints": {
+      "code": "Obligatoire - Code unique du dossier",
+      "description": "Optionnel - Description du dossier",
+      "archiveBox": "Sélectionner la boîte d'archives où se trouve ce dossier"
+    }
   },
   "room": {
     "title": "Salles",
