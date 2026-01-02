@@ -127,14 +127,16 @@ const ShelfList = () => {
     setSortModel(model);
   }, []);
 
-  const getShelfDesignation = (shelf: any): string => {
+  const getShelfDesignation = (row?: any): string => {
+    if (!row) return '';
+
     const lang = (i18n.language || 'en').toLowerCase();
 
-    if (lang.startsWith('ar')) return shelf.designationAr || shelf.designationEn || shelf.designationFr || '';
-    if (lang.startsWith('fr')) return shelf.designationFr || shelf.designationEn || shelf.designationAr || '';
+    if (lang.startsWith('ar')) return row.designationAr || row.designationEn || row.designationFr || '';
+    if (lang.startsWith('fr')) return row.designationFr || row.designationEn || row.designationAr || '';
 
     // default: en
-    return shelf.designationEn || shelf.designationFr || shelf.designationAr || '';
+    return row.designationEn || row.designationFr || row.designationAr || '';
   };
 
   const columns: GridColDef[] = [
@@ -155,7 +157,7 @@ const ShelfList = () => {
     },
     {
       field: 'designation',
-      headerName: t('common.designation') || 'Designation',
+      headerName: t('shelf.designation') || t('common.designation') || 'Designation',
       minWidth: 220,
       flex: 1.8,
       sortable: false,
