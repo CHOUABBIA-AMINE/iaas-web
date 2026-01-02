@@ -341,7 +341,17 @@
     "filterByRoom": "Filtrer par salle",
     "searchPlaceholder": "Rechercher par code ou désignation...",
     "subtitles": {
-      "list": "Créer un nouveau dossier dans une boîte d'archives"
+      "list": "Créer un nouveau dossier dans une boîte d'archives",
+      "create": "Créer une nouvelle étagère dans une salle",
+      "basicInformation": "Informations de base",
+      "location": "Emplacement"
+    },
+    "hints": {
+      "code": "Obligatoire - Code unique de l'étagère",
+      "required": "Obligatoire",
+      "optional": "Optionnel",
+      "selectBlocFirst": "Sélectionnez d'abord le bloc",
+      "blocRequired": "Obligatoire - Sélectionnez d'abord le bloc du bâtiment"
     }
   },
   "footer": {

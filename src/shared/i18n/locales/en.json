@@ -341,7 +341,17 @@
     "filterByRoom": "Filter by Room",
     "searchPlaceholder": "Search by code or designation...",
     "subtitles": {
-      "list": "Create a new folder in an archive box"
+      "list": "Create a new folder in an archive box",
+      "create": "Create a new shelf in a room",
+      "basicInformation": "Basic Information",
+      "location": "Location"
+    },
+    "hints": {
+      "code": "Required - Unique shelf code",
+      "required": "Required",
+      "optional": "Optional",
+      "selectBlocFirst": "Select the bloc first",
+      "blocRequired": "Required - Select the building bloc first"
     }
   },
   "footer": {
