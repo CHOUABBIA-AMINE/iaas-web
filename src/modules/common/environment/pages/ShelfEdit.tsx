@@ -285,7 +285,7 @@ const ShelfEdit = () => {
           {isEditMode ? (t('shelf.edit') || 'Edit Shelf') : (t('shelf.create') || 'Create Shelf')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          {isEditMode ? 'Update shelf information and location' : 'Create a new shelf in a room'}
+          {isEditMode ? (t('shelf.subtitles.edit') || 'Update shelf information and location') : (t('shelf.subtitles.create') || 'Create a new shelf in a room')}
         </Typography>
       </Box>
 
@@ -310,7 +310,7 @@ const ShelfEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Basic Information
+                {t('shelf.subtitles.basicInformation') || 'Basic Information'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
               
@@ -324,7 +324,7 @@ const ShelfEdit = () => {
                     onChange={handleChange('code')}
                     required
                     error={!!validationErrors.code}
-                    helperText={validationErrors.code || 'Required - Unique shelf code'}
+                    helperText={validationErrors.code || (t('shelf.hints.code') || 'Required - Unique shelf code')}
                   />
                 </Grid>
 
@@ -340,7 +340,7 @@ const ShelfEdit = () => {
                     onChange={handleChange('designationFr')}
                     required
                     error={!!validationErrors.designationFr}
-                    helperText={validationErrors.designationFr || 'Required'}
+                    helperText={validationErrors.designationFr || (t('shelf.hints.required') || 'Required')}
                   />
                 </Grid>
 
@@ -350,7 +350,7 @@ const ShelfEdit = () => {
                     label={t('shelf.designationEn') || 'English Designation'}
                     value={shelf.designationEn || ''}
                     onChange={handleChange('designationEn')}
-                    helperText="Optional"
+                    helperText={t('shelf.hints.optional') || 'Optional'}
                   />
                 </Grid>
 
@@ -360,7 +360,7 @@ const ShelfEdit = () => {
                     label={t('shelf.designationAr') || 'Arabic Designation'}
                     value={shelf.designationAr || ''}
                     onChange={handleChange('designationAr')}
-                    helperText="Optional"
+                    helperText={t('shelf.hints.optional') || 'Optional'}
                     inputProps={{
                       dir: 'rtl',
                       style: { textAlign: 'right' }
@@ -375,7 +375,7 @@ const ShelfEdit = () => {
           <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
             <Box sx={{ p: 2.5 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Location
+                {t('shelf.subtitles.location') || 'Location'}
               </Typography>
               <Divider sx={{ mb: 3 }} />
               
@@ -392,7 +392,7 @@ const ShelfEdit = () => {
                         label={t('shelf.bloc') || 'Bloc'}
                         required
                         error={!!validationErrors.bloc}
-                        helperText={validationErrors.bloc || 'Required - Select the building bloc first'}
+                        helperText={validationErrors.bloc || (t('shelf.hints.blocRequired') || 'Required - Select the building bloc first')}
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -413,7 +413,7 @@ const ShelfEdit = () => {
                         label={t('shelf.room') || 'Room'}
                         required
                         error={!!validationErrors.room}
-                        helperText={validationErrors.room || (selectedBloc ? 'Required - Select room in this bloc' : 'Select a bloc first')}
+                        helperText={validationErrors.room || (selectedBloc ? (t('shelf.hints.required') || 'Required') : (t('shelf.hints.selectBlocFirst') || 'Select a bloc first'))}
                       />
                     )}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
