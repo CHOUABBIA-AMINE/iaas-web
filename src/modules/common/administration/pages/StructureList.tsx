@@ -4,6 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
+ * @updated 01-04-2026 - Use pageable requests and language-aware designations
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -44,7 +45,7 @@ import {
   AccountTree as StructureIcon,
   Business as OrganizationIcon,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 import structureService from '../services/StructureService';
 import structureTypeService from '../services/StructureTypeService';
 import { StructureDTO } from '../dto/StructureDTO';
@@ -54,7 +55,10 @@ const StructureList = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
-  const currentLanguage = i18n.language || 'en';
+  const currentLanguage = useMemo(() => {
+    const lang = i18n.language || 'fr';
+    return lang.split('-')[0]; // 'en-US' -> 'en'
+  }, [i18n.language]);
 
   const getStructureDesignation = (s?: Partial<StructureDTO> | null): string => {
     if (!s) return '-';
@@ -63,17 +67,11 @@ const StructureList = () => {
     return s.designationFr || s.designationEn || s.designationAr || '-';
   };
 
-  // StructureTypeDTO only guarantees `label` in frontend; backend may send more, so fall back safely.
   const getStructureTypeLabel = (type?: any): string => {
     if (!type) return '-';
-    return (
-      type.label ||
-      type.designationFr ||
-      type.designationEn ||
-      type.designationAr ||
-      type.code ||
-      '-'
-    );
+    if (currentLanguage === 'ar') return type.designationAr || type.designationFr || type.designationEn || type.label || type.code || '-';
+    if (currentLanguage === 'en') return type.designationEn || type.designationFr || type.designationAr || type.label || type.code || '-';
+    return type.designationFr || type.designationEn || type.designationAr || type.label || type.code || '-';
   };
 
   // Data state
@@ -83,6 +81,14 @@ const StructureList = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    page: 0,
+    pageSize: 25,
+  });
+  const [totalElements, setTotalElements] = useState(0);
+  const [rowCountState, setRowCountState] = useState(totalElements);
+
   // Filter state
   const [searchText, setSearchText] = useState('');
   const [selectedTypeId, setSelectedTypeId] = useState<string>('');
@@ -91,70 +97,87 @@ const StructureList = () => {
   const [exportAnchorEl, setExportAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    loadData();
+    loadStructureTypes();
   }, []);
 
-  const loadData = async () => {
+  useEffect(() => {
+    loadStructures();
+  }, [paginationModel.page, paginationModel.pageSize, searchText, selectedTypeId]);
+
+  useEffect(() => {
+    setRowCountState((prevRowCountState) =>
+      totalElements !== undefined ? totalElements : prevRowCountState,
+    );
+  }, [totalElements]);
+
+  const loadStructureTypes = async () => {
     try {
-      setLoading(true);
-      const [structuresData, typesData] = await Promise.all([
-        structureService.getAll(),
-        structureTypeService.getAll(),
-      ]);
-
-      let structuresList: StructureDTO[] = [];
-      if (Array.isArray(structuresData)) {
-        structuresList = structuresData;
-      } else if (structuresData && typeof structuresData === 'object') {
-        structuresList = (structuresData as any).data || (structuresData as any).content || [];
-      }
-
+      const typesData = await structureTypeService.getAll();
       let typesList: StructureTypeDTO[] = [];
       if (Array.isArray(typesData)) {
         typesList = typesData;
       } else if (typesData && typeof typesData === 'object') {
         typesList = (typesData as any).data || (typesData as any).content || [];
       }
+      setStructureTypes(typesList);
+    } catch (err: any) {
+      console.error('Failed to load structure types:', err);
+    }
+  };
+
+  const loadStructures = async () => {
+    try {
+      setLoading(true);
+      
+      // Build sort parameter
+      const sort = 'code,asc';
+
+      // Use pageable endpoint
+      const response = await structureService.getPageable({
+        page: paginationModel.page,
+        size: paginationModel.pageSize,
+        sort: sort,
+      });
+
+      let structuresList = response.content || [];
+      
+      // Client-side filtering (if needed)
+      if (searchText || selectedTypeId) {
+        structuresList = structuresList.filter((structure) => {
+          const searchLower = searchText.toLowerCase();
+          const matchesSearch =
+            !searchText ||
+            (structure.code && structure.code.toLowerCase().includes(searchLower)) ||
+            (structure.designationFr && structure.designationFr.toLowerCase().includes(searchLower)) ||
+            (structure.designationEn && structure.designationEn.toLowerCase().includes(searchLower)) ||
+            (structure.designationAr && structure.designationAr.toLowerCase().includes(searchLower));
+
+          const matchesType =
+            !selectedTypeId ||
+            (structure.structureTypeId && structure.structureTypeId.toString() === selectedTypeId);
+
+          return matchesSearch && matchesType;
+        });
+      }
 
       setStructures(structuresList);
-      setStructureTypes(typesList);
+      setTotalElements(response.totalElements);
       setError('');
     } catch (err: any) {
       console.error('Failed to load structures:', err);
-      setError(err.message || 'Failed to load structures');
+      setError(err.message || t('common.error'));
       setStructures([]);
-      setStructureTypes([]);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter structures
-  const filteredStructures = useMemo(() => {
-    if (!Array.isArray(structures)) return [];
-
-    return structures.filter((structure) => {
-      const searchLower = searchText.toLowerCase();
-      const matchesSearch =
-        !searchText ||
-        (structure.code && structure.code.toLowerCase().includes(searchLower)) ||
-        (structure.designationFr && structure.designationFr.toLowerCase().includes(searchLower)) ||
-        (structure.designationEn && structure.designationEn.toLowerCase().includes(searchLower)) ||
-        (structure.designationAr && structure.designationAr.toLowerCase().includes(searchLower));
-
-      const matchesType =
-        !selectedTypeId ||
-        (structure.structureTypeId && structure.structureTypeId.toString() === selectedTypeId);
-
-      return matchesSearch && matchesType;
-    });
-  }, [structures, searchText, selectedTypeId]);
-
-  // DataGrid columns
-  const columns: GridColDef[] = [
+  // DataGrid columns with language-aware headers
+  const columns: GridColDef[] = useMemo(() => [
     {
       field: 'code',
-      headerName: t('common.code', { defaultValue: 'Code' }),
+      headerName: t('common.code'),
       width: 120,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -167,29 +190,28 @@ const StructureList = () => {
     },
     {
       field: 'designation',
-      headerName: t('common.designation', { defaultValue: 'Designation' }),
+      headerName: t('common.designation'),
       minWidth: 260,
       flex: 2,
-      valueGetter: (p) => getStructureDesignation(p.row as StructureDTO),
+      valueGetter: (params) => getStructureDesignation(params.row as StructureDTO),
     },
     {
       field: 'structureType',
-      headerName: t('common.type', { defaultValue: 'Type' }),
+      headerName: t('common.type'),
       width: 170,
       renderCell: (params) => {
         const row = params.row as any;
-        // backend might return either `structureType` or legacy `type`
         const typeObj = row.structureType || row.type;
         return typeObj ? (
           <Chip label={getStructureTypeLabel(typeObj)} size="small" color="primary" variant="outlined" />
         ) : (
-          <Chip label={t('common.notAvailable', { defaultValue: 'N/A' })} size="small" variant="outlined" />
+          <Chip label={t('common.notAvailable')} size="small" variant="outlined" />
         );
       },
     },
     {
       field: 'parentStructure',
-      headerName: t('administration.organization', { defaultValue: 'Organization' }),
+      headerName: t('administration.organization'),
       width: 200,
       renderCell: (params) => {
         const parent = (params.row as any).parentStructure as StructureDTO | undefined;
@@ -201,13 +223,13 @@ const StructureList = () => {
             </Typography>
           </Box>
         ) : (
-          <Chip label={t('common.root', { defaultValue: 'Root' })} size="small" color="success" variant="outlined" />
+          <Chip label={t('common.root')} size="small" color="success" variant="outlined" />
         );
       },
     },
     {
       field: 'actions',
-      headerName: t('common.actions', { defaultValue: 'Actions' }),
+      headerName: t('common.actions'),
       width: 130,
       align: 'center',
       headerAlign: 'center',
@@ -215,7 +237,7 @@ const StructureList = () => {
       filterable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title={t('common.edit', { defaultValue: 'Edit' })}>
+          <Tooltip title={t('common.edit')}>
             <IconButton
               size="small"
               onClick={() => handleEdit(params.row.id)}
@@ -227,7 +249,7 @@ const StructureList = () => {
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={t('common.delete', { defaultValue: 'Delete' })}>
+          <Tooltip title={t('common.delete')}>
             <IconButton
               size="small"
               onClick={() => handleDelete(params.row.id)}
@@ -242,35 +264,42 @@ const StructureList = () => {
         </Box>
       ),
     },
-  ];
+  ], [t, currentLanguage]);
 
   const handleCreate = () => navigate('/administration/structures/create');
   const handleEdit = (structureId: number) => navigate(`/administration/structures/${structureId}/edit`);
 
   const handleDelete = async (structureId: number) => {
-    if (window.confirm('Delete this structure?')) {
+    if (window.confirm(t('common.delete') + '?')) {
       try {
         await structureService.delete(structureId);
-        setSuccess(t('common.deleted', { defaultValue: 'Deleted' }));
-        loadData();
+        setSuccess(t('common.deleted'));
+        loadStructures();
       } catch (err: any) {
-        setError(err.message || 'Failed to delete structure');
+        setError(err.message || t('common.error'));
       }
     }
   };
 
   const handleRefresh = () => {
-    loadData();
-    setSuccess(t('common.refreshed', { defaultValue: 'Data refreshed' }));
+    loadStructures();
+    setSuccess(t('common.refreshed'));
   };
 
   const handleTypeFilterChange = (event: SelectChangeEvent<string>) => {
     setSelectedTypeId(event.target.value);
+    setPaginationModel({ ...paginationModel, page: 0 }); // Reset to first page
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value);
+    setPaginationModel({ ...paginationModel, page: 0 }); // Reset to first page
   };
 
   const handleClearFilters = () => {
     setSearchText('');
     setSelectedTypeId('');
+    setPaginationModel({ ...paginationModel, page: 0 });
   };
 
   // Export handlers
@@ -283,17 +312,17 @@ const StructureList = () => {
   };
 
   const handleExportCSV = () => {
-    setSuccess(t('common.exportedCSV', { defaultValue: 'Exported to CSV' }));
+    setSuccess(t('common.exportedCSV'));
     handleExportMenuClose();
   };
 
   const handleExportExcel = () => {
-    setSuccess(t('common.exportedExcel', { defaultValue: 'Exported to Excel' }));
+    setSuccess(t('common.exportedExcel'));
     handleExportMenuClose();
   };
 
   const handleExportPDF = () => {
-    setSuccess(t('common.exportedPDF', { defaultValue: 'Exported to PDF' }));
+    setSuccess(t('common.exportedPDF'));
     handleExportMenuClose();
   };
 
@@ -303,16 +332,16 @@ const StructureList = () => {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="h4" fontWeight={700} color="text.primary">
-            {t('administration.structures', { defaultValue: 'Organizational Structures' })}
+            {t('administration.structures')}
           </Typography>
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title={t('common.refresh', { defaultValue: 'Refresh' })}>
+            <Tooltip title={t('common.refresh')}>
               <IconButton onClick={handleRefresh} size="medium" color="primary">
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
             <Button variant="outlined" startIcon={<ExportIcon />} onClick={handleExportMenuOpen} sx={{ borderRadius: 2 }}>
-              {t('common.export', { defaultValue: 'Export' })}
+              {t('common.export')}
             </Button>
             <Button
               variant="contained"
@@ -320,12 +349,12 @@ const StructureList = () => {
               onClick={handleCreate}
               sx={{ borderRadius: 2, boxShadow: 2 }}
             >
-              {t('administration.createStructure', { defaultValue: 'Create Structure' })}
+              {t('administration.createStructure')}
             </Button>
           </Stack>
         </Box>
         <Typography variant="body2" color="text.secondary">
-          {t('administration.structuresSubtitle', { defaultValue: 'Manage organizational structures and hierarchies' })}
+          {t('administration.structuresSubtitle')}
         </Typography>
       </Box>
 
@@ -377,9 +406,9 @@ const StructureList = () => {
           <Stack spacing={2.5}>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <TextField
-                placeholder={t('common.searchByCodeOrDesignation', { defaultValue: 'Search by code or designation...' })}
+                placeholder={t('common.searchByCodeOrDesignation')}
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={handleSearchChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -391,14 +420,14 @@ const StructureList = () => {
               />
 
               <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel>{t('administration.structureType', { defaultValue: 'Structure Type' })}</InputLabel>
+                <InputLabel>{t('administration.structureType')}</InputLabel>
                 <Select
                   value={selectedTypeId}
                   onChange={handleTypeFilterChange}
-                  label={t('administration.structureType', { defaultValue: 'Structure Type' })}
+                  label={t('administration.structureType')}
                 >
                   <MenuItem value="">
-                    <em>{t('common.allTypes', { defaultValue: 'All Types' })}</em>
+                    <em>{t('common.allTypes')}</em>
                   </MenuItem>
                   {structureTypes.map((type) => (
                     <MenuItem key={type.id} value={type.id.toString()}>
@@ -410,17 +439,17 @@ const StructureList = () => {
 
               {(searchText || selectedTypeId) && (
                 <Button variant="outlined" onClick={handleClearFilters} sx={{ minWidth: 120 }}>
-                  {t('common.clearFilters', { defaultValue: 'Clear filters' })}
+                  {t('common.clearFilters')}
                 </Button>
               )}
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {filteredStructures.length} {t('common.results', { defaultValue: 'results' })}
-                {structures.length !== filteredStructures.length && (
+                {structures.length} {t('common.results')}
+                {totalElements !== structures.length && (
                   <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>
-                    (filtered from {structures.length})
+                    ({t('common.of')} {totalElements})
                   </Typography>
                 )}
               </Typography>
@@ -432,15 +461,14 @@ const StructureList = () => {
       {/* DataGrid */}
       <Paper elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
         <DataGrid
-          rows={filteredStructures}
+          rows={structures}
           columns={columns}
           loading={loading}
+          rowCount={rowCountState}
           pageSizeOptions={[10, 25, 50, 100]}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 25 },
-            },
-          }}
+          paginationModel={paginationModel}
+          paginationMode="server"
+          onPaginationModelChange={setPaginationModel}
           disableRowSelectionOnClick
           autoHeight
           sx={{
