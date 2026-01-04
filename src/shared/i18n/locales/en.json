@@ -31,7 +31,21 @@
     "clearFilters": "Clear Filters",
     "results": "results",
     "all": "All",
-    "legend": "Legend"
+    "legend": "Legend",
+    "code": "Code",
+    "designation": "Designation",
+    "type": "Type",
+    "refresh": "Refresh",
+    "root": "Root",
+    "notAvailable": "N/A",
+    "allTypes": "All Types",
+    "searchByCodeOrDesignation": "Search by code or designation...",
+    "deleted": "Deleted successfully",
+    "refreshed": "Data refreshed",
+    "exportedCSV": "Exported to CSV",
+    "exportedExcel": "Exported to Excel",
+    "exportedPDF": "Exported to PDF",
+    "none": "None"
   },
   "auth": {
     "login": "Login",
@@ -117,6 +131,13 @@
     "settings": "Settings",
     "overview": "Overview",
     "profile": "Profile"
+  },
+  "administration": {
+    "structures": "Organizational Structures",
+    "structuresSubtitle": "Manage organizational structures and hierarchies",
+    "createStructure": "Create Structure",
+    "structureType": "Structure Type",
+    "organization": "Organization"
   },
   "employee": {
     "title": "Employees",
