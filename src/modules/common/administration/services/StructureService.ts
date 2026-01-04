@@ -7,7 +7,7 @@
  * @created 12-28-2025
  * @updated 12-29-2025 - Set id=null in create
  * @updated 12-30-2025 - Added getAllList method
- * @updated 01-04-2026 - Added pageable support with server-side filtering
+ * @updated 01-04-2026 - Added pageable support with server-side filtering using /search?q
  */
 
 import axiosInstance from '../../../../shared/config/axios';
@@ -51,17 +51,22 @@ class StructureService {
       sort: params.sort || 'code,asc',
     };
 
-    // Add search filter if provided
-    if (params.search && params.search.trim()) {
-      queryParams.search = params.search.trim();
-    }
-
     // Add structure type filter if provided
     if (params.structureTypeId) {
       queryParams.structureTypeId = params.structureTypeId;
     }
 
-    const response = await axiosInstance.get<PageableResponse<StructureDTO>>(this.BASE_URL, {
+    // Use /search endpoint if search query is provided, otherwise use base endpoint
+    const endpoint = params.search && params.search.trim() 
+      ? `${this.BASE_URL}/search`
+      : this.BASE_URL;
+
+    // Add search query parameter if using search endpoint
+    if (params.search && params.search.trim()) {
+      queryParams.q = params.search.trim();
+    }
+
+    const response = await axiosInstance.get<PageableResponse<StructureDTO>>(endpoint, {
       params: queryParams,
     });
     return response.data;
