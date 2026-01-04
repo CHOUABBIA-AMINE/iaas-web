@@ -45,7 +45,8 @@
     "exportedCSV": "Exported to CSV",
     "exportedExcel": "Exported to Excel",
     "exportedPDF": "Exported to PDF",
-    "none": "None"
+    "none": "None",
+    "of": "of"
   },
   "auth": {
     "login": "Login",
@@ -359,6 +360,7 @@
     "designationEn": "English Designation",
     "designationAr": "Arabic Designation",
     "room": "Room",
+    "bloc": "Bloc",
     "filterByRoom": "Filter by Room",
     "searchPlaceholder": "Search by code or designation...",
     "subtitles": {

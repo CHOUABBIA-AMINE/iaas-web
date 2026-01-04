@@ -31,7 +31,22 @@
     "clearFilters": "مسح المرشحات",
     "results": "النتائج",
     "all": "الكل",
-    "legend": "دليل"
+    "legend": "دليل",
+    "code": "الرمز",
+    "designation": "التسمية",
+    "type": "النوع",
+    "refresh": "تحديث",
+    "root": "الجذر",
+    "notAvailable": "غير متوفر",
+    "allTypes": "جميع الأنواع",
+    "searchByCodeOrDesignation": "البحث بالرمز أو التسمية...",
+    "deleted": "تم الحذف بنجاح",
+    "refreshed": "تم تحديث البيانات",
+    "exportedCSV": "تم التصدير إلى CSV",
+    "exportedExcel": "تم التصدير إلى Excel",
+    "exportedPDF": "تم التصدير إلى PDF",
+    "none": "لا شيء",
+    "of": "من"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -117,6 +132,13 @@
     "settings": "الإعدادات",
     "overview": "نظرة عامة",
     "profile": "الملف الشخصي"
+  },
+  "administration": {
+    "structures": "الهياكل التنظيمية",
+    "structuresSubtitle": "إدارة الهياكل والتسلسلات الهرمية التنظيمية",
+    "createStructure": "إنشاء هيكل",
+    "structureType": "نوع الهيكل",
+    "organization": "المنظمة"
   },
   "employee": {
     "title": "الموظفين",
@@ -338,6 +360,7 @@
     "designationEn": "التسمية الإنجليزية",
     "designationAr": "التسمية العربية",
     "room": "الغرفة",
+    "bloc": "الكتلة",
     "filterByRoom": "تصفية حسب الغرفة",
     "searchPlaceholder": "البحث بالرمز أو التسمية...",
     "subtitles": {
