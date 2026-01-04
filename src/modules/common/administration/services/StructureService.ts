@@ -7,10 +7,28 @@
  * @created 12-28-2025
  * @updated 12-29-2025 - Set id=null in create
  * @updated 12-30-2025 - Added getAllList method
+ * @updated 01-04-2026 - Added pageable support
  */
 
 import axiosInstance from '../../../../shared/config/axios';
 import { StructureDTO } from '../dto/StructureDTO';
+
+interface PageableResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+interface PageableParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
 
 class StructureService {
   private readonly BASE_URL = '/common/administration/structure';
@@ -22,6 +40,17 @@ class StructureService {
 
   async getAllList(): Promise<StructureDTO[]> {
     return this.getAll();
+  }
+
+  async getPageable(params: PageableParams = {}): Promise<PageableResponse<StructureDTO>> {
+    const response = await axiosInstance.get<PageableResponse<StructureDTO>>(this.BASE_URL, {
+      params: {
+        page: params.page || 0,
+        size: params.size || 25,
+        sort: params.sort || 'code,asc',
+      },
+    });
+    return response.data;
   }
 
   async getById(id: number): Promise<StructureDTO> {
