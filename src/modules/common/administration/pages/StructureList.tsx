@@ -4,7 +4,7 @@
  * 
  * @author CHOUABBIA Amine
  * @created 12-28-2025
- * @updated 01-04-2026 - Use pageable requests and language-aware designations
+ * @updated 01-04-2026 - Server-side pagination and filtering
  */
 
 import { useState, useEffect, useMemo } from 'react';
@@ -91,6 +91,7 @@ const StructureList = () => {
 
   // Filter state
   const [searchText, setSearchText] = useState('');
+  const [searchInput, setSearchInput] = useState(''); // For debouncing
   const [selectedTypeId, setSelectedTypeId] = useState<string>('');
 
   // Export menu
@@ -99,6 +100,18 @@ const StructureList = () => {
   useEffect(() => {
     loadStructureTypes();
   }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== searchText) {
+        setSearchText(searchInput);
+        setPaginationModel({ ...paginationModel, page: 0 }); // Reset to first page
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     loadStructures();
@@ -132,35 +145,16 @@ const StructureList = () => {
       // Build sort parameter
       const sort = 'code,asc';
 
-      // Use pageable endpoint
+      // Use pageable endpoint with server-side filtering
       const response = await structureService.getPageable({
         page: paginationModel.page,
         size: paginationModel.pageSize,
         sort: sort,
+        search: searchText || undefined,
+        structureTypeId: selectedTypeId ? Number(selectedTypeId) : undefined,
       });
 
-      let structuresList = response.content || [];
-      
-      // Client-side filtering (if needed)
-      if (searchText || selectedTypeId) {
-        structuresList = structuresList.filter((structure) => {
-          const searchLower = searchText.toLowerCase();
-          const matchesSearch =
-            !searchText ||
-            (structure.code && structure.code.toLowerCase().includes(searchLower)) ||
-            (structure.designationFr && structure.designationFr.toLowerCase().includes(searchLower)) ||
-            (structure.designationEn && structure.designationEn.toLowerCase().includes(searchLower)) ||
-            (structure.designationAr && structure.designationAr.toLowerCase().includes(searchLower));
-
-          const matchesType =
-            !selectedTypeId ||
-            (structure.structureTypeId && structure.structureTypeId.toString() === selectedTypeId);
-
-          return matchesSearch && matchesType;
-        });
-      }
-
-      setStructures(structuresList);
+      setStructures(response.content || []);
       setTotalElements(response.totalElements);
       setError('');
     } catch (err: any) {
@@ -291,12 +285,12 @@ const StructureList = () => {
     setPaginationModel({ ...paginationModel, page: 0 }); // Reset to first page
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-    setPaginationModel({ ...paginationModel, page: 0 }); // Reset to first page
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(event.target.value);
   };
 
   const handleClearFilters = () => {
+    setSearchInput('');
     setSearchText('');
     setSelectedTypeId('');
     setPaginationModel({ ...paginationModel, page: 0 });
@@ -407,8 +401,8 @@ const StructureList = () => {
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <TextField
                 placeholder={t('common.searchByCodeOrDesignation')}
-                value={searchText}
-                onChange={handleSearchChange}
+                value={searchInput}
+                onChange={handleSearchInputChange}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -437,7 +431,7 @@ const StructureList = () => {
                 </Select>
               </FormControl>
 
-              {(searchText || selectedTypeId) && (
+              {(searchInput || selectedTypeId) && (
                 <Button variant="outlined" onClick={handleClearFilters} sx={{ minWidth: 120 }}>
                   {t('common.clearFilters')}
                 </Button>
@@ -446,12 +440,7 @@ const StructureList = () => {
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {structures.length} {t('common.results')}
-                {totalElements !== structures.length && (
-                  <Typography component="span" variant="body2" color="text.disabled" sx={{ ml: 1 }}>
-                    ({t('common.of')} {totalElements})
-                  </Typography>
-                )}
+                {totalElements} {t('common.results')}
               </Typography>
             </Box>
           </Stack>
